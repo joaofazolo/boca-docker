@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+    boca:
+        privileged: true
+        depends_on:
+            - boca-potsgres
+        build: 
+            context: .
+            dockerfile: docker/dev/web/Dockerfile
+        ports: 
+            - 8000:80
+        volumes:
+            - ./src:/var/www/boca/src
+
+    boca-jail:
+        privileged: true
+        depends_on:
+            - boca-potsgres
+        build: 
+            context: .
+            dockerfile: docker/dev/jail/Dockerfile
+
+    boca-potsgres:
+        image: postgres
+        container_name: boca-potsgres
+        environment:
+            POSTGRES_USER: bocauser
+            POSTGRES_PASSWORD: dAm0HAiC
+        ports: 
+            - 5432:5432
+        volumes: 
+            - db-data:/var/lib/postgresql/data
+
+volumes:
+    db-data:

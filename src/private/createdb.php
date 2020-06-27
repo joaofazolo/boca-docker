@@ -35,6 +35,7 @@ if(is_readable($bocadir . $ds . '..' .$ds . 'db.php')) {
 	require_once($bocadir . $ds . 'db.php');
 	@include_once($bocadir . $ds . 'version.php');
   } else {
+	  echo $bocadir . $ds . '..' .$ds . 'db.php';
 	  echo "unable to find db.php";
 	  exit;
   }

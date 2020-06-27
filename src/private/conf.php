@@ -23,13 +23,13 @@ function globalconf() {
  $conf['doenc']=false;
 
  $conf["dblocal"]="false"; // use unix socket to connect?
-$conf["dbhost"]="localhost";
-$conf["dbport"]="5432";
+$conf["dbhost"]= getenv('DB_HOST') ? getenv('DB_HOST') : "localhost";
+$conf["dbport"]= getenv('DB_PORT') ? getenv('DB_PORT') : "5432";
 
-  $conf["dbname"]="bocadb"; // name of the boca database
+  $conf["dbname"]= getenv('DB_NAME') ? getenv('DB_NAME') : "bocadb"; // name of the boca database
 
-  $conf["dbuser"]="bocauser"; // unprivileged boca user
-$conf["dbpass"]="dAm0HAiC";
+  $conf["dbuser"]= getenv('DB_USER') ? getenv('DB_USER') : "bocauser"; // unprivileged boca user
+$conf["dbpass"]= getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : "dAm0HAiC";
 
   $conf["dbsuperuser"]="bocauser"; // privileged boca user
 $conf["dbsuperpass"]="dAm0HAiC";
