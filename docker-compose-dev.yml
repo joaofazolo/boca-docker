@@ -4,7 +4,7 @@ services:
     boca:
         privileged: true
         depends_on:
-            - boca-potsgres
+            - boca-postgres
         build: 
             context: .
             dockerfile: docker/dev/web/Dockerfile
@@ -16,14 +16,14 @@ services:
     boca-jail:
         privileged: true
         depends_on:
-            - boca-potsgres
+            - boca-postgres
         build: 
             context: .
             dockerfile: docker/dev/jail/Dockerfile
 
-    boca-potsgres:
+    boca-postgres:
         image: postgres
-        container_name: boca-potsgres
+        container_name: boca-postgres
         environment:
             POSTGRES_USER: bocauser
             POSTGRES_PASSWORD: dAm0HAiC
