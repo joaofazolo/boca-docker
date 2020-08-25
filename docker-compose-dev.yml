@@ -16,8 +16,8 @@ services:
             - DB_PASSWORD=dAm0HAiC
         ports: 
             - 8000:80
-        volumes:
-            - ./src:/var/www/boca/src
+        # volumes:
+        #     - ./src:/var/www/boca/src
 
     boca-jail:
         privileged: true
@@ -42,8 +42,8 @@ services:
             POSTGRES_PASSWORD: dAm0HAiC
         ports: 
             - 5432:5432
-        volumes: 
-            - db-data:/var/lib/postgresql/data
+        # volumes: 
+        #     - db-data:/var/lib/postgresql/data
 
 volumes:
     db-data:
