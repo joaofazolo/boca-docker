@@ -8,6 +8,12 @@ services:
         build: 
             context: .
             dockerfile: docker/dev/web/Dockerfile
+        environment: 
+            - DB_HOST=boca-postgres
+            - DB_PORT=5432
+            - DB_NAME=bocadb
+            - DB_USER=bocauser
+            - DB_PASSWORD=dAm0HAiC
         ports: 
             - 8000:80
         volumes:
@@ -20,6 +26,13 @@ services:
         build: 
             context: .
             dockerfile: docker/dev/jail/Dockerfile
+        environment: 
+            - DB_HOST=boca-postgres
+            - DB_PORT=5432
+            - DB_NAME=bocadb
+            - DB_USER=bocauser
+            - DB_PASSWORD=dAm0HAiC
+            - PASSWD=dAm0HAiC
 
     boca-postgres:
         image: postgres
