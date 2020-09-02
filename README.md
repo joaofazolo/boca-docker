@@ -22,13 +22,18 @@ docker build -t boca-base .
 ```
 ### Compose up
 ```bash
-docker-compose -f docker-compose-dev.yml up -d --build
+docker-compose up -d --build
+```
+
+### Compose up for development
+```bash
+docker-compose -f docker-compose.yml -f docker-compose-dev.yml  up -d --build
 ```
 
 ### If running for the first time
 Create database
 ```bash
-docker-compose exec boca bash -c "cd src && php private/createdb.php"   
+docker-compose exec boca bash -c "cd src && php private/createdb.php"
 ```
 
 ### Starting BOCA jail

@@ -14,4 +14,4 @@ debian/boca.substvars
 debian/boca/
 debian/debhelper-build-stamp
 debian/files
-docker-compose.yml
+docker-compose-prod.yml
