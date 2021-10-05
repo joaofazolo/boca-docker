@@ -22,14 +22,11 @@ version: '3'
 
 services:
     boca-web:
+        image: ghcr.io/joaofazolo/boca-web
         privileged: true
         restart: unless-stopped
         depends_on:
             - boca-postgres
-        image: boca-web
-        build: 
-            context: .
-            dockerfile: docker/dev/web/Dockerfile
         environment: 
             - DB_HOST=boca-postgres
             - DB_PORT=5432
@@ -40,14 +37,11 @@ services:
             - 8000:80
 
     boca-jail:
+        image: ghcr.io/joaofazolo/boca-jail
         privileged: true
         restart: unless-stopped
         depends_on:
             - boca-postgres
-        image: boca-jail
-        build: 
-            context: .
-            dockerfile: docker/dev/jail/Dockerfile
         environment: 
             - DB_HOST=boca-postgres
             - DB_PORT=5432

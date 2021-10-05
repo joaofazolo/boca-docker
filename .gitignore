@@ -1,5 +1,12 @@
 tools/boca-submit-run-root-wrapper
 tools/safeexec
+src/balloons
+src/private/agentcode
+src/private/comp
+src/private/problemtmp
+src/private/runslog
+src/private/runtmp
+src/private/scoretmp
 debian/.debhelper/
 debian/boca-autojudge.substvars
 debian/boca-autojudge/
@@ -14,4 +21,4 @@ debian/boca.substvars
 debian/boca/
 debian/debhelper-build-stamp
 debian/files
-docker-compose-prod.yml
+.DS_Store
