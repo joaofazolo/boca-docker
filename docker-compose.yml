@@ -34,8 +34,18 @@ services:
             - DB_HOST=boca-postgres
             - DB_PORT=5432
             - DB_NAME=bocadb
+            # unprivileged boca user
             - DB_USER=bocauser
-            - DB_PASSWORD=topSecret
+            - DB_PASSWORD=dAm0HAiC
+            # privileged boca user
+            - DB_SUPER_USER=bocauser
+            - DB_SUPER_PASSWORD=dAm0HAiC
+            # initial password that is used by the admin user
+            # If not set, the default value is 'boca'
+            - BOCA_PASSWORD=boca
+            # secret key to be used in HTTP headers
+            # MUST set it with any random large enough sequence
+            - BOCA_KEY=GG56KFJtNDBGjJprR6ex
         ports: 
             - 8000:80
 
@@ -52,17 +62,19 @@ services:
             - DB_HOST=boca-postgres
             - DB_PORT=5432
             - DB_NAME=bocadb
+            # unprivileged boca user
             - DB_USER=bocauser
-            - DB_PASSWORD=topSecret
-            - PASSWD=topSecret
+            - DB_PASSWORD=dAm0HAiC
+            - PASSWD=dAm0HAiC
 
     boca-postgres:
         image: postgres
         container_name: boca-postgres
         restart: unless-stopped
         environment:
+            # privileged boca user
             POSTGRES_USER: bocauser
-            POSTGRES_PASSWORD: topSecret
+            POSTGRES_PASSWORD: dAm0HAiC
             # To avoid the following error with recent versions (> 13) of PorgreSQL:
             #
             #   FATAL:  password authentication failed for user "bocauser"

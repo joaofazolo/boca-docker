@@ -18,23 +18,23 @@
 // Last modified 05/aug/2012 by cassio@ime.usp.br
 
 function globalconf() {
- $conf["dbencoding"]="UTF8";
- $conf["dbclientenc"]="UTF8";
- $conf['doenc']=false;
+  $conf["dbencoding"]="UTF8";
+  $conf["dbclientenc"]="UTF8";
+  $conf['doenc']=false;
 
- $conf["dblocal"]="false"; // use unix socket to connect?
-$conf["dbhost"]= getenv('DB_HOST') ? getenv('DB_HOST') : "localhost";
-$conf["dbport"]= getenv('DB_PORT') ? getenv('DB_PORT') : "5432";
+  $conf["dblocal"]="false"; // use unix socket to connect?
+  $conf["dbhost"]= getenv('DB_HOST') ? getenv('DB_HOST') : "localhost";
+  $conf["dbport"]= getenv('DB_PORT') ? getenv('DB_PORT') : "5432";
 
   $conf["dbname"]= getenv('DB_NAME') ? getenv('DB_NAME') : "bocadb"; // name of the boca database
 
   $conf["dbuser"]= getenv('DB_USER') ? getenv('DB_USER') : "bocauser"; // unprivileged boca user
-$conf["dbpass"]= getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : "dAm0HAiC";
+  $conf["dbpass"]= getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : "dAm0HAiC";
 
-  $conf["dbsuperuser"]="bocauser"; // privileged boca user
-$conf["dbsuperpass"]="dAm0HAiC";
+  $conf["dbsuperuser"]= getenv('DB_SUPER_USER') ? getenv('DB_SUPER_USER') : "bocauser"; // privileged boca user
+  $conf["dbsuperpass"]= getenv('DB_SUPER_PASSWORD') ? getenv('DB_SUPER_PASSWORD') : "dAm0HAiC";
 
-        // note that it is fine to use the same user
+  // note that it is fine to use the same user
 
   // initial password that is used for the user admin -- set it
   // to something hard to guess if the server is available
@@ -43,12 +43,11 @@ $conf["dbsuperpass"]="dAm0HAiC";
   // eventually created come already with the password set to this
   // value. It is your task later to update these passwords to
   // some other values within the BOCA web interface.
-  $conf["basepass"]="boca";
+  $conf["basepass"]= getenv('BOCA_PASSWORD') ? getenv('BOCA_PASSWORD') : "boca";
 
   // secret key to be used in HTTP headers
   // you MUST set it with any random large enough sequence
-$conf["key"]="GG56KFJtNDBGjJprR6ex";
-
+  $conf["key"]= getenv('BOCA_KEY') ? getenv('BOCA_KEY') : "GG56KFJtNDBGjJprR6ex";
 
   // the following field is used by the autojudging script
   // set it with the ip of the computer running the script

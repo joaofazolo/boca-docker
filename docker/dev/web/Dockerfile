@@ -24,22 +24,28 @@ FROM boca-base
 MAINTAINER Jooo Vitor Alves Fazolo
 LABEL maintainer Joao Vitor Alves Fazolo
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2021-09-28
+ENV UPDATED_AT 2021-10-27
 
 # Basic setup to establish connection with database server
 RUN apt-get -y update && \
     apt-get -y dist-upgrade && \
     apt-get -y install \
+        git \
         postgresql-client && \
     apt-get clean
 
 COPY LICENSE /
 COPY docker/dev/web/init.sh /
 RUN chmod 777 /init.sh
-COPY LICENSE /var/www/boca/
-ADD doc /var/www/boca/doc
-ADD src /var/www/boca/src
-ADD tools /var/www/boca/tools
+
+RUN cd /var/www
+# Clone BOCA repository
+RUN git clone https://github.com/cassiopc/boca.git
+
+COPY LICENSE /var/www/boca/src/private
+# Copy modified source code files
+COPY src/private/conf.php /var/www/boca/src/private
+COPY src/private/createdb.php /var/www/boca/src/private
 
 RUN cd /var/www/boca && install tools/boca-fixssh /usr/sbin/ && \
 	install tools/cron-boca-fixssh /etc/cron.d/ && \
@@ -47,8 +53,6 @@ RUN cd /var/www/boca && install tools/boca-fixssh /usr/sbin/ && \
     cp tools/000-boca.conf /etc/apache2/sites-enabled/000-boca.conf && \
     chown -R www-data.www-data /var/www/boca && \
     chmod -R go-rwx /var/www/boca/src/private
-
-RUN rm -rf /var/www/boca/tools
 
 EXPOSE 80
  
