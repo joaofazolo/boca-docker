@@ -1,4 +1,4 @@
-name: Docker
+name: Build and publish Docker images on ghcr.io (new release)
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -55,7 +55,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}/boca-base
+          tags: ${{ github.repository }}/boca-base:latest
           labels: ${{ steps.meta.outputs.labels }}
                     
       - name: Build and push boca-web image
