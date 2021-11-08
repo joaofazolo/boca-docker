@@ -64,7 +64,7 @@ jobs:
           context: .
           file: boca-docker/docker/dev/web/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}/boca-web
+          tags: ${{ github.repository }}/boca-web:latest
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push boca-jail image
@@ -73,5 +73,5 @@ jobs:
           context: .
           file: boca-docker/docker/dev/jail/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}/boca-jail
+          tags: ${{ github.repository }}/boca-jail:latest
           labels: ${{ steps.meta.outputs.labels }}
