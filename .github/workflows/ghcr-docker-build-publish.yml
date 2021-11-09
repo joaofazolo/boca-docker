@@ -43,10 +43,10 @@ jobs:
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
-        id: meta
+        id: meta_base
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-base
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -55,8 +55,8 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ github.repository }}:1.0.0
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_base.outputs.tags }}
+          labels: ${{ steps.meta_base.outputs.labels }}
                     
       - name: Build and push boca-web image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
