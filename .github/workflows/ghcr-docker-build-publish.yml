@@ -1,4 +1,4 @@
-name: Build and publish Docker images on ghcr.io (new release)
+name: Build and publish Docker images on ghcr.io (nightly/new release)
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -7,6 +7,7 @@ name: Build and publish Docker images on ghcr.io (new release)
 
 on:
   schedule:
+    # Publish "nightly" build as release
     - cron: '15 9 * * *'
   push:
     # Publish semver tags as releases.
@@ -42,16 +43,28 @@ jobs:
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
+      - name: Extract Docker metadata (boca-base)
         id: meta_base
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-base
+          images: boca-base,${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-base
+
+      - name: Extract Docker metadata (boca-web)
+        id: meta_web
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-web
+
+      - name: Extract Docker metadata (boca-jail)
+        id: meta_jail
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-jail
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push boca-base image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
@@ -64,8 +77,8 @@ jobs:
           context: .
           file: boca-docker/docker/dev/web/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ github.repository }}:boca-web
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_web.outputs.tags }}
+          labels: ${{ steps.meta_web.outputs.labels }}
 
       - name: Build and push boca-jail image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -73,5 +86,5 @@ jobs:
           context: .
           file: boca-docker/docker/dev/jail/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ github.repository }}:boca-jail
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_jail.outputs.tags }}
+          labels: ${{ steps.meta_jail.outputs.labels }}
