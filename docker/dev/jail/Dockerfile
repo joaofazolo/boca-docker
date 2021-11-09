@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020 Joao Vitor Alves Fazolo
+# Copyright 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,10 +21,9 @@
 # Build on base image
 FROM boca-base
 
-MAINTAINER Joao Vitor Alves Fazolo
-LABEL maintainer Joao Vitor Alves Fazolo
+LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2021-10-27
+ENV UPDATED_AT 2021-11-09
 
 # Basic setup to establish connection with database server
 RUN apt-get -y update && \

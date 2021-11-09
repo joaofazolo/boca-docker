@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020 Joao Vitor Alves Fazolo
+# Copyright 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,10 +24,9 @@
 # https://groups.google.com/g/boca-users/c/QrgnJl-KAKw/m/uSuRO64_CQAJ
 FROM ubuntu:focal
 
-MAINTAINER Joao Vitor Alves Fazolo
-LABEL maintainer Joao Vitor Alves Fazolo
+LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2021-09-28
+ENV UPDATED_AT 2021-11-09
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND noninteractive

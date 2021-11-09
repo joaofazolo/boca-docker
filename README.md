@@ -104,7 +104,7 @@ docker push ghcr.io/joaofazolo/boca-jail:1.0.0
 
 ## LICENSE:
 
-Copyright (C) 2020 João Vitor Alves Fazolo
+Copyright (C) 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
