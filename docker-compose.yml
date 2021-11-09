@@ -30,7 +30,8 @@ services:
         build: 
             context: .
             dockerfile: docker/dev/web/Dockerfile
-        environment: 
+        environment:
+            # Database configuration
             - DB_HOST=boca-postgres
             - DB_PORT=5432
             - DB_NAME=bocadb
@@ -58,7 +59,8 @@ services:
         build: 
             context: .
             dockerfile: docker/dev/jail/Dockerfile
-        environment: 
+        environment:
+            # Database configuration
             - DB_HOST=boca-postgres
             - DB_PORT=5432
             - DB_NAME=bocadb
@@ -72,6 +74,7 @@ services:
         container_name: boca-postgres
         restart: unless-stopped
         environment:
+            # Database configuration
             # privileged boca user
             POSTGRES_USER: bocauser
             POSTGRES_PASSWORD: dAm0HAiC
