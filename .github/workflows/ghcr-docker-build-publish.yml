@@ -75,7 +75,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          file: boca-docker/docker/dev/web/Dockerfile
+          file: docker/dev/web/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_web.outputs.tags }}
           labels: ${{ steps.meta_web.outputs.labels }}
@@ -84,7 +84,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          file: boca-docker/docker/dev/jail/Dockerfile
+          file: docker/dev/jail/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_jail.outputs.tags }}
           labels: ${{ steps.meta_jail.outputs.labels }}
