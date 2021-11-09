@@ -47,7 +47,7 @@ jobs:
         id: meta_base
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: boca-base,${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-base
+          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-base
 
       - name: Extract Docker metadata (boca-web)
         id: meta_web
