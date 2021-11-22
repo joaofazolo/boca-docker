@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020 Joao Vitor Alves Fazolo
+# Copyright 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,41 +22,56 @@ version: '3'
 
 services:
     boca-web:
-        image: ghcr.io/joaofazolo/boca-web
+        image: ghcr.io/joaofazolo/boca-docker/boca-web
         privileged: true
         restart: unless-stopped
         depends_on:
             - boca-postgres
-        environment: 
+        environment:
+            # Database configuration
             - DB_HOST=boca-postgres
             - DB_PORT=5432
             - DB_NAME=bocadb
+            # unprivileged boca user
             - DB_USER=bocauser
-            - DB_PASSWORD=topSecret
+            - DB_PASSWORD=dAm0HAiC
+            # privileged boca user
+            - DB_SUPER_USER=bocauser
+            - DB_SUPER_PASSWORD=dAm0HAiC
+            # initial password that is used by the admin user (web app)
+            # If not set, the default value is 'boca'
+            - BOCA_PASSWORD=boca
+            # secret key to be used in HTTP headers
+            # MUST set it with any random large enough sequence
+            - BOCA_KEY=GG56KFJtNDBGjJprR6ex
         ports: 
             - 8000:80
 
     boca-jail:
-        image: ghcr.io/joaofazolo/boca-jail
+        image: ghcr.io/joaofazolo/boca-docker/boca-jail
         privileged: true
         restart: unless-stopped
         depends_on:
             - boca-postgres
-        environment: 
+        environment:
+            # Database configuration
             - DB_HOST=boca-postgres
             - DB_PORT=5432
             - DB_NAME=bocadb
+            # unprivileged boca user
             - DB_USER=bocauser
-            - DB_PASSWORD=topSecret
-            - PASSWD=topSecret
+            - DB_PASSWORD=dAm0HAiC
+            - PASSWD=dAm0HAiC
 
     boca-postgres:
         image: postgres
         container_name: boca-postgres
         restart: unless-stopped
         environment:
+            # Database configuration
+            # privileged boca user
             POSTGRES_USER: bocauser
-            POSTGRES_PASSWORD: topSecret
+            POSTGRES_PASSWORD: dAm0HAiC
             # To avoid the following error with recent versions (> 13) of PorgreSQL:
             #
             #   FATAL:  password authentication failed for user "bocauser"

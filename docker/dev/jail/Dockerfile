@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020 Joao Vitor Alves Fazolo
+# Copyright 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,27 +21,32 @@
 # Build on base image
 FROM boca-base
 
-MAINTAINER Joao Vitor Alves Fazolo
-LABEL maintainer Joao Vitor Alves Fazolo
+LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2021-09-28
+ENV UPDATED_AT 2021-11-09
 
 # Basic setup to establish connection with database server
 RUN apt-get -y update && \
     apt-get -y dist-upgrade && \
     apt-get -y install \
+        git \
         postgresql-client && \
     apt-get clean
 
 COPY LICENSE /
 COPY docker/dev/jail/init.sh /
 RUN chmod 777 /init.sh
-COPY LICENSE /var/www/boca/
-ADD doc /var/www/boca/doc
+
+RUN cd /var/www
+# Clone BOCA repository
 # Although Jail does not depend on the web application, it requires
 # src/db.php and includes a bunch of other php files in this folder.
-ADD src /var/www/boca/src
-ADD tools /var/www/boca/tools
+RUN git clone https://github.com/cassiopc/boca.git
+
+COPY LICENSE /var/www/boca/src/private
+# Copy modified source code files
+COPY src/private/conf.php /var/www/boca/src/private
+COPY src/private/createdb.php /var/www/boca/src/private
 
 RUN cd /var/www/boca && install tools/boca-fixssh /usr/sbin/ && \
     install tools/cron-boca-fixssh /etc/cron.d/ && \
