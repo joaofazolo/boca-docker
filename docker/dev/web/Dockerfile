@@ -23,7 +23,7 @@ FROM boca-base
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2021-11-09
+ENV UPDATED_AT 2021-11-24
 
 # Basic setup to establish connection with database server
 RUN apt-get -y update && \
@@ -32,6 +32,13 @@ RUN apt-get -y update && \
         git \
         postgresql-client && \
     apt-get clean
+
+# Install libraries
+RUN apt-get -y update && \
+    apt-get -y install \
+        # Required to build ballons \
+        php-gd && \
+    apt-get -y clean
 
 COPY LICENSE /
 COPY docker/dev/web/init.sh /
