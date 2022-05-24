@@ -55,7 +55,7 @@ cd boca-docker
 * Then, build the base image:
 
 ```bash
-docker build -t boca-base .
+docker build -t boca-base . -f docker/dev/base/Dockerfile
 ```
 
 * Next, compose it up with the command below (this might take a while, sit back and relax):
