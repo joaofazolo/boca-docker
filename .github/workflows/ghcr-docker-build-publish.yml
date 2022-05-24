@@ -31,7 +31,7 @@ jobs:
       - name: Checkout repository and build Docker image
         uses: actions/checkout@v2
         # Necessary to build it locally for boca-web and boca-jail
-        #run: docker build -t boca-base .
+        #run: docker build -t boca-base . -f docker/dev/base/Dockerfile
 
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
@@ -69,6 +69,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
+          file: docker/dev/base/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
@@ -77,6 +78,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
+          file: docker/dev/base/Dockerfile
           push: false
           tags: boca-base
           

@@ -78,11 +78,3 @@ services:
             # privileged boca user
             POSTGRES_USER: bocauser
             POSTGRES_PASSWORD: dAm0HAiC
-            # To avoid the following error with recent versions (> 13) of PorgreSQL:
-            #
-            #   FATAL:  password authentication failed for user "bocauser"
-            #   
-            #   You may also use POSTGRES_HOST_AUTH_METHOD=trust to allow all
-            #   connections without a password. This is *not* recommended. See
-            #   PostgreSQL documentation about "trust"
-            POSTGRES_HOST_AUTH_METHOD: trust
