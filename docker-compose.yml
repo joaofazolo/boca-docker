@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
+# Copyright Universidade Federal do Espirito Santo (Ufes)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ version: '3'
 
 services:
     boca-web:
-        privileged: true
         restart: unless-stopped
         depends_on:
             - boca-postgres
@@ -51,7 +50,6 @@ services:
             - 8000:80
 
     boca-jail:
-        privileged: true
         restart: unless-stopped
         depends_on:
             - boca-postgres
