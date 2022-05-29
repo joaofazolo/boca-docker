@@ -26,7 +26,7 @@ docker container ls -a
 docker-compose -f docker-compose-prod.yml up -d
 ```
 
-Voilà! The application should be running now. 
+Voilà! The application should be running now.
 
 * Open a web browser and visit the URL http://localhost:8000/boca. First, create and activate a BOCA contest (user: system | password: boca). Then, login as admin  (user: admin | password: boca) to manage users, problems, languages etc. NOTE: consider changing these passwords later on.
 
@@ -41,6 +41,28 @@ docker start docker stop boca-docker_boca-jail_1
 
 ```bash
 docker-compose -f docker-compose-prod.yml down
+```
+
+## HOW TO DEPLOY IT TO A SWARM:
+
+* Create the stack (make sure Docker Engine is already running in [swarm mode](https://docs.docker.com/engine/swarm/swarm-mode/)):
+
+```bash
+docker stack deploy --compose-file docker-compose-prod.yml boca-stack
+```
+
+* Then, check that the stack is running:
+
+```bash
+docker stack services boca-stack
+```
+
+* Open a web browser and follow the instructions described above.
+
+* To bring the stack down:
+
+```bash
+docker stack rm boca-stack
 ```
 
 ## HOW TO BUILD IT:
@@ -104,7 +126,7 @@ docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.0.0
 
 ## LICENSE:
 
-Copyright (C) 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
+Copyright Universidade Federal do Espirito Santo (Ufes)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
