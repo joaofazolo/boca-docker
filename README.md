@@ -121,7 +121,7 @@ docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.0.0
 
 ## LICENSE:
 
-Copyright 2020-2021 Universidade Federal do Espirito Santo (Ufes)
+Copyright 2020-2022 Universidade Federal do Espirito Santo (Ufes)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
