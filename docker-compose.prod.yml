@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright Universidade Federal do Espirito Santo (Ufes)
+# Copyright 2020-2022 Universidade Federal do Espirito Santo (Ufes)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 version: '3.8'
 
 services:
-
     # web app
     boca-web:
         image: ghcr.io/joaofazolo/boca-docker/boca-web
@@ -38,28 +37,7 @@ services:
                     cpus: '0.25'
                     memory: 512M
             restart_policy:
-                condition: any
-        depends_on:
-            - boca-postgres
-        environment:
-            # Database configuration
-            - DB_HOST=boca-postgres
-            - DB_PORT=5432
-            - DB_NAME=bocadb
-            # unprivileged boca user
-            - DB_USER=bocauser
-            - DB_PASSWORD=dAm0HAiC
-            # privileged boca user
-            - DB_SUPER_USER=bocauser
-            - DB_SUPER_PASSWORD=dAm0HAiC
-            # initial password that is used by the admin user (web app)
-            # If not set, the default value is 'boca'
-            - BOCA_PASSWORD=boca
-            # secret key to be used in HTTP headers
-            # MUST set it with any random large enough sequence
-            - BOCA_KEY=GG56KFJtNDBGjJprR6ex
-        ports: 
-            - 8000:80
+                condition: on-failure
         networks:
             - frontend
             - backend
@@ -80,18 +58,7 @@ services:
                     cpus: '0.25'
                     memory: 512M
             restart_policy:
-                condition: any
-        depends_on:
-            - boca-postgres
-        environment:
-            # Database configuration
-            - DB_HOST=boca-postgres
-            - DB_PORT=5432
-            - DB_NAME=bocadb
-            # unprivileged boca user
-            - DB_USER=bocauser
-            - DB_PASSWORD=dAm0HAiC
-            - PASSWD=dAm0HAiC
+                condition: on-failure
         networks:
             - backend
 
@@ -111,12 +78,7 @@ services:
                     cpus: '0.25'
                     memory: 1024M
             restart_policy:
-                condition: any
-        environment:
-            # Database configuration
-            # privileged boca user
-            POSTGRES_USER: bocauser
-            POSTGRES_PASSWORD: dAm0HAiC
+                condition: on-failure
         networks:
             - backend
 

@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright Universidade Federal do Espirito Santo (Ufes)
+# Copyright 2020-2022 Universidade Federal do Espirito Santo (Ufes)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,22 +18,39 @@
 #
 #========================================================================
 
-version: '3'
+version: '3.8'
 
 services:
+    boca-base:
+        image: boca-base
+        build: 
+            context: .
+            dockerfile: docker/dev/base/Dockerfile
+        container_name: boca-base
+
     boca-web:
-    #    volumes:
-    #        - ./src:/var/www/boca/src
+        image: boca-web
+        build: 
+            context: .
+            dockerfile: docker/dev/web/Dockerfile
+        # CAUTION: this bind will overwrite BOCA website. For future development...
+        # volumes:
+        #     - ./src:/var/www/boca/src
+
+    boca-jail:
+        image: boca-jail
+        build: 
+            context: .
+            dockerfile: docker/dev/jail/Dockerfile
 
     boca-postgres:
-        ports: 
-            - 5432:5432
+        image: postgres
         volumes: 
             - db-data:/var/lib/postgresql/data
 
     boca-adminer:
         image: adminer
-        restart: unless-stopped
+        container_name: boca-adminer
         ports:
             - 8080:8080
 

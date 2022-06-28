@@ -20,10 +20,10 @@ docker images -a
 docker container ls -a
 ```
 
-* Download the file `docker-compose-prod.yml` and place it in the shell current directory. Recommendation: open the file in a text editor and change all database passwords. Then,
+* Download the files `docker-compose.yml` and `docker-compose.prod.yml`, and place them in the shell current directory. Recommendation: open the file `docker-compose.yml` in a text editor and change all passwords. Then,
 
 ```bash
-docker-compose -f docker-compose-prod.yml up -d
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 Voilà! The application should be running now.
@@ -40,7 +40,7 @@ docker start docker stop boca-docker_boca-jail_1
 * To stop the application (considering that the shell is in the same directory):
 
 ```bash
-docker-compose -f docker-compose-prod.yml down
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
 ```
 
 ## HOW TO DEPLOY IT TO A SWARM:
@@ -48,7 +48,7 @@ docker-compose -f docker-compose-prod.yml down
 * Create the stack (make sure Docker Engine is already running in [swarm mode](https://docs.docker.com/engine/swarm/swarm-mode/)):
 
 ```bash
-docker stack deploy --compose-file docker-compose-prod.yml boca-stack
+docker stack deploy --compose-file docker-compose.yml -c docker-compose.prod.yml boca-stack
 ```
 
 * Then, check that the stack is running:
@@ -74,16 +74,10 @@ git clone https://github.com/joaofazolo/boca-docker.git
 cd boca-docker
 ```
 
-* Then, build the base image:
+* Then, compose it up with the command below (this might take a while, sit back and relax):
 
 ```bash
-docker build -t boca-base . -f docker/dev/base/Dockerfile
-```
-
-* Next, compose it up with the command below (this might take a while, sit back and relax):
-
-```bash
-docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d --build
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
 Follow the instructions above to set up the application.
@@ -91,12 +85,13 @@ Follow the instructions above to set up the application.
 * To stop it:
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose-dev.yml down
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
 ```
 
 * Alternatively, it is possible to build images without launching the application.
 
 ```bash
+docker build -t boca-base . -f docker/dev/base/Dockerfile
 docker build -t boca-web . -f docker/dev/web/Dockerfile
 docker build -t boca-jail . -f docker/dev/jail/Dockerfile
 ```
@@ -126,7 +121,7 @@ docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.0.0
 
 ## LICENSE:
 
-Copyright Universidade Federal do Espirito Santo (Ufes)
+Copyright 2020-2021 Universidade Federal do Espirito Santo (Ufes)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
