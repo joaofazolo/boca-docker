@@ -1,0 +1,19 @@
+{ 
+    "docker.commands.composeUp": [
+        {
+            "label": "dev-match",
+            "template": "docker-compose -f docker-compose.yml ${configurationFile} up -d --build",
+            "match": "dev"
+        },
+        {
+            "label": "prod-match",
+            "template": "docker-compose -f docker-compose.yml ${configurationFile} up -d",
+            "match": "prod"
+        }
+    ],
+    "docker.commands.composeDown": [
+        {
+            "template": "docker-compose -f docker-compose.yml ${configurationFile} down"
+        }
+    ]
+}

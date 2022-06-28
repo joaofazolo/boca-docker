@@ -1,5 +1,3 @@
-tools/boca-submit-run-root-wrapper
-tools/safeexec
 src/balloons
 src/private/agentcode
 src/private/comp
@@ -7,18 +5,4 @@ src/private/problemtmp
 src/private/runslog
 src/private/runtmp
 src/private/scoretmp
-debian/.debhelper/
-debian/boca-autojudge.substvars
-debian/boca-autojudge/
-debian/boca-common.substvars
-debian/boca-common/
-debian/boca-db.substvars
-debian/boca-db/
-debian/boca-submission-tools/
-debian/boca-web.substvars
-debian/boca-web/
-debian/boca.substvars
-debian/boca/
-debian/debhelper-build-stamp
-debian/files
 .DS_Store
