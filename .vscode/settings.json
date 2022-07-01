@@ -2,12 +2,12 @@
     "docker.commands.composeUp": [
         {
             "label": "dev-match",
-            "template": "docker-compose -f docker-compose.yml ${configurationFile} up -d --build",
+            "template": "docker-compose -f docker-compose.yml ${configurationFile} up --build",
             "match": "dev"
         },
         {
             "label": "prod-match",
-            "template": "docker-compose -f docker-compose.yml ${configurationFile} up -d",
+            "template": "docker-compose -f docker-compose.yml ${configurationFile} up",
             "match": "prod"
         }
     ],
