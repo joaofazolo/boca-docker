@@ -9,9 +9,29 @@
             "label": "prod-match",
             "template": "docker-compose -f docker-compose.yml ${configurationFile} up",
             "match": "prod"
+        },
+        {
+            "label": "secrets-match",
+            "template": "docker-compose ${configurationFile} up",
+            "match": "secrets"
+        },
+        {
+            "label": "env-match",
+            "template": "docker-compose ${configurationFile} up",
+            "match": "variables"
         }
     ],
     "docker.commands.composeDown": [
+        {
+            "label": "secrets-match",
+            "template": "docker-compose ${configurationFile} down",
+            "match": "secrets"
+        },
+        {
+            "label": "env-match",
+            "template": "docker-compose ${configurationFile} down",
+            "match": "variables"
+        },
         {
             "template": "docker-compose -f docker-compose.yml ${configurationFile} down"
         }
