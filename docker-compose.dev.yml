@@ -21,12 +21,12 @@
 version: '3.8'
 
 services:
+
     boca-base:
         image: boca-base
         build: 
             context: .
             dockerfile: docker/dev/base/Dockerfile
-        container_name: boca-base
 
     boca-web:
         image: boca-web
@@ -43,10 +43,9 @@ services:
             context: .
             dockerfile: docker/dev/jail/Dockerfile
 
-    boca-postgres:
-        image: postgres
-        volumes: 
-            - db-data:/var/lib/postgresql/data
+    # boca-db:
+    #     volumes: 
+    #         - db-data:/var/lib/postgresql/data
 
     boca-adminer:
         image: adminer
@@ -54,5 +53,6 @@ services:
         ports:
             - 8080:8080
 
-volumes:
-    db-data:
+# volumes:
+#
+#     db-data:

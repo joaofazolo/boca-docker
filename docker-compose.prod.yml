@@ -24,6 +24,8 @@ services:
     # web app
     boca-web:
         image: ghcr.io/joaofazolo/boca-docker/boca-web
+        depends_on:
+            - boca-db
         deploy:
             mode: global
             placement:
@@ -45,6 +47,8 @@ services:
     # online judge
     boca-jail:
         image: ghcr.io/joaofazolo/boca-docker/boca-jail
+        depends_on:
+            - boca-db
         deploy:
             mode: replicated
             replicas: 1
@@ -63,7 +67,7 @@ services:
             - backend
 
     # database
-    boca-postgres:
+    boca-db:
         image: postgres
         deploy:
             mode: global
