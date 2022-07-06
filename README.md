@@ -89,8 +89,6 @@ docker-compose -f tests/variables/docker-compose.yml up -d
 
 ```bash
 docker stack deploy --compose-file tests/variables/docker-compose.yml boca-stack
-
-development
 ```
 
 **`BOCA_DB_HOST`**
