@@ -23,16 +23,16 @@ function globalconf() {
   $conf['doenc']=false;
 
   $conf["dblocal"]="false"; // use unix socket to connect?
-  $conf["dbhost"]= getenv('DB_HOST') ? getenv('DB_HOST') : "localhost";
-  $conf["dbport"]= getenv('DB_PORT') ? getenv('DB_PORT') : "5432";
+  $conf["dbhost"]= getenv('BOCA_DB_HOST') ? getenv('BOCA_DB_HOST') : "localhost";
+  $conf["dbport"]="5432";
 
-  $conf["dbname"]= getenv('DB_NAME') ? getenv('DB_NAME') : "bocadb"; // name of the boca database
+  $conf["dbname"]= getenv('BOCA_DB_NAME') ? getenv('BOCA_DB_NAME') : "bocadb"; // name of the boca database
 
-  $conf["dbuser"]= getenv('DB_USER') ? getenv('DB_USER') : "bocauser"; // unprivileged boca user
-  $conf["dbpass"]= getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : "dAm0HAiC";
+  $conf["dbuser"]= getenv('BOCA_DB_USER') ? getenv('BOCA_DB_USER') : "bocauser"; // unprivileged boca user
+  $conf["dbpass"]= getenv('BOCA_DB_PASSWORD') ? getenv('BOCA_DB_PASSWORD') : "dAm0HAiC";
 
-  $conf["dbsuperuser"]= getenv('DB_SUPER_USER') ? getenv('DB_SUPER_USER') : "bocauser"; // privileged boca user
-  $conf["dbsuperpass"]= getenv('DB_SUPER_PASSWORD') ? getenv('DB_SUPER_PASSWORD') : "dAm0HAiC";
+  $conf["dbsuperuser"]= getenv('BOCA_DB_SUPER_USER') ? getenv('BOCA_DB_SUPER_USER') : "bocauser"; // privileged boca user
+  $conf["dbsuperpass"]= getenv('BOCA_DB_SUPER_PASSWORD') ? getenv('BOCA_DB_SUPER_PASSWORD') : "dAm0HAiC";
 
   // note that it is fine to use the same user
 

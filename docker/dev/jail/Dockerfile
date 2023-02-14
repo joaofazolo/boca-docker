@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
+# Copyright 2020-2022 Universidade Federal do Espirito Santo (Ufes)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ FROM boca-base
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2021-11-09
+ENV UPDATED_AT 2022-07-03
 
 # Basic setup to establish connection with database server
 RUN apt-get -y update && \
@@ -46,7 +46,6 @@ RUN git clone https://github.com/cassiopc/boca.git
 COPY LICENSE /var/www/boca/src/private
 # Copy modified source code files
 COPY src/private/conf.php /var/www/boca/src/private
-COPY src/private/createdb.php /var/www/boca/src/private
 
 RUN cd /var/www/boca && install tools/boca-fixssh /usr/sbin/ && \
     install tools/cron-boca-fixssh /etc/cron.d/ && \
@@ -67,16 +66,9 @@ RUN cd /var/www/boca && \
     chmod 700 /usr/sbin/boca-autojudge && \
     chmod 700 /usr/sbin/boca-config-dbhost && \
     chmod 700 /usr/sbin/boca-fixssh && \
-    cp tools/boca.conf /etc/ && \
-    echo "bdserver=boca-postgres" >> /etc/boca.conf && \
-    echo "bdcreated=y" >> /etc/boca.conf
-
-RUN echo "#!/bin/sh\n\
-BOCAIP=boca-web" > /etc/bocaip
+    cp tools/boca.conf /etc/
 
 RUN boca-createjail || true
-
-EXPOSE 80
  
 WORKDIR /var/www/boca
 

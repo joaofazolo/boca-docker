@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020-2021 Joao Vitor Alves Fazolo and Rodrigo Laiola Guimaraes
+# Copyright 2020-2022 Universidade Federal do Espirito Santo (Ufes)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,63 +18,28 @@
 #
 #========================================================================
 
-version: '3'
+version: '3.8'
 
 services:
+
+    # web app
     boca-web:
-        privileged: true
-        restart: unless-stopped
-        depends_on:
-            - boca-postgres
         image: boca-web
-        build: 
-            context: .
-            dockerfile: docker/dev/web/Dockerfile
         environment:
-            # Database configuration
-            - DB_HOST=boca-postgres
-            - DB_PORT=5432
-            - DB_NAME=bocadb
-            # unprivileged boca user
-            - DB_USER=bocauser
-            - DB_PASSWORD=dAm0HAiC
-            # privileged boca user
-            - DB_SUPER_USER=bocauser
-            - DB_SUPER_PASSWORD=dAm0HAiC
-            # initial password that is used by the admin user
-            # If not set, the default value is 'boca'
-            - BOCA_PASSWORD=boca
-            # secret key to be used in HTTP headers
-            # MUST set it with any random large enough sequence
-            - BOCA_KEY=GG56KFJtNDBGjJprR6ex
+            # database configuration
+            # privileged user password
+            - BOCA_DB_SUPER_PASSWORD=superpass
         ports: 
             - 8000:80
 
+    # online judge
     boca-jail:
-        privileged: true
-        restart: unless-stopped
-        depends_on:
-            - boca-postgres
         image: boca-jail
-        build: 
-            context: .
-            dockerfile: docker/dev/jail/Dockerfile
-        environment:
-            # Database configuration
-            - DB_HOST=boca-postgres
-            - DB_PORT=5432
-            - DB_NAME=bocadb
-            # unprivileged boca user
-            - DB_USER=bocauser
-            - DB_PASSWORD=dAm0HAiC
-            - PASSWD=dAm0HAiC
 
-    boca-postgres:
+    # database
+    boca-db:
         image: postgres
-        container_name: boca-postgres
-        restart: unless-stopped
         environment:
-            # Database configuration
-            # privileged boca user
-            POSTGRES_USER: bocauser
-            POSTGRES_PASSWORD: dAm0HAiC
+            # database configuration
+            # privileged user password
+            POSTGRES_PASSWORD: superpass

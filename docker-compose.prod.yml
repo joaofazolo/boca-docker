@@ -1,0 +1,92 @@
+#========================================================================
+# Copyright 2020-2022 Universidade Federal do Espirito Santo (Ufes)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# 
+# This program is released under license GNU GPL v3+ license.
+#
+#========================================================================
+
+version: '3.8'
+
+services:
+    # web app
+    boca-web:
+        image: ghcr.io/joaofazolo/boca-docker/boca-web
+        depends_on:
+            - boca-db
+        deploy:
+            mode: global
+            placement:
+                constraints:
+                    - "node.role==manager"
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 1024M
+                reservations:
+                    cpus: '0.25'
+                    memory: 512M
+            restart_policy:
+                condition: on-failure
+        networks:
+            - frontend
+            - backend
+
+    # online judge
+    boca-jail:
+        image: ghcr.io/joaofazolo/boca-docker/boca-jail
+        depends_on:
+            - boca-db
+        deploy:
+            mode: replicated
+            replicas: 1
+            placement:
+                max_replicas_per_node: 8
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 1024M
+                reservations:
+                    cpus: '0.25'
+                    memory: 512M
+            restart_policy:
+                condition: on-failure
+        networks:
+            - backend
+
+    # database
+    boca-db:
+        image: postgres
+        deploy:
+            mode: global
+            placement:
+                constraints:
+                    - "node.role==manager"
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 2048M
+                reservations:
+                    cpus: '0.25'
+                    memory: 1024M
+            restart_policy:
+                condition: on-failure
+        networks:
+            - backend
+
+networks:
+    frontend: # visible to proxy
+    backend: # hidden from the outside world
+        internal: true
