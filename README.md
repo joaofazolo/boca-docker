@@ -116,9 +116,9 @@ docker build -t boca-jail . -f docker/dev/jail/Dockerfile
 
 ```bash
 docker images -a
-docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.0.0
-docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.0.0
-docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.0.0
+docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.1.0
+docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.1.0
+docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.1.0
 ```
 
 * Log in into GitHub's Container Registry using your username and personal access token (details [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry)).
@@ -128,9 +128,9 @@ docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.0.0
 * Push the container images to repository.
 
 ```bash
-docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.0.0
-docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.0.0
-docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.0.0
+docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.1.0
+docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.1.0
+docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.1.0
 ```
 
 ## LICENSE:
