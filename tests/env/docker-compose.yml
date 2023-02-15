@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020-2022 Universidade Federal do Espirito Santo (Ufes)
+# Copyright Universidade Federal do Espirito Santo (Ufes)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,46 +20,45 @@
 
 version: '3.8'
 
+# using extension fields to reduce duplication
+x-env: &db-common
+    # database configuration
+    BOCA_DB_HOST: boca-postgres
+    # unprivileged boca user
+    BOCA_DB_USER: myuser
+    BOCA_DB_PASSWORD: mypass
+    BOCA_DB_NAME: mydb
+
 services:
 
     # web app
     boca-app:
-        image: ghcr.io/joaofazolo/boca-docker/boca-web
+        image: ghcr.io/joaofazolo/boca-docker/boca-web:latest
         environment:
-            # database configuration
-            - BOCA_DB_HOST=boca-postgres
+            <<: *db-common
             # privileged boca user
-            - BOCA_DB_SUPER_USER=superuser
-            - BOCA_DB_SUPER_PASSWORD=superpass
-            # unprivileged boca user
-            - BOCA_DB_USER=myuser
-            - BOCA_DB_PASSWORD=mypass
-            - BOCA_DB_NAME=mydb
+            BOCA_DB_SUPER_USER: superuser
+            BOCA_DB_SUPER_PASSWORD: superpass
             # initial password that is used by the admin user (web app)
             # If not set, the default value is 'boca'
-            - BOCA_PASSWORD=mypassword
+            BOCA_PASSWORD: mypassword
             # secret key to be used in HTTP headers
             # MUST set it with any random large enough sequence
-            - BOCA_KEY=mykey
+            BOCA_KEY: mykey
         ports: 
             - 8000:80
 
     # online judge
     boca-jail:
-        image: ghcr.io/joaofazolo/boca-docker/boca-jail
+        image: ghcr.io/joaofazolo/boca-docker/boca-jail:latest
         environment:
+            <<: *db-common
             # web app
-            - BOCA_WEB_HOST=boca-app
-            # database configuration
-            - BOCA_DB_HOST=boca-postgres
-            # unprivileged boca user
-            - BOCA_DB_USER=myuser
-            - BOCA_DB_PASSWORD=mypass
-            - BOCA_DB_NAME=mydb
+            BOCA_WEB_HOST: boca-app
 
     # database
     boca-postgres:
-        image: postgres
+        image: postgres:14-alpine
         environment:
             # database configuration
             # privileged boca user

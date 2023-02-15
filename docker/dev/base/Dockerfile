@@ -1,5 +1,5 @@
 #========================================================================
-# Copyright 2020-2022 Universidade Federal do Espirito Santo (Ufes)
+# Copyright Universidade Federal do Espirito Santo (Ufes)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
