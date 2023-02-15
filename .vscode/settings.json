@@ -24,6 +24,11 @@
             "label": "networks-match",
             "template": "docker compose ${configurationFile} up",
             "match": "networks"
+        },
+        {
+            "label": "healthcheck-match",
+            "template": "docker compose ${configurationFile} up",
+            "match": "healthcheck"
         }
     ],
     "docker.commands.composeDown": [
@@ -41,6 +46,11 @@
             "label": "networks-match",
             "template": "docker compose ${configurationFile} down",
             "match": "networks"
+        },
+        {
+            "label": "healthcheck-match",
+            "template": "docker compose ${configurationFile} down",
+            "match": "healthcheck"
         },
         {
             "template": "docker compose -f docker-compose.yml ${configurationFile} down"
