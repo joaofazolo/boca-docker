@@ -20,7 +20,7 @@
 
 version: '3.8'
 
-# using extension fields to reduce duplication
+# example 1: using extension fields to reduce duplication
 x-env: &db-common
     # database configuration
     BOCA_DB_HOST: boca-postgres
@@ -35,16 +35,14 @@ services:
     boca-app:
         image: ghcr.io/joaofazolo/boca-docker/boca-web:latest
         environment:
+            # example 1: continuation...
             <<: *db-common
-            # privileged boca user
+            # example 2: passing env vars directly in docker-compose
             BOCA_DB_SUPER_USER: superuser
             BOCA_DB_SUPER_PASSWORD: superpass
-            # initial password that is used by the admin user (web app)
-            # If not set, the default value is 'boca'
-            BOCA_PASSWORD: mypassword
-            # secret key to be used in HTTP headers
-            # MUST set it with any random large enough sequence
-            BOCA_KEY: mykey
+            # example 3: passing specific env vars from file
+            BOCA_PASSWORD: ${BOCA_PASSWORD}
+            BOCA_KEY: ${BOCA_KEY}
         ports: 
             - 8000:80
 
@@ -59,8 +57,6 @@ services:
     # database
     boca-postgres:
         image: postgres:14-alpine
-        environment:
-            # database configuration
-            # privileged boca user
-            POSTGRES_USER: superuser
-            POSTGRES_PASSWORD: superpass
+        # example 4: passing all env vars from file
+        env_file:
+            - .env2

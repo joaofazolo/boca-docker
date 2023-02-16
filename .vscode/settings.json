@@ -12,7 +12,7 @@
         },
         {
             "label": "env-match",
-            "template": "docker compose ${configurationFile} up",
+            "template": "docker compose --env-file=tests/env/.env ${configurationFile} up",
             "match": "env"
         },
         {
