@@ -12,7 +12,7 @@ This demo shows how to make the `boca-web` and `boca-jail` services wait for the
 docker compose -f tests/healthcheck/docker-compose.yml up -d
 ```
 
-* Open a web browser and visit the URL http://localhost:8000/boca. To login use the default credentials (Name: system | Password: boca).
+* Open a web browser and visit the URL http://localhost:8000/boca. To login use the default credentials (Name: _system_ | Password: _boca_).
 
 * To bring it down
 

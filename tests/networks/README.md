@@ -16,7 +16,7 @@ docker compose -f tests/networks/docker-compose.yml up -d
 docker stack deploy --compose-file tests/networks/docker-compose.yml boca-stack-networks
 ```
 
-* Open a web browser and visit the URL http://localhost:8000/boca. To login use the default credentials (Name: system | Password: boca).
+* Open a web browser and visit the URL http://localhost:8000/boca. To login use the default credentials (Name: _system_ | Password: _boca_).
 
 * To bring it down
 

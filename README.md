@@ -8,7 +8,7 @@ The _boca-docker_ project is a use case of how we can take advantage of microser
 
 This work started as part of the undergraduate final year project carried out by João Vitor Alves Fazolo under supervision of Prof. Dr. Rodrigo Laiola Guimaraes at Universidade Federal do Espirito Santo ([UFES](https://www.ufes.br/)).
 
-Original architecture | _boca-docker_'s architecture
+Original architecture | _boca-docker_ architecture
 :-------------------------:|:-------------------------:
 ![Alt text](/imgs/arquitetura-boca.png?raw=true "boca-docker architecture")  |  ![Alt text](/imgs/arquitetura-boca-docker.png?raw=true "boca-docker architecture")
 
@@ -82,6 +82,8 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 * **Docker Secrets:** an alternative way to passing sensitive information via environment variables, causing the initialization scripts to load the values for those variables from files present in the containers. See documentation [here](tests/secrets/README.md).
 
 * **Networking:** shows how to add network isolation between services in the _boca-docker_ application. See documentation [here](tests/networks/README.md).
+
+* **Volume:** demonstrates how to persist data outside BOCA's database container in order to facilitate backup, restore, and migration. See documentation [here](tests/volume/README.md).
 
 * **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
 
