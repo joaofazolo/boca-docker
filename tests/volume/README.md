@@ -26,7 +26,7 @@ docker stack deploy --compose-file tests/volume/docker-compose.yml boca-stack-vo
 docker compose -f tests/volume/docker-compose.yml down
 ```
 
-#### ... or docker stack deploy
+#### ... or docker stack rm
 
 ```bash
 docker stack rm boca-stack-volume

@@ -78,7 +78,7 @@ export $(grep -v '^#' tests/env/.env | xargs) && docker stack deploy --compose-f
 docker compose -f tests/env/docker-compose.yml down
 ```
 
-#### ... or docker stack deploy
+#### ... or docker stack rm
 
 ```bash
 docker stack rm boca-stack-env
