@@ -4,7 +4,7 @@ BOCA Online Contest Administrator (known simply as BOCA) is an administration sy
 
 BOCA is implemented mainly in PHP and makes use of a PostgreSQL database in the backend (see its architecture below). It is a good example of a monolithic system, in which the user interface and database access are all interwoven, rather than containing architecturally separate components. The problem is compound due to the low readability and poor code structuring, which is hard to extend and has been barely updated in recent years.
 
-The _boca-docker_ project is a use case of how we can take advantage of microservices architecture and containerization technology (i.e., Docker) to deploy applications in a more convenient and faster way (see right of the illustration below). After quite some reverse engineering, we provide a dockerized version of BOCA's main components (web app, online automated judge and database) aiming at easying the customization, extensibility and automation of the operational effort required to deploy, run and scale BOCA.
+The _boca-docker_ project is a use case of how we can take advantage of microservices architecture and containerization technology (i.e., Docker) to deploy applications in a more convenient and faster way (see right of the illustration below). After quite some reverse engineering, we provide a dockerized version of BOCA's main components (web app, online automated judge and database) aiming at easing the customization, extensibility and automation of the operational effort required to deploy, run and scale BOCA.
 
 Original architecture | _boca-docker_ architecture
 :-------------------------:|:-------------------------:
@@ -38,7 +38,7 @@ Voilà! The application should be running now.
 
 * Open a web browser and visit the URL http://localhost:8000/boca. First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc. NOTE: consider changing these passwords later on.
 
-* The autojudge will work only after restarting the `boca-jail` container.
+* The online judge will work only after restarting the `boca-jail` container.
 
 ```bash
 docker stop docker stop boca-docker_boca-jail_1
