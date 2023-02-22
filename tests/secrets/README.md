@@ -30,7 +30,7 @@ docker stack deploy --compose-file tests/secrets/docker-compose.yml boca-stack-s
 docker compose -f tests/secrets/docker-compose.yml down
 ```
 
-#### ... or docker stack deploy
+#### ... or docker stack rm
 
 ```bash
 docker stack rm boca-stack-secrets
