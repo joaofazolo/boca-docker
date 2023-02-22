@@ -2,15 +2,15 @@
 
 BOCA Online Contest Administrator (known simply as BOCA) is an administration system to held programming contests (e.g., ACM-ICPC, Maratona de Programação da SBC). According to the developers, its main features are portability, concurrency control, multi-site and distributed contests, and a simple web interface (for details refer to https://www.ime.usp.br/~cassio/boca/ and https://github.com/cassiopc/boca).
 
-BOCA is implemented mainly in PHP and makes use of a PostgreSQL database in the backend. It is a good example of a monolithic system, in which the user interface and database access are all interwoven, rather than containing architecturally separate components. The problem is compound due to the low readability and poor code structuring, which is hard to extend and has been barely updated in recent years.
+BOCA is implemented mainly in PHP and makes use of a PostgreSQL database in the backend (see its architecture below). It is a good example of a monolithic system, in which the user interface and database access are all interwoven, rather than containing architecturally separate components. The problem is compound due to the low readability and poor code structuring, which is hard to extend and has been barely updated in recent years.
 
-The _boca-docker_ project is a use case of how we can take advantage of microservices architecture and containerization technology (i.e., Docker) to deploy applications in a more convenient and faster way. After quite some reverse engineering, we provide a dockerized version of BOCA's main components (web app, online automated judge and database) aiming at easying the customization, extensibility and automation of the operational effort required to deploy, run and scale BOCA.
-
-This work started as part of the undergraduate final year project carried out by João Vitor Alves Fazolo under supervision of Prof. Dr. Rodrigo Laiola Guimaraes at Universidade Federal do Espirito Santo ([UFES](https://www.ufes.br/)).
+The _boca-docker_ project is a use case of how we can take advantage of microservices architecture and containerization technology (i.e., Docker) to deploy applications in a more convenient and faster way (see right of the illustration below). After quite some reverse engineering, we provide a dockerized version of BOCA's main components (web app, online automated judge and database) aiming at easying the customization, extensibility and automation of the operational effort required to deploy, run and scale BOCA.
 
 Original architecture | _boca-docker_ architecture
 :-------------------------:|:-------------------------:
 ![Alt text](/imgs/arquitetura-boca.png?raw=true "boca-docker architecture")  |  ![Alt text](/imgs/arquitetura-boca-docker.png?raw=true "boca-docker architecture")
+
+This work started as part of the undergraduate final year project carried out by João Vitor Alves Fazolo under supervision of Prof. Dr. Rodrigo Laiola Guimaraes at Universidade Federal do Espirito Santo ([UFES](https://www.ufes.br/)).
 
 ## REQUIREMENTS:
 
