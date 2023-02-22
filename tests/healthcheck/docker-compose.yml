@@ -20,43 +20,39 @@
 
 version: '3.8'
 
-# example 1: using extension fields to reduce duplication
-x-env: &db-common
-    # database configuration
-    BOCA_DB_HOST: boca-postgres
-    # unprivileged boca user
-    BOCA_DB_USER: myuser
-    BOCA_DB_PASSWORD: mypass
-    BOCA_DB_NAME: mydb
-
 services:
 
     # web app
-    boca-app:
+    boca-web:
         image: ghcr.io/joaofazolo/boca-docker/boca-web:latest
         environment:
-            # example 1: continuation...
-            <<: *db-common
-            # example 2: passing env vars directly in docker-compose
-            BOCA_DB_SUPER_USER: superuser
-            BOCA_DB_SUPER_PASSWORD: superpass
-            # example 3: passing specific env vars from file
-            BOCA_PASSWORD: ${BOCA_PASSWORD}
-            BOCA_KEY: ${BOCA_KEY}
+            # database configuration
+            # privileged user password
+            - BOCA_DB_SUPER_PASSWORD=superpass
         ports: 
             - 8000:80
+        depends_on:
+            boca-db:
+                condition: service_healthy
 
     # online judge
     boca-jail:
         image: ghcr.io/joaofazolo/boca-docker/boca-jail:latest
-        environment:
-            <<: *db-common
-            # web app
-            BOCA_WEB_HOST: boca-app
+        depends_on:
+            boca-db:
+                condition: service_healthy
 
     # database
-    boca-postgres:
+    boca-db:
         image: postgres:14-alpine
-        # example 4: passing all env vars from file
-        env_file:
-            - .env2
+        environment:
+            # database configuration
+            # privileged user password
+            - POSTGRES_PASSWORD=superpass
+        healthcheck:
+            # determine whether or not it is healthy
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+            interval: 10s       # interval between health checks
+            timeout: 5s         # timeout for each health checking
+            retries: 20         # how many times retries
+            start_period: 10s   # estimated time to boot

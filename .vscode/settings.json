@@ -12,7 +12,7 @@
         },
         {
             "label": "env-match",
-            "template": "docker compose ${configurationFile} up",
+            "template": "docker compose --env-file=tests/env/.env ${configurationFile} up",
             "match": "env"
         },
         {
@@ -24,6 +24,16 @@
             "label": "networks-match",
             "template": "docker compose ${configurationFile} up",
             "match": "networks"
+        },
+        {
+            "label": "volume-match",
+            "template": "docker compose ${configurationFile} up",
+            "match": "volume"
+        },
+        {
+            "label": "healthcheck-match",
+            "template": "docker compose ${configurationFile} up",
+            "match": "healthcheck"
         }
     ],
     "docker.commands.composeDown": [
@@ -41,6 +51,16 @@
             "label": "networks-match",
             "template": "docker compose ${configurationFile} down",
             "match": "networks"
+        },
+        {
+            "label": "volume-match",
+            "template": "docker compose ${configurationFile} down",
+            "match": "volume"
+        },
+        {
+            "label": "healthcheck-match",
+            "template": "docker compose ${configurationFile} down",
+            "match": "healthcheck"
         },
         {
             "template": "docker compose -f docker-compose.yml ${configurationFile} down"
