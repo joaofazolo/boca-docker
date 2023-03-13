@@ -36,7 +36,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 Voilà! The application should be running now.
 
-* Open a web browser and visit the URL http://localhost:8000/boca. First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc. NOTE: consider changing these passwords later on.
+* Open a web browser and visit the URL http://localhost:8000/boca. First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc. NOTE: consider changing these passwords later on. Find out more information on how to setup a contest [here](https://github.com/cassiopc/boca/tree/master/doc). For general questions about BOCA consider looking at this [forum](https://groups.google.com/g/boca-users).
 
 * The online judge will work only after restarting the `boca-jail` container.
 

@@ -2,6 +2,8 @@
 
 The _boca-docker_ application uses several environment variables which are easy to miss. The variables required are `POSTGRES_PASSWORD` (`boca-db` service) and `BOCA_DB_SUPER_PASSWORD` (`boca-web` service), the rest are optional.
 
+**Note:** DO NOT set the optional `POSTGRES_DB` environment variable in the `boca-db` service. Find out the reasons for that [here](https://github.com/joaofazolo/boca-docker/issues/17).
+
 #### **`BOCA_DB_HOST`**
 
 This optional environment variable, which can be set in the `boca-web` and `boca-jail` services, defines the address/host name of the PostgreSQL server. This is useful if you are connecting to an external server or a docker container named something other than _boca-db_ (default).
