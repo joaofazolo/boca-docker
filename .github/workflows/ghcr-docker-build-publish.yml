@@ -123,3 +123,63 @@ jobs:
             BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - 
+        name: Build and export image to file (boca-base)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/base/Dockerfile
+          tags: boca-base
+          outputs: type=docker,dest=/tmp/boca-base.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - 
+        name: Build and export image to file (boca-web)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/web/Dockerfile
+          tags: boca-web
+          build-args: |
+            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
+          outputs: type=docker,dest=/tmp/boca-web.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - 
+        name: Build and export image to file (boca-jail)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/jail/Dockerfile
+          tags: boca-jail
+          build-args: |
+            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
+          outputs: type=docker,dest=/tmp/boca-jail.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Upload images allowing to share them between jobs
+      # https://github.com/actions/upload-artifact
+      -
+        name: Upload image (boca-base)
+        uses: actions/upload-artifact@v2
+        with:
+          name: boca-base
+          path: /tmp/boca-base.tar
+
+      -
+        name: Upload image (boca-web)
+        uses: actions/upload-artifact@v2
+        with:
+          name: boca-web
+          path: /tmp/boca-web.tar
+
+      -
+        name: Upload image (boca-jail)
+        uses: actions/upload-artifact@v2
+        with:
+          name: boca-jail
+          path: /tmp/boca-jail.tar
