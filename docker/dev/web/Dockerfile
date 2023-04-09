@@ -19,11 +19,12 @@
 #========================================================================
 
 # Build on base image
-FROM boca-base
+ARG BASE_IMAGE=boca-base
+FROM ${BASE_IMAGE}
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2022-07-03
+ENV UPDATED_AT 2023-04-08
 
 # Basic setup to establish connection with database server
 RUN apt-get -y update && \

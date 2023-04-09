@@ -6,11 +6,12 @@ name: Build and publish Docker images on ghcr.io (nightly/new release)
 # documentation.
 
 on:
+  # Run daily at 9:15 AM UTC (nightly builds)
   schedule:
     # Publish "nightly" build as release
     - cron: '15 9 * * *'
   push:
-    # Publish semver tags as releases.
+    # Publish semver tags as releases (e.g., 1.0.0)
     tags: [ '*.*.*' ]
   # or on button click
   workflow_dispatch:
@@ -18,26 +19,39 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY_HOST: ghcr.io
-  # Use github.repository (<account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  # Use github.repository (<account>/<repo>)
+  REPOSITORY_NAME: ${{ github.repository }}
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository and build Docker image
+      # Checkout a repository, so the workflow can access it
+      # https://github.com/marketplace/actions/checkout
+      - 
+        name: Checkout repository
         uses: actions/checkout@v3
-        # Necessary to build it locally for boca-web and boca-jail
-        #run: docker build -t boca-base . -f docker/dev/base/Dockerfile
 
-      # Login against a Docker registry except on PR
+      # Add support for more platforms with QEMU (optional)
+      # https://github.com/docker/setup-qemu-action
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      # Create and boot a builder that can be used in the following steps of the workflow
+      # https://github.com/docker/setup-buildx-action
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Login to a Docker registry (except on PR)
       # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY_HOST }}
+      - 
+        name: Login to GitHub Container Registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
@@ -47,27 +61,31 @@ jobs:
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata (boca-base)
+      - 
+        name: Extract Docker metadata (boca-base)
         id: meta_base
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-base
+          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
 
-      - name: Extract Docker metadata (boca-web)
+      - 
+        name: Extract Docker metadata (boca-web)
         id: meta_web
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-web
+          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-web
 
-      - name: Extract Docker metadata (boca-jail)
+      - 
+        name: Extract Docker metadata (boca-jail)
         id: meta_jail
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}/boca-jail
+          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-jail
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
-      - name: Build and push boca-base image
+      - 
+        name: Build and push image (boca-base)
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -75,16 +93,11 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
-          
-      - name: Build boca-base image only (necessary to build boca-web and boca-jail)
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: docker/dev/base/Dockerfile
-          push: false
-          tags: boca-base
-          
-      - name: Build and push boca-web image
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - 
+        name: Build and push image (boca-web)
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -92,8 +105,13 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_web.outputs.tags }}
           labels: ${{ steps.meta_web.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Build and push boca-jail image
+      - 
+        name: Build and push image (boca-jail)
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -101,3 +119,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_jail.outputs.tags }}
           labels: ${{ steps.meta_jail.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
