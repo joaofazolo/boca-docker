@@ -24,28 +24,25 @@ FROM ${BASE_IMAGE}
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2023-04-08
+ENV UPDATED_AT 2023-04-10
 
-# Basic setup to establish connection with database server
+# Basic setup
 RUN apt-get -y update && \
     apt-get -y dist-upgrade && \
     apt-get -y install \
         git \
-        postgresql-client && \
-    apt-get clean
-
-# Install libraries
-RUN apt-get -y update && \
-    apt-get -y install \
+        # Required to establish connection with database server \
+        postgresql-client \
         # Required to build ballons \
         php-gd && \
-    apt-get -y clean
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY LICENSE /
 COPY docker/dev/web/init.sh /
 RUN chmod 777 /init.sh
 
-RUN cd /var/www
+WORKDIR /var/www
 # Clone BOCA repository
 RUN git clone https://github.com/cassiopc/boca.git
 
@@ -53,7 +50,9 @@ COPY LICENSE /var/www/boca/src/private
 # Copy modified source code file(s)
 COPY src/private/conf.php /var/www/boca/src/private
 
-RUN cd /var/www/boca && install tools/boca-fixssh /usr/sbin/ && \
+WORKDIR /var/www/boca
+
+RUN install tools/boca-fixssh /usr/sbin/ && \
 	install tools/cron-boca-fixssh /etc/cron.d/ && \
 	chmod 700 /usr/sbin/boca-fixssh && \
     cp tools/000-boca.conf /etc/apache2/sites-enabled/000-boca.conf && \

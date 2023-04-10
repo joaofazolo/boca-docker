@@ -26,7 +26,7 @@ FROM ubuntu:focal
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2021-11-09
+ENV UPDATED_AT 2023-04-10
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND noninteractive
@@ -45,9 +45,6 @@ ENV LANG ${LANGUAGE}
 # e.g. "US/Pacific" for Los Angeles, California, USA
 # e.g. ENV TZ "US/Pacific"
 ENV TZ America/Sao_Paulo
-RUN echo "Setting time zone to '${TZ}'" \
-    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
-    && echo $TZ > /etc/timezone
 
 ENV APACHE_RUN_USER  www-data
 ENV APACHE_RUN_GROUP www-data
@@ -57,28 +54,33 @@ ENV APACHE_RUN_DIR   /var/run/apache2
 ENV APACHE_LOCK_DIR  /var/lock/apache2
 ENV APACHE_LOG_DIR   /var/log/apache2
 
-RUN mkdir -p $APACHE_RUN_DIR
-RUN mkdir -p $APACHE_LOCK_DIR
-RUN mkdir -p $APACHE_LOG_DIR
-
-RUN apt-get -y update
-RUN apt-get -y install tzdata locales software-properties-common \
-    apache2 \
-    make \
-    gcc \
-    php \
-    php-pgsql \
-    libapache2-mod-php \
-    php-zip \
-    quotatool \
-    debootstrap \
-    schroot 
-RUN apt-get -y upgrade
-RUN apt-get -y clean
-RUN echo "Etc/UTC" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-RUN ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
+RUN echo "Setting time zone to '${TZ}'" \
+        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    mkdir -p $APACHE_RUN_DIR && \
+    mkdir -p $APACHE_LOCK_DIR && \
+    mkdir -p $APACHE_LOG_DIR && \
+    apt-get -y update && \
+    apt-get -y install \
+        tzdata \
+        locales \
+        software-properties-common \
+        apache2 \
+        make \
+        gcc \
+        php \
+        php-pgsql \
+        libapache2-mod-php \
+        php-zip \
+        quotatool \
+        debootstrap \
+        schroot && \
+    apt-get -y upgrade && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    echo "Etc/UTC" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata && \
+    echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
+    ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
     ln -sf /proc/self/fd/1 /var/log/apache2/error.log
  
 WORKDIR /var/www

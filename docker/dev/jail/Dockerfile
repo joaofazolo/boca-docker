@@ -24,21 +24,23 @@ FROM ${BASE_IMAGE}
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2023-04-08
+ENV UPDATED_AT 2023-04-10
 
-# Basic setup to establish connection with database server
+# Basic setup
 RUN apt-get -y update && \
     apt-get -y dist-upgrade && \
     apt-get -y install \
         git \
+        # Required to establish connection with database server \
         postgresql-client && \
-    apt-get clean
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY LICENSE /
 COPY docker/dev/jail/init.sh /
 RUN chmod 777 /init.sh
 
-RUN cd /var/www
+WORKDIR /var/www
 # Clone BOCA repository
 # Although Jail does not depend on the web application, it requires
 # src/db.php and includes a bunch of other php files in this folder.
@@ -48,15 +50,18 @@ COPY LICENSE /var/www/boca/src/private
 # Copy modified source code files
 COPY src/private/conf.php /var/www/boca/src/private
 
-RUN cd /var/www/boca && install tools/boca-fixssh /usr/sbin/ && \
+WORKDIR /var/www/boca
+
+RUN install tools/boca-fixssh /usr/sbin/ && \
     install tools/cron-boca-fixssh /etc/cron.d/ && \
     chmod 700 /usr/sbin/boca-fixssh && \
     cp tools/000-boca.conf /etc/apache2/sites-enabled/000-boca.conf && \
     chown -R www-data.www-data /var/www/boca && \
     chmod -R go-rwx /var/www/boca/src/private
 
-RUN cd /var/www/boca && \
-    gcc tools/safeexec.c -o tools/safeexec && \
+WORKDIR /var/www/boca
+
+RUN gcc tools/safeexec.c -o tools/safeexec && \
     install tools/safeexec /usr/bin/safeexec && \
     install tools/boca-createjail /usr/sbin/boca-createjail && \
     install tools/boca-autojudge.sh /usr/sbin/boca-autojudge && \
