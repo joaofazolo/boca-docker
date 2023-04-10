@@ -208,7 +208,7 @@ jobs:
       # https://github.com/actions/download-artifact
       -
         name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ${{ matrix.image }}
           path: /tmp
