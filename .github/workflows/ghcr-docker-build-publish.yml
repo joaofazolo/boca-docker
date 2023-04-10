@@ -165,21 +165,21 @@ jobs:
       # https://github.com/actions/upload-artifact
       -
         name: Upload image (boca-base)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: boca-base
           path: /tmp/boca-base.tar
 
       -
         name: Upload image (boca-web)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: boca-web
           path: /tmp/boca-web.tar
 
       -
         name: Upload image (boca-jail)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: boca-jail
           path: /tmp/boca-jail.tar
