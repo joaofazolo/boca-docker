@@ -33,12 +33,7 @@ RUN apt-get -y update && \
         git \
         # Required to establish connection with database server \
         postgresql-client && \
-    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-COPY LICENSE /
-COPY docker/dev/jail/init.sh /
-RUN chmod 777 /init.sh
 
 WORKDIR /var/www
 # Clone BOCA repository
@@ -46,12 +41,7 @@ WORKDIR /var/www
 # src/db.php and includes a bunch of other php files in this folder.
 RUN git clone https://github.com/cassiopc/boca.git
 
-COPY LICENSE /var/www/boca/src/private
-# Copy modified source code files
-COPY src/private/conf.php /var/www/boca/src/private
-
 WORKDIR /var/www/boca
-
 RUN install tools/boca-fixssh /usr/sbin/ && \
     install tools/cron-boca-fixssh /etc/cron.d/ && \
     chmod 700 /usr/sbin/boca-fixssh && \
@@ -60,7 +50,6 @@ RUN install tools/boca-fixssh /usr/sbin/ && \
     chmod -R go-rwx /var/www/boca/src/private
 
 WORKDIR /var/www/boca
-
 RUN gcc tools/safeexec.c -o tools/safeexec && \
     install tools/safeexec /usr/bin/safeexec && \
     install tools/boca-createjail /usr/sbin/boca-createjail && \
@@ -73,6 +62,13 @@ RUN gcc tools/safeexec.c -o tools/safeexec && \
     chmod 700 /usr/sbin/boca-config-dbhost && \
     chmod 700 /usr/sbin/boca-fixssh && \
     cp tools/boca.conf /etc/
+
+COPY LICENSE /var/www/boca/src/private
+# Copy modified source code files
+COPY src/private/conf.php /var/www/boca/src/private
+COPY LICENSE /
+COPY docker/dev/jail/init.sh /
+RUN chmod 777 /init.sh
 
 RUN boca-createjail || true
  
