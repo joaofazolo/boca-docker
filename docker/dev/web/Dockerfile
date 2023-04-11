@@ -35,20 +35,11 @@ RUN apt-get -y update && \
         postgresql-client \
         # Required to build ballons \
         php-gd && \
-    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-COPY LICENSE /
-COPY docker/dev/web/init.sh /
-RUN chmod 777 /init.sh
 
 WORKDIR /var/www
 # Clone BOCA repository
 RUN git clone https://github.com/cassiopc/boca.git
-
-COPY LICENSE /var/www/boca/src/private
-# Copy modified source code file(s)
-COPY src/private/conf.php /var/www/boca/src/private
 
 WORKDIR /var/www/boca
 
@@ -58,6 +49,13 @@ RUN install tools/boca-fixssh /usr/sbin/ && \
     cp tools/000-boca.conf /etc/apache2/sites-enabled/000-boca.conf && \
     chown -R www-data.www-data /var/www/boca && \
     chmod -R go-rwx /var/www/boca/src/private
+
+COPY LICENSE /var/www/boca/src/private
+# Copy modified source code file(s)
+COPY src/private/conf.php /var/www/boca/src/private
+COPY LICENSE /
+COPY docker/dev/web/init.sh /
+RUN chmod 777 /init.sh
 
 EXPOSE 80
  
