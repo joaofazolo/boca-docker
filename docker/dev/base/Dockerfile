@@ -54,13 +54,7 @@ ENV APACHE_RUN_DIR   /var/run/apache2
 ENV APACHE_LOCK_DIR  /var/lock/apache2
 ENV APACHE_LOG_DIR   /var/log/apache2
 
-RUN echo "Setting time zone to '${TZ}'" \
-        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone && \
-    mkdir -p $APACHE_RUN_DIR && \
-    mkdir -p $APACHE_LOCK_DIR && \
-    mkdir -p $APACHE_LOG_DIR && \
-    apt-get -y update && \
+RUN apt-get -y update && \
     apt-get -y install \
         tzdata \
         locales \
@@ -75,12 +69,20 @@ RUN echo "Setting time zone to '${TZ}'" \
         quotatool \
         debootstrap \
         schroot && \
-    apt-get -y upgrade && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    echo "Etc/UTC" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata && \
-    echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
-    ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p $APACHE_RUN_DIR && \
+    mkdir -p $APACHE_LOCK_DIR && \
+    mkdir -p $APACHE_LOG_DIR
+
+RUN echo "Setting time zone to '${TZ}'" \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    echo "Etc/UTC" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata
+
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+RUN ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
     ln -sf /proc/self/fd/1 /var/log/apache2/error.log
  
 WORKDIR /var/www
