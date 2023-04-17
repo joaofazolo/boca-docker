@@ -64,6 +64,9 @@ jobs:
               echo "Done"
               break
             fi
+            
+            
+            Echo "tam = $len"
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
