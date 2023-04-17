@@ -14,8 +14,6 @@ env:
   REGISTRY_HOST: ghcr.io
   # Use github.repository (<account>/<repo>)
   REPOSITORY_NAME: ${{ github.repository }}
-  # Use github.repository_owner (<account>)
-  OWNER_NAME: ${{ github.repository_owner }}
 
 jobs:
   cleanup:
@@ -43,7 +41,11 @@ jobs:
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
 
           #echo "Fetching list of cache key"
-          cacheKeysForPR=$(gh actions-cache list -R ${{ env.REPOSITORY_NAME }} -B $BRANCH_NAME | cut -f 1)
+          cacheKeysForPR=$(gh actions-cache list --limit 100 \
+                                                 --sort size \
+                                                 --order desc \
+                                                 -R ${{ env.REPOSITORY_NAME }} \
+                                                 -B $BRANCH_NAME | cut -f 1)
 
           ## Setting this to not fail the workflow while deleting cache keys. 
           set +e
