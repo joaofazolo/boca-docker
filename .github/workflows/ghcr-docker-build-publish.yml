@@ -171,6 +171,7 @@ jobs:
         with:
           name: boca-base
           path: /tmp/boca-base.tar
+          retention-days: 7
 
       -
         name: Upload image (boca-web)
@@ -178,6 +179,7 @@ jobs:
         with:
           name: boca-web
           path: /tmp/boca-web.tar
+          retention-days: 7
 
       -
         name: Upload image (boca-jail)
@@ -185,6 +187,7 @@ jobs:
         with:
           name: boca-jail
           path: /tmp/boca-jail.tar
+          retention-days: 7
 
   scan:
     permissions:
@@ -254,7 +257,7 @@ jobs:
       matrix:
         image: [boca-base, boca-web, boca-jail]
     runs-on: ubuntu-latest
-    needs: scan
+    needs: build
 
     steps:
       # Set an environment variable
