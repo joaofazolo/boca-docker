@@ -21,6 +21,8 @@ env:
   REGISTRY_HOST: ghcr.io
   # Use github.repository (<account>/<repo>)
   REPOSITORY_NAME: ${{ github.repository }}
+  # Use github.repository_owner (<account>)
+  OWNER_NAME: ${{ github.repository_owner }}
 
 jobs:
   build:
@@ -241,3 +243,37 @@ jobs:
         with:
           sarif_file: 'trivy-${{ matrix.image }}-image-results.sarif'
           category: 'image'
+
+  # Ensure that the repository is given Admin access by going on
+  # Package settings -> Manage Actions access
+  # https://github.com/actions/delete-package-versions/issues/74
+  cleanup:
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        image: [boca-base, boca-web, boca-jail]
+    runs-on: ubuntu-latest
+    needs: scan
+
+    steps:
+      # Set an environment variable
+      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+      - 
+        name: Write PROJECT_NAME variable to GITHUB_ENV
+        run: |
+          owner='${{ env.OWNER_NAME }}'
+          repo='${{ env.REPOSITORY_NAME }}'
+          echo "PROJECT_NAME=${repo//$owner\//}" >> $GITHUB_ENV
+
+      # Delete versions of a package from GitHub Packages
+      # https://github.com/marketplace/actions/delete-package-versions
+      - 
+        name: Delete untagged Docker images on ghcr.io
+        uses: actions/delete-package-versions@v4
+        with: 
+          package-name: '${{ env.PROJECT_NAME }}/${{ matrix.image }}'
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-versions-to-keep: 0
+          delete-only-untagged-versions: 'true'
