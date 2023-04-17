@@ -12,12 +12,6 @@ on:
   # Run on button click
   workflow_dispatch:
 
-env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY_HOST: ghcr.io
-  # Use github.repository (<account>/<repo>)
-  REPOSITORY_NAME: ${{ github.repository }}
-
 jobs:
   cleanup:
     permissions:
@@ -31,7 +25,9 @@ jobs:
       - 
         name: Get project name
         run: |
-          PROJECT_NAME=${${{ github.repository }}\///${{ github.repository_owner }}/}
+          owner='${{ github.repository_owner }}'
+          repo='${{ github.repository }}'
+          PROJECT_NAME=${repo//$owner\//}
           echo ${PROJECT_NAME}
 
       # Delete versions of a package from GitHub Packages
