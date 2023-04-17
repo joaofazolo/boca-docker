@@ -56,7 +56,7 @@ jobs:
             do
               gh actions-cache delete $cacheKey -R ${{ env.REPOSITORY_NAME }} --confirm
             done
-            
+
             # Get length of $cacheKeys array
             len=${#cacheKeys[@]}
             if [[ $len -eq $zero ]];
@@ -64,9 +64,8 @@ jobs:
               echo "Done"
               break
             fi
-            
-            
-            Echo "tam = $len"
+
+            echo "tam = $len"
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
