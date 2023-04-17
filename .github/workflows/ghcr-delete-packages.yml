@@ -1,0 +1,23 @@
+name: Cleanup caches by a branch
+on:
+  # Run on PR closed
+  pull_request:
+    types:
+      - closed
+  # or on button click
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Delete versions of a package from GitHub Packages
+      # https://github.com/marketplace/actions/delete-package-versions
+      - 
+        uses: actions/delete-package-versions@v4
+        with: 
+          package-name: 'boca-base'
+          package-type: 'container'
+          min-versions-to-keep: 0
+          delete-only-untagged-versions: 'true'
