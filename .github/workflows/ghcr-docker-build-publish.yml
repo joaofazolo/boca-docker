@@ -143,7 +143,7 @@ jobs:
           file: docker/dev/web/Dockerfile
           tags: boca-web
           build-args: |
-            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
+            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
           outputs: type=docker,dest=/tmp/boca-web.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -156,7 +156,7 @@ jobs:
           file: docker/dev/jail/Dockerfile
           tags: boca-jail
           build-args: |
-            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
+            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
           outputs: type=docker,dest=/tmp/boca-jail.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
