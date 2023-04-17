@@ -39,7 +39,7 @@ jobs:
           echo "Deleting caches..."
           for cacheKey in $cacheKeysForPR
           do
-              gh actions-cache delete $cacheKey -R $REPO --confirm
+              gh actions-cache delete $cacheKey -R ${{ env.REPOSITORY_NAME }} --confirm
           done
           echo "Done"
         env:
