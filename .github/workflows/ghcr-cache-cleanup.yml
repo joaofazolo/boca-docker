@@ -1,4 +1,4 @@
-name: Cleanup workflow cache entries by a branch
+name: Cleanup workflow cache entries
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -47,14 +47,14 @@ jobs:
                                               --sort size \
                                               --order desc \
                                               -R ${{ env.REPOSITORY_NAME }} \
-                                              -B $BRANCH_NAME | cut -f 1)
+                                              | cut -f 1)
 
             # Setting this to not fail the workflow while deleting cache keys. 
             set +e
             echo "Deleting caches..."
             for cacheKey in $cacheKeys
             do
-              gh actions-cache delete $cacheKey -R ${{ env.REPOSITORY_NAME }} --confirm
+              gh actions-cache delete $cacheKey --confirm
             done
 
             # Get length of $cacheKeys array
@@ -64,8 +64,6 @@ jobs:
               echo "Done"
               break
             fi
-
-            echo "tam = $len"
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
