@@ -11,6 +11,9 @@ env:
 
 jobs:
   cleanup:
+    permissions:
+      contents: read
+      packages: write
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +22,7 @@ jobs:
       - 
         uses: actions/delete-package-versions@v4
         with: 
-          owner: 'github'
-          package-name: 'boca-base'
+          package-name: 'boca-docker/boca-base'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
           min-versions-to-keep: 0
