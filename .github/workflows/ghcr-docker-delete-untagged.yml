@@ -31,8 +31,8 @@ jobs:
       - 
         name: Get project name
         run: |
-          PROJECT_NAME=${${{ github.repository }}//${{ github.repository_owner }}/}
-          echo $PROJECT_NAME
+          PROJECT_NAME=${${{ github.repository }}\///${{ github.repository_owner }}/}
+          echo ${PROJECT_NAME}
 
       # Delete versions of a package from GitHub Packages
       # https://github.com/marketplace/actions/delete-package-versions
