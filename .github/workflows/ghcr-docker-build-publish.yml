@@ -120,7 +120,7 @@ jobs:
           tags: ${{ steps.meta_jail.outputs.tags }}
           labels: ${{ steps.meta_jail.outputs.labels }}
           build-args: |
-            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.TAG_NAME }}
+            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
