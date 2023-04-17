@@ -59,7 +59,7 @@ jobs:
 
             # Get length of $cacheKeys array
             len=${#cacheKeys[@]}
-            if [[ $len -eq $zero ]];
+            if [[ $len -eq 1 ]];
             then
               echo "Done"
               break
