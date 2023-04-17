@@ -22,20 +22,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Set an environment variable
+      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
       - 
-        name: Get project name
+        name: Write PROJECT_NAME variable to GITHUB_ENV
         run: |
           owner='${{ github.repository_owner }}'
           repo='${{ github.repository }}'
-          PROJECT_NAME=${repo//$owner\//}
-          echo ${PROJECT_NAME}
+          echo "PROJECT_NAME=${repo//$owner\//}" >> $GITHUB_ENV
 
       # Delete versions of a package from GitHub Packages
       # https://github.com/marketplace/actions/delete-package-versions
       - 
         uses: actions/delete-package-versions@v4
         with: 
-          package-name: '$PROJECT_NAME/${{ matrix.image }}'
+          package-name: '${{ env.PROJECT_NAME }}/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
           min-versions-to-keep: 0
