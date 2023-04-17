@@ -2,7 +2,7 @@
 
 BOCA Online Contest Administrator (known simply as BOCA) is an administration system to held programming contests (e.g., ACM-ICPC, Maratona de Programação da SBC). According to the developers, its main features are portability, concurrency control, multi-site and distributed contests, and a simple web interface (for details refer to https://www.ime.usp.br/~cassio/boca/ and https://github.com/cassiopc/boca).
 
-BOCA is implemented mainly in PHP and makes use of a PostgreSQL database in the backend (see architecture below). It is a good example of a monolithic system, in which the user interface and database access are all interwoven, rather than containing architecturally separate components. The problem is compound due to the low readability and poor code structuring, which is hard to extend and has been barely updated in recent years.
+BOCA is implemented mainly in PHP and makes use of a PostgreSQL database in the backend (see architecture below). It is a good example of a monolithic system, in which the user interface and database access are all interwoven, rather than containing architecturally separate components. The problem is compound due to the low readability and complex code structuring, which is hard to adapt and extend.
 
 The _boca-docker_ project is a use case of how we can take advantage of microservices architecture and containerization technology (i.e., Docker) to deploy applications in a more convenient and faster way (see illustration below). After quite some reverse engineering, we provide a dockerized version of BOCA's main components (web app, online automated judge and database) aiming at easing the customization, extensibility and automation of the operational effort required to deploy, run and scale BOCA.
 
@@ -37,13 +37,6 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 Voilà! The application should be running now.
 
 * Open a web browser and visit the URL http://localhost:8000/boca. First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc. NOTE: consider changing these passwords later on. Find out more information on how to setup a contest [here](https://github.com/cassiopc/boca/tree/master/doc). For general questions about BOCA consider looking at this [forum](https://groups.google.com/g/boca-users).
-
-* The online judge will work only after restarting the `boca-jail` container.
-
-```bash
-docker stop docker stop boca-docker_boca-jail_1
-docker start docker stop boca-docker_boca-jail_1
-```
 
 * To stop the application (considering that the shell is in the same directory):
 
@@ -87,7 +80,7 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 * **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
 
-## HOW TO BUILD IT:
+## HOW TO BUILD IT (DEVELOPMENT):
 
 * Clone this repo and set it as your working directory:
 
