@@ -1,3 +1,6 @@
+# Ensure that the repository is given Admin access by going on
+# Package settings -> Manage Actions access
+# https://github.com/actions/delete-package-versions/issues/74
 name: Delete untagged Docker images on ghcr.io
 
 # This workflow uses actions that are not certified by GitHub.
@@ -25,12 +28,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - 
+        name: Get project name
+        run: |
+          PROJECT_NAME=${${{ github.repository }}//${{ github.repository_owner }}/}
+          echo $PROJECT_NAME
+
       # Delete versions of a package from GitHub Packages
       # https://github.com/marketplace/actions/delete-package-versions
       - 
         uses: actions/delete-package-versions@v4
         with: 
-          package-name: 'boca-docker/${{ matrix.image }}'
+          package-name: '$PROJECT_NAME/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
           min-versions-to-keep: 0
