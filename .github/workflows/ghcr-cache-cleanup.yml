@@ -34,27 +34,36 @@ jobs:
       # Force deletion of caches overriding default cache eviction policy
       # https://github.com/marketplace/actions/cache
       - 
-        name: Cleanup cache entries
+        name: Delete all cache entries
         run: |
           gh extension install actions/gh-actions-cache
 
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
 
-          #echo "Fetching list of cache key"
-          cacheKeysForPR=$(gh actions-cache list --limit 100 \
-                                                 --sort size \
-                                                 --order desc \
-                                                 -R ${{ env.REPOSITORY_NAME }} \
-                                                 -B $BRANCH_NAME | cut -f 1)
-
-          ## Setting this to not fail the workflow while deleting cache keys. 
-          set +e
-          echo "Deleting caches..."
-          for cacheKey in $cacheKeysForPR
+          while true
           do
-          #    gh actions-cache delete $cacheKey -R ${{ env.REPOSITORY_NAME }} --confirm
-              echo $cacheKey
+            echo "Fetching list of cache keys"
+            cacheKeys=$(gh actions-cache list --limit 100 \
+                                              --sort size \
+                                              --order desc \
+                                              -R ${{ env.REPOSITORY_NAME }} \
+                                              -B $BRANCH_NAME | cut -f 1)
+
+            # Setting this to not fail the workflow while deleting cache keys. 
+            set +e
+            echo "Deleting caches..."
+            for cacheKey in $cacheKeys
+            do
+              gh actions-cache delete $cacheKey -R ${{ env.REPOSITORY_NAME }} --confirm
+            done
+            
+            # Get length of $cacheKeys array
+            len=${#cacheKeys[@]}
+            if [[ $len -eq $zero ]];
+            then
+              echo "Done"
+              break
+            fi
           done
-          echo "Done"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
