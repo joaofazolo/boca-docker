@@ -1,4 +1,10 @@
 name: Delete untagged Docker images on ghcr.io
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
 on:
   # Run on button click
   workflow_dispatch:
@@ -15,7 +21,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        image: [boca-base, boca-web]
+        image: [boca-base, boca-web, boca-jail]
     runs-on: ubuntu-latest
 
     steps:
