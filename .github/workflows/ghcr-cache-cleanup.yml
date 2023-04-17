@@ -1,4 +1,4 @@
-name: Cleanup workflow cache entries
+name: Cleanup workflow cache entries by a branch
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -19,6 +19,11 @@ env:
 
 jobs:
   cleanup:
+    permissions:
+      # `actions:write` permission is required to delete caches
+      # See also: https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-a-github-actions-cache-for-a-repository-using-a-cache-id
+      actions: write
+      contents: read
     runs-on: ubuntu-latest
 
     steps:
@@ -27,17 +32,18 @@ jobs:
       - 
         name: Checkout repository
         uses: actions/checkout@v3
-        
+
+      # Force deletion of caches overriding default cache eviction policy
+      # https://github.com/marketplace/actions/cache
       - 
         name: Cleanup cache entries
         run: |
           gh extension install actions/gh-actions-cache
 
-          #BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
-          #echo $BRANCH_NAME
-          
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+
           #echo "Fetching list of cache key"
-          cacheKeysForPR=$(gh actions-cache list -R ${{ env.REPOSITORY_NAME }})
+          cacheKeysForPR=$(gh actions-cache list -R ${{ env.REPOSITORY_NAME }} -B $BRANCH_NAME | cut -f 1)
 
           ## Setting this to not fail the workflow while deleting cache keys. 
           set +e
