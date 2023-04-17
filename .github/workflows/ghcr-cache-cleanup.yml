@@ -22,28 +22,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout a repository, so the workflow can access it
+      # https://github.com/marketplace/actions/checkout
       - 
-        name: Check out code
+        name: Checkout repository
         uses: actions/checkout@v3
         
       - 
-        name: Cleanup
+        name: Cleanup cache entries
         run: |
           gh extension install actions/gh-actions-cache
 
-          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
-          echo $BRANCH_NAME
+          #BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+          #echo $BRANCH_NAME
           
           #echo "Fetching list of cache key"
-          #cacheKeysForPR=$(gh actions-cache list -R ${{ env.REPOSITORY_NAME }} | cut -f 1 )
+          cacheKeysForPR=$(gh actions-cache list -R ${{ env.REPOSITORY_NAME }})
 
           ## Setting this to not fail the workflow while deleting cache keys. 
-          #set +e
-          #echo "Deleting caches..."
-          #for cacheKey in $cacheKeysForPR
-          #do
+          set +e
+          echo "Deleting caches..."
+          for cacheKey in $cacheKeysForPR
+          do
           #    gh actions-cache delete $cacheKey -R ${{ env.REPOSITORY_NAME }} --confirm
-          #done
-          #echo "Done"
+              echo $cacheKey
+          done
+          echo "Done"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
