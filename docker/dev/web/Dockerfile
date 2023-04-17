@@ -27,38 +27,16 @@ ENV CREATED_AT 2020-06-26
 ENV UPDATED_AT 2023-04-10
 
 # Basic setup
-RUN apt-get -y update && \
-    apt-get -y dist-upgrade && \
-    apt-get -y install \
-        git \
-        # Required to establish connection with database server \
-        postgresql-client \
+RUN apt-get -y update \
+    && apt-get -y install \
         # Required to build ballons \
-        php-gd && \
-    rm -rf /var/lib/apt/lists/*
+        php-gd \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /var/www
-# Clone BOCA repository
-RUN git clone https://github.com/cassiopc/boca.git
+COPY --chmod=755 --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" docker/dev/web/init.sh /
 
-WORKDIR /var/www/boca
-
-RUN install tools/boca-fixssh /usr/sbin/ && \
-	install tools/cron-boca-fixssh /etc/cron.d/ && \
-	chmod 700 /usr/sbin/boca-fixssh && \
-    cp tools/000-boca.conf /etc/apache2/sites-enabled/000-boca.conf && \
-    chown -R www-data.www-data /var/www/boca && \
-    chmod -R go-rwx /var/www/boca/src/private
-
-COPY LICENSE /var/www/boca/src/private
-# Copy modified source code file(s)
-COPY src/private/conf.php /var/www/boca/src/private
-COPY LICENSE /
-COPY docker/dev/web/init.sh /
-RUN chmod 777 /init.sh
+USER $APACHE_RUN_USER
 
 EXPOSE 80
- 
-WORKDIR /var/www/boca
 
 ENTRYPOINT ["/init.sh"]

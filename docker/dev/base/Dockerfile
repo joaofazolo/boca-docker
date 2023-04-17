@@ -18,6 +18,14 @@
 #
 #========================================================================
 
+# This stage clones BOCA's repository
+FROM ubuntu:focal as bocarepo
+RUN apt-get -y update \
+    && apt-get -y install \
+        git
+WORKDIR /
+RUN git clone https://github.com/cassiopc/boca.git
+
 # Build base image using ubuntu:focal
 # Snap did not build boca-jail properly on ubuntu:bionic 
 # error: cannot list snaps: cannot communicate with server: Get http://localhost/v2/snaps: dial unix /run/snapd.socket: connect: no such file or directory
@@ -48,41 +56,57 @@ ENV TZ America/Sao_Paulo
 
 ENV APACHE_RUN_USER  www-data
 ENV APACHE_RUN_GROUP www-data
-ENV APACHE_LOG_DIR   /var/log/apache2
 ENV APACHE_PID_FILE  /var/run/apache2/apache2.pid
 ENV APACHE_RUN_DIR   /var/run/apache2
 ENV APACHE_LOCK_DIR  /var/lock/apache2
 ENV APACHE_LOG_DIR   /var/log/apache2
 
-RUN apt-get -y update && \
-    apt-get -y install \
-        tzdata \
-        locales \
-        software-properties-common \
+RUN apt-get -y update \
+    && apt-get -y dist-upgrade \
+    && apt-get -y install \
         apache2 \
-        make \
+        debootstrap \
         gcc \
+        libapache2-mod-php \
+        locales \
+        make \
         php \
         php-pgsql \
-        libapache2-mod-php \
         php-zip \
+        postgresql-client \
         quotatool \
-        debootstrap \
-        schroot && \
-    rm -rf /var/lib/apt/lists/*
+        schroot \
+        software-properties-common \
+        tzdata \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p $APACHE_RUN_DIR && \
-    mkdir -p $APACHE_LOCK_DIR && \
-    mkdir -p $APACHE_LOG_DIR
+RUN mkdir -p $APACHE_LOCK_DIR && \
+    mkdir -p $APACHE_LOG_DIR && \
+    mkdir -p $APACHE_RUN_DIR
 
-RUN echo "Setting time zone to '${TZ}'" \
-    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone && \
-    echo "Etc/UTC" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata
+RUN echo "Setting time zone to '${TZ}'" ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && echo "Etc/UTC" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata
 
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-RUN ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
-    ln -sf /proc/self/fd/1 /var/log/apache2/error.log
- 
-WORKDIR /var/www
+RUN ln -sf /proc/self/fd/1 ${APACHE_LOG_DIR}/access.log \
+    && ln -sf /proc/self/fd/1 ${APACHE_LOG_DIR}/error.log
+
+WORKDIR /var/www/boca
+# Copy BOCA repository from base image
+COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/src /var/www/boca/src
+COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/tools /var/www/boca/tools
+# Copy modified local source code file(s)
+COPY --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" src/private/conf.php /var/www/boca/src/private
+COPY --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" src/private/createdb.php /var/www/boca/src/private
+
+RUN install tools/boca-fixssh /usr/sbin/ \
+	&& install tools/cron-boca-fixssh /etc/cron.d/ \
+	&& chmod 700 /usr/sbin/boca-fixssh \
+    && cp tools/000-boca.conf /etc/apache2/sites-enabled/000-boca.conf \
+    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" /var/www/boca \
+    && chmod -R go-rwx /var/www/boca/src/private \
+    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOCK_DIR" \
+    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR" \
+    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_RUN_DIR"

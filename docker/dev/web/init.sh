@@ -86,5 +86,4 @@ else
         "GRANT ALL ON DATABASE $BOCA_DB_NAME TO $BOCA_DB_USER;"
 fi
 
-service php7.2-fpm start
 apache2 -DFOREGROUND

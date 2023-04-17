@@ -57,6 +57,7 @@ docker_setup_env() {
 
 docker_setup_env
 
+echo "bocadir=/var/www/boca" > /etc/boca.conf && \
 echo "bdserver=$BOCA_DB_HOST" >> /etc/boca.conf && \
 echo "bdcreated=y" >> /etc/boca.conf
 
@@ -70,5 +71,4 @@ done
   
 >&2 echo "PostgreSQL server is up - executing command"
 
-boca-autojudge &
-apache2 -DFOREGROUND
+boca-autojudge
