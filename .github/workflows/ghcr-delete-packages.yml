@@ -1,11 +1,13 @@
-name: Cleanup caches by a branch
+name: Delete Docker images on ghcr.io
 on:
-  # Run on PR closed
-  pull_request:
-    types:
-      - closed
-  # or on button click
+  # Run on button click
   workflow_dispatch:
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY_HOST: ghcr.io
+  # Use github.repository (<account>/<repo>)
+  REPOSITORY_NAME: ${{ github.repository }}
 
 jobs:
   cleanup:
@@ -17,7 +19,7 @@ jobs:
       - 
         uses: actions/delete-package-versions@v4
         with: 
-          package-name: 'boca-base'
+          package-name: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
           package-type: 'container'
           min-versions-to-keep: 0
           delete-only-untagged-versions: 'true'
