@@ -1,4 +1,4 @@
-name: Delete Docker images on ghcr.io
+name: Delete untagged Docker images on ghcr.io
 on:
   # Run on button click
   workflow_dispatch:
@@ -12,8 +12,10 @@ env:
 jobs:
   cleanup:
     permissions:
-      contents: read
       packages: write
+    strategy:
+      matrix:
+        image: [boca-base, boca-web]
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +24,7 @@ jobs:
       - 
         uses: actions/delete-package-versions@v4
         with: 
-          package-name: 'boca-docker/boca-base'
+          package-name: 'boca-docker/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
           min-versions-to-keep: 0
