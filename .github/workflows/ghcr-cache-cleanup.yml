@@ -1,4 +1,4 @@
-name: Cleanup workflow cache entries
+name: Delete GitHub Actions caches for repository
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -6,7 +6,10 @@ name: Cleanup workflow cache entries
 # documentation.
 
 on:
-  # Run on button click
+  # Run on Sundays at 10:15 AM UTC
+  schedule:
+    - cron: '15 10 * * 0'
+  # or on button click
   workflow_dispatch:
 
 env:
@@ -37,8 +40,6 @@ jobs:
         name: Delete all cache entries
         run: |
           gh extension install actions/gh-actions-cache
-
-          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
 
           while true
           do
