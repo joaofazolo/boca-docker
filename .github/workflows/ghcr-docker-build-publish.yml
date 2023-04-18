@@ -126,16 +126,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - 
-        name: Build and export image to file (boca-base)
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: docker/dev/base/Dockerfile
-          tags: boca-base
-          outputs: type=docker,dest=/tmp/boca-base.tar
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - 
+      #   name: Build and export image to file (boca-base)
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     file: docker/dev/base/Dockerfile
+      #     tags: boca-base
+      #     outputs: type=docker,dest=/tmp/boca-base.tar
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
       - 
         name: Build and export image to file (boca-web)
@@ -165,13 +165,13 @@ jobs:
 
       # Upload images allowing to share them between jobs
       # https://github.com/actions/upload-artifact
-      -
-        name: Upload image (boca-base)
-        uses: actions/upload-artifact@v3
-        with:
-          name: boca-base
-          path: /tmp/boca-base.tar
-          retention-days: 7
+      # -
+      #   name: Upload image (boca-base)
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: boca-base
+      #     path: /tmp/boca-base.tar
+      #     retention-days: 7
 
       -
         name: Upload image (boca-web)
@@ -200,7 +200,7 @@ jobs:
       actions: read
     strategy:
       matrix:
-        image: [boca-base, boca-web, boca-jail]
+        image: [boca-web, boca-jail]
     runs-on: ubuntu-latest
     needs: build
 
@@ -255,7 +255,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        image: [boca-base, boca-web, boca-jail]
+        image: [boca-web, boca-jail]
     runs-on: ubuntu-latest
     needs: build
 
