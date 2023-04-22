@@ -1,3 +1,6 @@
+[![GitHub release](https://img.shields.io/github/release/joaofazolo/boca-docker.svg?style=flat-square)](https://github.com/joaofazolo/boca-docker/releases/latest)
+[![Build and publish Docker images on ghcr.io workflow](https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?branch=master&label=build-and-publish-Docker-images-on-ghcr.io&logo=github&style=flat-square)](https://github.com/joaofazolo/boca-docker/actions?workflow=build)
+
 # boca-docker
 
 BOCA Online Contest Administrator (known simply as BOCA) is an administration system to held programming contests (e.g., ACM-ICPC, Maratona de Programação da SBC). According to the developers, its main features are portability, concurrency control, multi-site and distributed contests, and a simple web interface (for details refer to https://www.ime.usp.br/~cassio/boca/ and https://github.com/cassiopc/boca).
