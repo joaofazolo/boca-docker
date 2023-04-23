@@ -29,6 +29,14 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm/v7
+          - linux/arm64/v8
+          - linux/ppc64le
+          - linux/s390x
     runs-on: ubuntu-latest
 
     steps:
@@ -91,7 +99,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm/v7,linux/arm64/v8,linux/ppc64le,linux/s390x
+          platforms: ${{ matrix.platform }}
           file: docker/dev/base/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_base.outputs.tags }}
@@ -104,6 +112,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          platforms: ${{ matrix.platform }}
           file: docker/dev/web/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_web.outputs.tags }}
@@ -113,19 +122,19 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - 
-        name: Build and push image (boca-jail)
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: docker/dev/jail/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_jail.outputs.tags }}
-          labels: ${{ steps.meta_jail.outputs.labels }}
-          build-args: |
-            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#       - 
+#         name: Build and push image (boca-jail)
+#         uses: docker/build-push-action@v4
+#         with:
+#           context: .
+#           file: docker/dev/jail/Dockerfile
+#           push: ${{ github.event_name != 'pull_request' }}
+#           tags: ${{ steps.meta_jail.outputs.tags }}
+#           labels: ${{ steps.meta_jail.outputs.labels }}
+#           build-args: |
+#             BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+#           cache-from: type=gha
+#           cache-to: type=gha,mode=max
 
       # - 
       #   name: Build and export image to file (boca-base)
@@ -151,18 +160,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - 
-        name: Build and export image to file (boca-jail)
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: docker/dev/jail/Dockerfile
-          tags: boca-jail
-          build-args: |
-            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-          outputs: type=docker,dest=/tmp/boca-jail.tar
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#       - 
+#         name: Build and export image to file (boca-jail)
+#         uses: docker/build-push-action@v4
+#         with:
+#           context: .
+#           file: docker/dev/jail/Dockerfile
+#           tags: boca-jail
+#           build-args: |
+#             BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+#           outputs: type=docker,dest=/tmp/boca-jail.tar
+#           cache-from: type=gha
+#           cache-to: type=gha,mode=max
 
       # Upload images allowing to share them between jobs
       # https://github.com/actions/upload-artifact
@@ -182,13 +191,13 @@ jobs:
           path: /tmp/boca-web.tar
           retention-days: 7
 
-      -
-        name: Upload image (boca-jail)
-        uses: actions/upload-artifact@v3
-        with:
-          name: boca-jail
-          path: /tmp/boca-jail.tar
-          retention-days: 7
+#       -
+#         name: Upload image (boca-jail)
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: boca-jail
+#           path: /tmp/boca-jail.tar
+#           retention-days: 7
 
   scan:
     permissions:
@@ -201,7 +210,7 @@ jobs:
       actions: read
     strategy:
       matrix:
-        image: [boca-web, boca-jail]
+        image: [boca-web]
     runs-on: ubuntu-latest
     needs: build
 
@@ -256,7 +265,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        image: [boca-web, boca-jail]
+        image: [boca-web]
     runs-on: ubuntu-latest
     needs: build
 
