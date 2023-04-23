@@ -164,7 +164,8 @@ jobs:
           file: docker/dev/web/Dockerfile
           tags: boca-web
           build-args: |
-            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+            #BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+            BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
           outputs: type=docker,dest=/tmp/boca-web.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
