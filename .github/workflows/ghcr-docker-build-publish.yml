@@ -37,6 +37,11 @@ jobs:
 #           - linux/arm64/v8
 #           - linux/ppc64le
 #           - linux/s390x
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     runs-on: ubuntu-latest
 
     steps:
@@ -57,6 +62,8 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
 
       # Login to a Docker registry (except on PR)
       # https://github.com/docker/login-action
@@ -102,8 +109,9 @@ jobs:
           platforms: ${{ matrix.platform }}
           file: docker/dev/base/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_base.outputs.tags }}
-          labels: ${{ steps.meta_base.outputs.labels }}
+          tags: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-jail
+#          tags: ${{ steps.meta_base.outputs.tags }}
+#          labels: ${{ steps.meta_base.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -118,7 +126,8 @@ jobs:
           tags: ${{ steps.meta_web.outputs.tags }}
           labels: ${{ steps.meta_web.outputs.labels }}
           build-args: |
-            BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+            #BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+            BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-jail
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
