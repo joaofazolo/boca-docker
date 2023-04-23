@@ -1,4 +1,4 @@
-name: Build and publish Docker images on ghcr.io (nightly/new release)
+name: Build and publish multi-platform Docker images on ghcr.io (nightly/new release)
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -32,11 +32,11 @@ jobs:
     strategy:
       matrix:
         platform:
-          # - linux/amd64
+          - linux/amd64
           # - linux/arm/v7
-#           - linux/arm64/v8
-#           - linux/ppc64le
-          - linux/s390x
+          # - linux/arm64/v8
+          # - linux/ppc64le
+          # - linux/s390x
     services:
       registry:
         image: registry:2
@@ -71,7 +71,7 @@ jobs:
         name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          path: /tmp/.buildx-cache
+          path: /tmp/.buildx-cache-${{ matrix.platform }}
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -89,12 +89,12 @@ jobs:
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
-      - 
-        name: Extract Docker metadata (boca-base)
-        id: meta_base
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
+      # - 
+      #   name: Extract Docker metadata (boca-base)
+      #   id: meta_base
+      #   uses: docker/metadata-action@v4
+      #   with:
+      #     images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
 
       - 
         name: Extract Docker metadata (boca-web)
@@ -117,16 +117,13 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: ${{ matrix.platform }}
           file: docker/dev/base/Dockerfile
+          platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
-#          tags: ${{ steps.meta_base.outputs.tags }}
-#          labels: ${{ steps.meta_base.outputs.labels }}
-          # cache-from: type=local
-          # cache-to: type=gha,mode=max
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          labels: ${{ steps.meta_base.outputs.labels }}
+          cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.platform }}
+          cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.platform }},mode=max
 
       -
         # Temp fix
@@ -134,8 +131,8 @@ jobs:
         # https://github.com/moby/buildkit/issues/1896
         name: Move cache
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          rm -rf /tmp/.buildx-cache-${{ matrix.platform }}
+          mv /tmp/.buildx-cache-new-${{ matrix.platform }} /tmp/.buildx-cache-${{ matrix.platform }}
 
       - 
         name: Build and push image (boca-web)
@@ -187,7 +184,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: boca-web
           build-args: |
-            #BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+            # BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
             BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
           outputs: type=docker,dest=/tmp/boca-web.tar
           cache-from: type=gha
