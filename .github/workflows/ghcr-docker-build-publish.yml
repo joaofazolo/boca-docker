@@ -109,7 +109,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           file: docker/dev/base/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-jail
+          tags: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
 #          tags: ${{ steps.meta_base.outputs.tags }}
 #          labels: ${{ steps.meta_base.outputs.labels }}
           cache-from: type=gha
