@@ -145,7 +145,7 @@ jobs:
           tags: ${{ steps.meta_web.outputs.tags }}
           labels: ${{ steps.meta_web.outputs.labels }}
           build-args: |
-            BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+            BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -160,7 +160,7 @@ jobs:
           tags: ${{ steps.meta_jail.outputs.tags }}
           labels: ${{ steps.meta_jail.outputs.labels }}
           build-args: |
-            BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+            BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -184,7 +184,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: boca-web
           build-args: |
-            BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+            BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
           outputs: type=docker,dest=/tmp/${{ matrix.platform }}/boca-web.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -198,7 +198,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: boca-jail
           build-args: |
-            BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+            BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
           outputs: type=docker,dest=/tmp/${{ matrix.platform }}/boca-jail.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
