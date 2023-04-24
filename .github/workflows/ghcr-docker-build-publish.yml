@@ -89,12 +89,12 @@ jobs:
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
-      # - 
-      #   name: Extract Docker metadata (boca-base)
-      #   id: meta_base
-      #   uses: docker/metadata-action@v4
-      #   with:
-      #     images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base
+      - 
+        name: Extract Docker metadata (boca-base)
+        id: meta_base
+        uses: docker/metadata-action@v4
+        with:
+          images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
 
       - 
         name: Extract Docker metadata (boca-web)
@@ -120,7 +120,7 @@ jobs:
           file: docker/dev/base/Dockerfile
           platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+          tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.platform }}
           cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.platform }},mode=max
@@ -145,24 +145,24 @@ jobs:
           tags: ${{ steps.meta_web.outputs.tags }}
           labels: ${{ steps.meta_web.outputs.labels }}
           build-args: |
-            #BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
             BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-#       - 
-#         name: Build and push image (boca-jail)
-#         uses: docker/build-push-action@v4
-#         with:
-#           context: .
-#           file: docker/dev/jail/Dockerfile
-#           push: ${{ github.event_name != 'pull_request' }}
-#           tags: ${{ steps.meta_jail.outputs.tags }}
-#           labels: ${{ steps.meta_jail.outputs.labels }}
-#           build-args: |
-#             BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-#           cache-from: type=gha
-#           cache-to: type=gha,mode=max
+      - 
+        name: Build and push image (boca-jail)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/jail/Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta_jail.outputs.tags }}
+          labels: ${{ steps.meta_jail.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # - 
       #   name: Build and export image to file (boca-base)
@@ -171,7 +171,7 @@ jobs:
       #     context: .
       #     file: docker/dev/base/Dockerfile
       #     tags: boca-base
-      #     outputs: type=docker,dest=/tmp/boca-base.tar
+      #     outputs: type=docker,dest=/tmp/${{ matrix.platform }}/boca-base.tar
       #     cache-from: type=gha
       #     cache-to: type=gha,mode=max
 
@@ -184,24 +184,24 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: boca-web
           build-args: |
-            # BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
             BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
-          outputs: type=docker,dest=/tmp/boca-web.tar
+          outputs: type=docker,dest=/tmp/${{ matrix.platform }}/boca-web.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-#       - 
-#         name: Build and export image to file (boca-jail)
-#         uses: docker/build-push-action@v4
-#         with:
-#           context: .
-#           file: docker/dev/jail/Dockerfile
-#           tags: boca-jail
-#           build-args: |
-#             BASE_IMAGE=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-#           outputs: type=docker,dest=/tmp/boca-jail.tar
-#           cache-from: type=gha
-#           cache-to: type=gha,mode=max
+      - 
+        name: Build and export image to file (boca-jail)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/jail/Dockerfile
+          platforms: ${{ matrix.platform }}
+          tags: boca-jail
+          build-args: |
+            BASE_IMAGE=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+          outputs: type=docker,dest=/tmp/${{ matrix.platform }}/boca-jail.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # Upload images allowing to share them between jobs
       # https://github.com/actions/upload-artifact
@@ -210,7 +210,7 @@ jobs:
       #   uses: actions/upload-artifact@v3
       #   with:
       #     name: boca-base
-      #     path: /tmp/boca-base.tar
+      #     path: /tmp/${{ matrix.platform }}/boca-base.tar
       #     retention-days: 7
 
       -
@@ -218,16 +218,16 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: boca-web
-          path: /tmp/boca-web.tar
+          path: /tmp/${{ matrix.platform }}/boca-web.tar
           retention-days: 7
 
-#       -
-#         name: Upload image (boca-jail)
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: boca-jail
-#           path: /tmp/boca-jail.tar
-#           retention-days: 7
+      -
+        name: Upload image (boca-jail)
+        uses: actions/upload-artifact@v3
+        with:
+          name: boca-jail
+          path: /tmp/${{ matrix.platform }}/boca-jail.tar
+          retention-days: 7
 
   scan:
     permissions:
@@ -240,7 +240,15 @@ jobs:
       actions: read
     strategy:
       matrix:
-        image: [boca-web]
+        platform:
+          - linux/amd64
+          # - linux/arm/v7
+          # - linux/arm64/v8
+          # - linux/ppc64le
+          # - linux/s390x
+        image:
+          - boca-web
+          - boca-jail
     runs-on: ubuntu-latest
     needs: build
 
@@ -256,13 +264,21 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ matrix.image }}
-          path: /tmp
+          path: /tmp/${{ matrix.platform }}
 
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/${{ matrix.image }}.tar
+          docker load --input /tmp/${{ matrix.platform }}/${{ matrix.image }}.tar
           docker image ls -a
+
+      # Set an environment variable
+      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+      - 
+        name: Write PLATFORM_NAME variable to GITHUB_ENV
+        run: |
+          platform='${{ matrix.platform }}'
+          echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
 
       # Run Trivy vulnerability scanner on image
       # https://github.com/marketplace/actions/aqua-security-trivy
@@ -272,7 +288,7 @@ jobs:
         with:
           image-ref: '${{ matrix.image }}'
           format: 'sarif'
-          output: 'trivy-${{ matrix.image }}-image-results.sarif'
+          output: 'trivy-${{ env.PLATFORM_NAME }}-${{ matrix.image }}-image-results.sarif'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
@@ -284,7 +300,7 @@ jobs:
         name: Upload Trivy image scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'trivy-${{ matrix.image }}-image-results.sarif'
+          sarif_file: 'trivy-${{ env.PLATFORM_NAME }}-${{ matrix.image }}-image-results.sarif'
           category: 'image'
 
   # Ensure that the repository is given Admin access by going on
@@ -295,19 +311,19 @@ jobs:
       packages: write
     strategy:
       matrix:
-        image: [boca-web]
+        image:
+          - boca-web
+          - boca-jail
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      # Set an environment variable
-      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
       - 
-        name: Write PROJECT_NAME variable to GITHUB_ENV
+        name: Write PACKAGE_NAME variable to GITHUB_ENV
         run: |
           owner='${{ env.OWNER_NAME }}'
           repo='${{ env.REPOSITORY_NAME }}'
-          echo "PROJECT_NAME=${repo//$owner\//}" >> $GITHUB_ENV
+          echo "PACKAGE_NAME=${repo//$owner\//}" >> $GITHUB_ENV
 
       # Delete versions of a package from GitHub Packages
       # https://github.com/marketplace/actions/delete-package-versions
@@ -315,7 +331,7 @@ jobs:
         name: Delete untagged Docker images on ghcr.io
         uses: actions/delete-package-versions@v4
         with: 
-          package-name: '${{ env.PROJECT_NAME }}/${{ matrix.image }}'
+          package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
           min-versions-to-keep: 0
