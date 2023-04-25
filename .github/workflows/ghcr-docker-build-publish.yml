@@ -277,7 +277,7 @@ jobs:
         name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: ${{ env.PLATFORM_NAME }}-${{ matrix.image }}
+          name: ${{ env.PLATFORM_NAME }}-${{ matrix.image }}.tar
           path: /tmp
 
       -
