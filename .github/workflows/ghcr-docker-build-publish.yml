@@ -179,7 +179,7 @@ jobs:
       #     context: .
       #     file: docker/dev/base/Dockerfile
       #     tags: boca-base
-      #     outputs: type=docker,dest=/tmp/${{ env.PLATFORM_NAME }}-boca-base.tar
+      #     outputs: type=docker,dest=/tmp/boca-base_${{ env.PLATFORM_NAME }}.tar
       #     cache-from: type=local,src=/tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
       #     cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ env.PLATFORM_NAME }},mode=max
 
@@ -190,10 +190,10 @@ jobs:
           context: .
           file: docker/dev/web/Dockerfile
           platforms: ${{ matrix.platform }}
-          tags: boca-web
+          tags: boca-web_${{ env.PLATFORM_NAME }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
-          outputs: type=docker,dest=/tmp/${{ env.PLATFORM_NAME }}-boca-web.tar
+          outputs: type=docker,dest=/tmp/boca-web_${{ env.PLATFORM_NAME }}.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -204,10 +204,10 @@ jobs:
       #     context: .
       #     file: docker/dev/jail/Dockerfile
       #     platforms: ${{ matrix.platform }}
-      #     tags: boca-jail
+      #     tags: boca-jail_${{ env.PLATFORM_NAME }}
       #     build-args: |
       #       BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
-      #     outputs: type=docker,dest=/tmp/${{ env.PLATFORM_NAME }}-boca-jail.tar
+      #     outputs: type=docker,dest=/tmp/boca-jail_${{ env.PLATFORM_NAME }}.tar
       #     cache-from: type=gha
       #     cache-to: type=gha,mode=max
 
@@ -218,7 +218,7 @@ jobs:
       #   uses: actions/upload-artifact@v3
       #   with:
       #     name: boca-base
-      #     path: /tmp/${{ env.PLATFORM_NAME }}-boca-base.tar
+      #     path: /tmp/boca-base_${{ env.PLATFORM_NAME }}.tar
       #     retention-days: 7
 
       -
@@ -226,7 +226,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: boca-web
-          path: /tmp/${{ env.PLATFORM_NAME }}-boca-web.tar
+          path: /tmp/boca-web_${{ env.PLATFORM_NAME }}.tar
           retention-days: 7
 
       - 
@@ -240,7 +240,7 @@ jobs:
       #   uses: actions/upload-artifact@v3
       #   with:
       #     name: boca-jail
-      #     path: /tmp/${{ env.PLATFORM_NAME }}-boca-jail.tar
+      #     path: /tmp/boca-jail_${{ env.PLATFORM_NAME }}.tar
       #     retention-days: 7
 
   scan:
@@ -284,13 +284,13 @@ jobs:
         name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: '${{ env.PLATFORM_NAME }}-${{ matrix.image }}'
+          name: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
           path: /tmp
 
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/${{ env.PLATFORM_NAME }}-${{ matrix.image }}.tar
+          docker load --input /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
           docker image ls -a
 
       # Run Trivy vulnerability scanner on image
@@ -301,7 +301,7 @@ jobs:
         with:
           image-ref: '${{ matrix.image }}'
           format: 'sarif'
-          output: 'trivy-${{ env.PLATFORM_NAME }}-${{ matrix.image }}-image-results.sarif'
+          output: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
@@ -313,7 +313,7 @@ jobs:
         name: Upload Trivy image scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'trivy-${{ env.PLATFORM_NAME }}-${{ matrix.image }}-image-results.sarif'
+          sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
           category: 'image'
 
   # Ensure that the repository is given Admin access by going on
