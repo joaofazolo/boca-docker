@@ -289,6 +289,12 @@ jobs:
       #     docker load --input /tmp/${{ env.PLATFORM_NAME }}-${{ matrix.image }}.tar
       #     docker image ls -a
 
+      -
+        name: Pull Docker image
+        run: |
+          docker pull localhost:5000/${{ env.REPOSITORY_NAME }}/boca-web
+          docker image ls -a
+
       # Run Trivy vulnerability scanner on image
       # https://github.com/marketplace/actions/aqua-security-trivy
       - 
