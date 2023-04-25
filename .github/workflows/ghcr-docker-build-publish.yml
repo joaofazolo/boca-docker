@@ -217,7 +217,7 @@ jobs:
       #   name: Upload image (boca-base)
       #   uses: actions/upload-artifact@v3
       #   with:
-      #     name: boca-base
+      #     name: boca-base_${{ env.PLATFORM_NAME }}
       #     path: /tmp/boca-base_${{ env.PLATFORM_NAME }}.tar
       #     retention-days: 7
 
@@ -225,7 +225,7 @@ jobs:
         name: Upload image (boca-web)
         uses: actions/upload-artifact@v3
         with:
-          name: boca-web
+          name: boca-web_${{ env.PLATFORM_NAME }}
           path: /tmp/boca-web_${{ env.PLATFORM_NAME }}.tar
           retention-days: 7
 
@@ -239,7 +239,7 @@ jobs:
       #   name: Upload image (boca-jail)
       #   uses: actions/upload-artifact@v3
       #   with:
-      #     name: boca-jail
+      #     name: boca-jail_${{ env.PLATFORM_NAME }}
       #     path: /tmp/boca-jail_${{ env.PLATFORM_NAME }}.tar
       #     retention-days: 7
 
