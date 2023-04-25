@@ -65,13 +65,21 @@ jobs:
         with:
           driver-opts: network=host
 
+      # Set an environment variable
+      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+      - 
+        name: Write PLATFORM_NAME variable to GITHUB_ENV
+        run: |
+          platform='${{ matrix.platform }}'
+          echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
+
       # Cache storage backends with GitHub Actions
       # https://github.com/actions/cache
       -
         name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          path: /tmp/.buildx-cache-${{ matrix.platform }}
+          path: /tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -122,8 +130,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
-          cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.platform }}
-          cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.platform }},mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
+          cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ env.PLATFORM_NAME }},mode=max
 
       -
         # Temp fix
@@ -131,8 +139,8 @@ jobs:
         # https://github.com/moby/buildkit/issues/1896
         name: Move cache
         run: |
-          rm -rf /tmp/.buildx-cache-${{ matrix.platform }}
-          mv /tmp/.buildx-cache-new-${{ matrix.platform }} /tmp/.buildx-cache-${{ matrix.platform }}
+          rm -rf /tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
+          mv /tmp/.buildx-cache-new-${{ env.PLATFORM_NAME }} /tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
 
       - 
         name: Build and push image (boca-web)
@@ -171,9 +179,9 @@ jobs:
       #     context: .
       #     file: docker/dev/base/Dockerfile
       #     tags: boca-base
-      #     outputs: type=docker,dest=/tmp/${{ matrix.platform }}/boca-base.tar
-      #     cache-from: type=gha
-      #     cache-to: type=gha,mode=max
+      #     outputs: type=docker,dest=/tmp/${{ env.PLATFORM_NAME }}-boca-base.tar
+      #     cache-from: type=local,src=/tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
+      #     cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ env.PLATFORM_NAME }},mode=max
 
       - 
         name: Build and export image to file (boca-web)
@@ -185,7 +193,7 @@ jobs:
           tags: boca-web
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
-          outputs: type=docker,dest=/tmp/${{ matrix.platform }}/boca-web.tar
+          outputs: type=docker,dest=/tmp/${{ env.PLATFORM_NAME }}-boca-web.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -199,7 +207,7 @@ jobs:
           tags: boca-jail
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
-          outputs: type=docker,dest=/tmp/${{ matrix.platform }}/boca-jail.tar
+          outputs: type=docker,dest=/tmp/${{ env.PLATFORM_NAME }}-boca-jail.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -210,7 +218,7 @@ jobs:
       #   uses: actions/upload-artifact@v3
       #   with:
       #     name: boca-base
-      #     path: /tmp/${{ matrix.platform }}/boca-base.tar
+      #     path: /tmp/${{ env.PLATFORM_NAME }}-boca-base.tar
       #     retention-days: 7
 
       -
@@ -218,7 +226,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: boca-web
-          path: /tmp/${{ matrix.platform }}/boca-web.tar
+          path: /tmp/${{ env.PLATFORM_NAME }}-boca-web.tar
           retention-days: 7
 
       -
@@ -226,7 +234,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: boca-jail
-          path: /tmp/${{ matrix.platform }}/boca-jail.tar
+          path: /tmp/${{ env.PLATFORM_NAME }}-boca-jail.tar
           retention-days: 7
 
   scan:
@@ -257,28 +265,26 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - 
+        name: Write PLATFORM_NAME variable to GITHUB_ENV
+        run: |
+          platform='${{ matrix.platform }}'
+          echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
+
       # Download artifact from build
       # https://github.com/actions/download-artifact
       -
         name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: ${{ matrix.image }}
-          path: /tmp/${{ matrix.platform }}
+          name: ${{ env.PLATFORM_NAME }}-${{ matrix.image }}
+          path: /tmp
 
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/${{ matrix.platform }}/${{ matrix.image }}.tar
+          docker load --input /tmp/${{ env.PLATFORM_NAME }}-${{ matrix.image }}.tar
           docker image ls -a
-
-      # Set an environment variable
-      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
-      - 
-        name: Write PLATFORM_NAME variable to GITHUB_ENV
-        run: |
-          platform='${{ matrix.platform }}'
-          echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
 
       # Run Trivy vulnerability scanner on image
       # https://github.com/marketplace/actions/aqua-security-trivy
