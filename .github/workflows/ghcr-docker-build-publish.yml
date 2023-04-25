@@ -150,7 +150,9 @@ jobs:
           file: docker/dev/web/Dockerfile
           platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_web.outputs.tags }}
+          tags: |
+            localhost:5000/${{ env.REPOSITORY_NAME }}/boca-web
+            ${{ steps.meta_web.outputs.tags }}
           labels: ${{ steps.meta_web.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
@@ -183,19 +185,19 @@ jobs:
       #     cache-from: type=local,src=/tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
       #     cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ env.PLATFORM_NAME }},mode=max
 
-      - 
-        name: Build and export image to file (boca-web)
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: docker/dev/web/Dockerfile
-          platforms: ${{ matrix.platform }}
-          tags: boca-web
-          build-args: |
-            BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
-          outputs: type=docker,dest=/tmp/${{ env.PLATFORM_NAME }}-boca-web.tar
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - 
+      #   name: Build and export image to file (boca-web)
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     file: docker/dev/web/Dockerfile
+      #     platforms: ${{ matrix.platform }}
+      #     tags: boca-web
+      #     build-args: |
+      #       BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
+      #     outputs: type=docker,dest=/tmp/${{ env.PLATFORM_NAME }}-boca-web.tar
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
       # - 
       #   name: Build and export image to file (boca-jail)
@@ -221,13 +223,13 @@ jobs:
       #     path: /tmp/${{ env.PLATFORM_NAME }}-boca-base.tar
       #     retention-days: 7
 
-      -
-        name: Upload image (boca-web)
-        uses: actions/upload-artifact@v3
-        with:
-          name: boca-web
-          path: /tmp/${{ env.PLATFORM_NAME }}-boca-web.tar
-          retention-days: 7
+      # -
+      #   name: Upload image (boca-web)
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: boca-web
+      #     path: /tmp/${{ env.PLATFORM_NAME }}-boca-web.tar
+      #     retention-days: 7
 
       # -
       #   name: Upload image (boca-jail)
@@ -265,27 +267,27 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - 
-        name: Write PLATFORM_NAME variable to GITHUB_ENV
-        run: |
-          platform='${{ matrix.platform }}'
-          echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
-          ls /tmp
+      # - 
+      #   name: Write PLATFORM_NAME variable to GITHUB_ENV
+      #   run: |
+      #     platform='${{ matrix.platform }}'
+      #     echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
+      #     ls /tmp
 
       # Download artifact from build
       # https://github.com/actions/download-artifact
-      -
-        name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: '${{ env.PLATFORM_NAME }}-${{ matrix.image }}'
-          path: /tmp
+      # -
+      #   name: Download artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: '${{ env.PLATFORM_NAME }}-${{ matrix.image }}'
+      #     path: /tmp
 
-      -
-        name: Load Docker image
-        run: |
-          docker load --input /tmp/${{ env.PLATFORM_NAME }}-${{ matrix.image }}.tar
-          docker image ls -a
+      # -
+      #   name: Load Docker image
+      #   run: |
+      #     docker load --input /tmp/${{ env.PLATFORM_NAME }}-${{ matrix.image }}.tar
+      #     docker image ls -a
 
       # Run Trivy vulnerability scanner on image
       # https://github.com/marketplace/actions/aqua-security-trivy
@@ -293,7 +295,7 @@ jobs:
         name: Run Trivy vulnerability scanner on image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ matrix.image }}'
+          image-ref: 'localhost:5000/${{ env.REPOSITORY_NAME }}/boca-web'
           format: 'sarif'
           output: 'trivy-${{ env.PLATFORM_NAME }}-${{ matrix.image }}-image-results.sarif'
           ignore-unfixed: true
@@ -322,7 +324,7 @@ jobs:
           - boca-web
           # - boca-jail
     runs-on: ubuntu-latest
-    needs: build
+    needs: scan
 
     steps:
       - 
