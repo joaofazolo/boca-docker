@@ -150,9 +150,8 @@ jobs:
           file: docker/dev/web/Dockerfile
           platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            localhost:5000/${{ env.REPOSITORY_NAME }}/boca-web
-            ${{ steps.meta_web.outputs.tags }}
+          tags: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-web
+            # ${{ steps.meta_web.outputs.tags }}
           labels: ${{ steps.meta_web.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
