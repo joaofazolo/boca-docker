@@ -27,8 +27,6 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
-    outputs:
-      shell: ${{ steps.get-matrix.outputs.platform }}
 
     steps:
       # Checkout a repository, so the workflow can access it
@@ -47,6 +45,24 @@ jobs:
           echo $matrix
           echo $matrix | jq ".platform"
           echo "platform=$(echo $matrix | jq ".platform")" >> $GITHUB_OUTPUT
+
+  check-setup:
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+
+    steps:
+      - name: Install json2yaml
+        run: |
+          sudo npm install -g json2yaml
+
+      - name: Check test matrix
+        run: |
+          platform=${{ toJSON(needs.setup.outputs.platform) }}
+          echo $platform
+          echo $platform | jq .
+          echo $platform | json2yaml
+
   # build:
   #   permissions:
   #     contents: read
