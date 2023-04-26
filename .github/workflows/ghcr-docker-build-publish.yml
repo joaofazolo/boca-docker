@@ -31,6 +31,9 @@ jobs:
       packages: write
     strategy:
       matrix:
+        image:
+          - boca-web
+          # - boca-jail
         platform:
           - linux/amd64
           # - linux/arm/v7
@@ -99,25 +102,25 @@ jobs:
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - 
-        name: Extract Docker metadata (boca-base)
+        name: Extract Docker metadata (${{ matrix.image }})
         id: meta_base
         uses: docker/metadata-action@v4
         with:
           images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
 
       - 
-        name: Extract Docker metadata (boca-web)
-        id: meta_web
+        name: Extract Docker metadata (${{ matrix.image }})
+        id: meta_image
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-web
+          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
 
-      - 
-        name: Extract Docker metadata (boca-jail)
-        id: meta_jail
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-jail
+      # - 
+      #   name: Extract Docker metadata (boca-jail)
+      #   id: meta_jail
+      #   uses: docker/metadata-action@v4
+      #   with:
+      #     images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-jail
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -144,15 +147,15 @@ jobs:
           mv /tmp/.buildx-cache-new-${{ env.PLATFORM_NAME }} /tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
 
       - 
-        name: Build and push image (boca-web)
+        name: Build and push image (${{ matrix.image }})
         uses: docker/build-push-action@v4
         with:
           context: .
           file: docker/dev/web/Dockerfile
           platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_web.outputs.tags }}
-          labels: ${{ steps.meta_web.outputs.labels }}
+          tags: ${{ steps.meta_image.outputs.tags }}
+          labels: ${{ steps.meta_image.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
           cache-from: type=gha
@@ -185,16 +188,16 @@ jobs:
       #     cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ env.PLATFORM_NAME }},mode=max
 
       - 
-        name: Build and export image to file (boca-web)
+        name: Build and export image to file (${{ matrix.image }})
         uses: docker/build-push-action@v4
         with:
           context: .
           file: docker/dev/web/Dockerfile
           platforms: ${{ matrix.platform }}
-          tags: boca-web_${{ env.PLATFORM_NAME }}
+          tags: ${{ matrix.image }}_${{ env.PLATFORM_NAME }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
-          outputs: type=docker,dest=/tmp/boca-web_${{ env.PLATFORM_NAME }}.tar
+          outputs: type=docker,dest=/tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -223,11 +226,11 @@ jobs:
       #     retention-days: 7
 
       -
-        name: Upload image (boca-web)
+        name: Upload image (${{ matrix.image }})
         uses: actions/upload-artifact@v3
         with:
-          name: boca-web_${{ env.PLATFORM_NAME }}
-          path: /tmp/boca-web_${{ env.PLATFORM_NAME }}.tar
+          name: ${{ matrix.image }}_${{ env.PLATFORM_NAME }}
+          path: /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
           retention-days: 7
 
       # -
