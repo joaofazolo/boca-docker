@@ -46,8 +46,7 @@ jobs:
           matrix=`cat ${JSON}`
           echo $matrix
           echo $matrix | jq ".platform"
-          echo ::set-output name=platform::$(echo $matrix | jq ".platform")
-
+          echo "platform=$(echo $matrix | jq ".platform")" >> $GITHUB_OUTPUT
   # build:
   #   permissions:
   #     contents: read
