@@ -125,7 +125,7 @@ jobs:
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - 
-        name: Build and push image (boca-base)
+        name: Build and push image locally (boca-base)
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -147,11 +147,18 @@ jobs:
           mv /tmp/.buildx-cache-new-${{ env.PLATFORM_NAME }} /tmp/.buildx-cache-${{ env.PLATFORM_NAME }}
 
       - 
-        name: Build and push image (${{ matrix.image }})
+        name: Write FOLDER_NAME variable to GITHUB_ENV
+        run: |
+          dir='${{ matrix.image }}'
+          # Remove 'boca-' from image name
+          echo "FOLDER_NAME=${dir//boca-/}" >> $GITHUB_ENV
+
+      - 
+        name: Build and push image remotely (${{ matrix.image }})
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: docker/dev/web/Dockerfile
+          file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
           platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_image.outputs.tags }}
@@ -192,7 +199,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: docker/dev/web/Dockerfile
+          file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
           platforms: ${{ matrix.platform }}
           tags: ${{ matrix.image }}_${{ env.PLATFORM_NAME }}
           build-args: |
