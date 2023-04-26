@@ -28,7 +28,7 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      shell: ${{ steps.get-matrix.outputs.shell }}
+      shell: ${{ steps.get-matrix.outputs.platform }}
 
     steps:
       # Checkout a repository, so the workflow can access it
@@ -42,10 +42,11 @@ jobs:
         id: get-matrix
         name: Get build matrix from file
         run: |
-          matrix=`cat build/matrix/all.json`
+          JSON=build/matrix/all.json
+          matrix=`cat ${JSON}`
           echo $matrix
-          echo $matrix | jq ".shell"
-          echo ::set-output name=shell::$(echo $matrix | jq ".shell")
+          echo $matrix | jq ".platform"
+          echo ::set-output name=platform::$(echo $matrix | jq ".platform")
 
   # build:
   #   permissions:
