@@ -27,6 +27,9 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.set-matrix.outputs.release }}
+      platform: ${{ steps.set-matrix.outputs.platform }}
 
     steps:
       # Checkout a repository, so the workflow can access it
@@ -39,6 +42,8 @@ jobs:
         id: set-json
         name: Get build matrix from file
         run: |
+
+          # Specify path of matrix file
           JSON=build/matrix/all.json
           echo "json=${JSON}" >> $GITHUB_OUTPUT
           echo ${JSON}
@@ -47,81 +52,80 @@ jobs:
         id: set-matrix
         name: Set build matrix of OS and architectures
         run: |
+
+          # In case jq is not installed
+          apt-get update -y
+          apt-get install -y jq
+
+          # Read matrix from file and set variables
           CONTENT=`cat ${{ steps.set-json.outputs.json }}`
           echo $CONTENT
-          platform=$(echo $CONTENT | jq ".platform")
-          echo ::set-output name=platform::$(echo $CONTENT | jq ".platform")
+          RELEASES=$(echo $CONTENT | jq ".release")
+          echo $RELEASES
+          PLATFORMS=$(echo $CONTENT | jq ".platform")
+          echo $PLATFORMS
+          # Remove square bracket, white spaces and double quotes
+          PLATFORMS=$(echo $PLATFORMS | tr -d "[]| |\"")
+          # Passing matrix between jobs and/or workflows
+          echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
+          echo "platform=${PLATFORMS}" >> "$GITHUB_OUTPUT"
 
-          #CONTENT=$(jq -r 'tostring' ${{ steps.set-json.outputs.json }})
-          #echo "matrix=${CONTENT}" >> $GITHUB_OUTPUT
-          #echo ${CONTENT}
-          #platform=$(echo ${CONTENT} | jq ".platform")
-          #echo $platform
-          #echo "platform=$(echo ${CONTENT} | jq -r '.platform')" >> $GITHUB_OUTPUT
-          #echo ::set-output name=platform::$(echo $matrix | jq ".platfrom")
-
-  check-setup:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        fast-fail: false
-        platform: ${{ fromJSON(needs.setup.outputs.platform) }}
-    needs:
-      - setup
-
-    steps:
-      # - name: Install json2yaml
-      #   run: |
-      #     sudo npm install -g json2yaml
-
-      - name: Check test matrix
-        run: |
-          #echo needs.setup.outputs.platform
-          #platform=${{ toJSON(needs.setup.outputs.platform) }}
-          #echo $platform
-          #echo $platform | jq .
-          #echo $platform | json2yaml
-          echo '${{ matrix.platform }}'
-
-  # build:
-  #   permissions:
-  #     contents: read
-  #     packages: write
+  # check-setup:
+  #   runs-on: ubuntu-latest
   #   strategy:
   #     matrix:
-  #       image:
-  #         - boca-web
-  #         # - boca-jail
-  #       include:
-  #         - image: boca-web
-  #           platforms: linux/amd64,linux/arm/v7,linux/arm64/v8,linux/ppc64le,linux/s390x
-  #   services:
-  #     registry:
-  #       image: registry:2
-  #       ports:
-  #         - 5000:5000
-  #   runs-on: ubuntu-latest
+  #       release: ${{ fromJSON(needs.setup.outputs.release) }}
+  #   needs:
+  #     - setup
 
   #   steps:
-  #     # Checkout a repository, so the workflow can access it
-  #     # https://github.com/marketplace/actions/checkout
   #     - 
-  #       name: Checkout repository
-  #       uses: actions/checkout@v3
+  #       name: Check build matrix
+  #       run: |
 
-  #     # Add support for more platforms with QEMU (optional)
-  #     # https://github.com/docker/setup-qemu-action
-  #     -
-  #       name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v2
+  #         # In case jq is not installed
+  #         apt-get update -y
+  #         apt-get install -y jq
 
-  #     # Create and boot a builder that can be used in the following steps of the workflow
-  #     # https://github.com/docker/setup-buildx-action
-  #     -
-  #       name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v2
-  #       with:
-  #         driver-opts: network=host
+  #         # Print current release and platforms
+  #         echo "release = ${{ matrix.release }}"
+  #         platform=${{ toJSON(needs.setup.outputs.platform) }}
+  #         echo $platform
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        image:
+          - boca-web
+          # - boca-jail
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
+    steps:
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Add support for more platforms with QEMU (optional)
+      # https://github.com/docker/setup-qemu-action
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      # Create and boot a builder that can be used in the following steps of the workflow
+      # https://github.com/docker/setup-buildx-action
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
 
   #     # Set an environment variable
   #     # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
@@ -132,89 +136,89 @@ jobs:
   #         # Replace '/' with '-'
   #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
 
-  #     # Cache storage backends with GitHub Actions
-  #     # https://github.com/actions/cache
-  #     -
-  #       name: Cache Docker layers
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/.buildx-cache
-  #         key: ${{ runner.os }}-buildx-${{ github.sha }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-buildx-
+      # Cache storage backends with GitHub Actions
+      # https://github.com/actions/cache
+      -
+        name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-  #     # Login to a Docker registry (except on PR)
-  #     # https://github.com/docker/login-action
-  #     - 
-  #       name: Login to GitHub Container Registry
-  #       if: github.event_name != 'pull_request'
-  #       uses: docker/login-action@v2
-  #       with:
-  #         registry: ${{ env.REGISTRY_HOST }}
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
+      # Login to a Docker registry (except on PR)
+      # https://github.com/docker/login-action
+      - 
+        name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_HOST }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-  #     # Extract metadata (tags, labels) for Docker
-  #     # https://github.com/docker/metadata-action
-  #     - 
-  #       name: Extract Docker metadata (boca-base)
-  #       id: meta_base
-  #       uses: docker/metadata-action@v4
-  #       with:
-  #         images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - 
+        name: Extract Docker metadata (boca-base)
+        id: meta_base
+        uses: docker/metadata-action@v4
+        with:
+          images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
 
-  #     - 
-  #       name: Extract Docker metadata (${{ matrix.image }})
-  #       id: meta_image
-  #       uses: docker/metadata-action@v4
-  #       with:
-  #         images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+      - 
+        name: Extract Docker metadata (${{ matrix.image }})
+        id: meta_image
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
 
-  #     # Build and push Docker image with Buildx (don't push on PR)
-  #     # https://github.com/docker/build-push-action
-  #     - 
-  #       name: Build and push image locally (boca-base)
-  #       uses: docker/build-push-action@v4
-  #       with:
-  #         context: .
-  #         file: docker/dev/base/Dockerfile
-  #         platforms: ${{ matrix.platforms }}
-  #         push: ${{ github.event_name != 'pull_request' }}
-  #         tags: ${{ steps.meta_base.outputs.tags }}
-  #         labels: ${{ steps.meta_base.outputs.labels }}
-  #         cache-from: type=local,src=/tmp/.buildx-cache
-  #         cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      # Build and push Docker image with Buildx (don't push on PR)
+      # https://github.com/docker/build-push-action
+      - 
+        name: Build and push image locally (boca-base)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/base/Dockerfile
+          platforms: ${{ toJSON(needs.setup.outputs.platform) }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta_base.outputs.tags }}
+          labels: ${{ steps.meta_base.outputs.labels }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-  #     -
-  #       # Temp fix
-  #       # https://github.com/docker/build-push-action/issues/252
-  #       # https://github.com/moby/buildkit/issues/1896
-  #       name: Move cache
-  #       run: |
-  #         rm -rf /tmp/.buildx-cache
-  #         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      -
+        # Temp fix
+        # https://github.com/docker/build-push-action/issues/252
+        # https://github.com/moby/buildkit/issues/1896
+        name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  #     - 
-  #       name: Write FOLDER_NAME variable to GITHUB_ENV
-  #       run: |
-  #         dir='${{ matrix.image }}'
-  #         # Remove 'boca-' from image name
-  #         echo "FOLDER_NAME=${dir//boca-/}" >> $GITHUB_ENV
+      - 
+        name: Write FOLDER_NAME variable to GITHUB_ENV
+        run: |
+          dir='${{ matrix.image }}'
+          # Remove 'boca-' from image name
+          echo "FOLDER_NAME=${dir//boca-/}" >> $GITHUB_ENV
 
-  #     - 
-  #       name: Build and push image remotely (${{ matrix.image }})
-  #       uses: docker/build-push-action@v4
-  #       with:
-  #         context: .
-  #         file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
-  #         platforms: ${{ matrix.platforms }}
-  #         push: ${{ github.event_name != 'pull_request' }}
-  #         tags: ${{ steps.meta_image.outputs.tags }}
-  #         labels: ${{ steps.meta_image.outputs.labels }}
-  #         build-args: |
-  #           BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
-  #         cache-from: type=gha
-  #         cache-to: type=gha,mode=max
+      - 
+        name: Build and push image remotely (${{ matrix.image }})
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
+          platforms: ${{ matrix.platforms }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta_image.outputs.tags }}
+          labels: ${{ steps.meta_image.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   #     - 
   #       name: Build and export image to file (${{ matrix.image }})
@@ -314,37 +318,37 @@ jobs:
   #         sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
   #         category: 'image'
 
-  # # Ensure that the repository is given Admin access by going on
-  # # Package settings -> Manage Actions access
-  # # https://github.com/actions/delete-package-versions/issues/74
-  # cleanup:
-  #   permissions:
-  #     packages: write
-  #   strategy:
-  #     matrix:
-  #       image:
-  #         - boca-web
-  #         - boca-jail
-  #   runs-on: ubuntu-latest
-  #   needs: build
+  # Ensure that the repository is given Admin access by going on
+  # Package settings -> Manage Actions access
+  # https://github.com/actions/delete-package-versions/issues/74
+  cleanup:
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        image:
+          - boca-web
+          - boca-jail
+    runs-on: ubuntu-latest
+    needs: build
 
-  #   steps:
-  #     - 
-  #       name: Write PACKAGE_NAME variable to GITHUB_ENV
-  #       run: |
-  #         owner='${{ env.OWNER_NAME }}'
-  #         repo='${{ env.REPOSITORY_NAME }}'
-  #         # Remove owner from repository name
-  #         echo "PACKAGE_NAME=${repo//$owner\//}" >> $GITHUB_ENV
+    steps:
+      - 
+        name: Write PACKAGE_NAME variable to GITHUB_ENV
+        run: |
+          owner='${{ env.OWNER_NAME }}'
+          repo='${{ env.REPOSITORY_NAME }}'
+          # Remove owner from repository name
+          echo "PACKAGE_NAME=${repo//$owner\//}" >> $GITHUB_ENV
 
-  #     # Delete versions of a package from GitHub Packages
-  #     # https://github.com/marketplace/actions/delete-package-versions
-  #     - 
-  #       name: Delete untagged Docker images on ghcr.io
-  #       uses: actions/delete-package-versions@v4
-  #       with: 
-  #         package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
-  #         package-type: 'container'
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-  #         min-versions-to-keep: 0
-  #         delete-only-untagged-versions: 'true'
+      # Delete versions of a package from GitHub Packages
+      # https://github.com/marketplace/actions/delete-package-versions
+      - 
+        name: Delete untagged Docker images on ghcr.io
+        uses: actions/delete-package-versions@v4
+        with: 
+          package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-versions-to-keep: 0
+          delete-only-untagged-versions: 'true'
