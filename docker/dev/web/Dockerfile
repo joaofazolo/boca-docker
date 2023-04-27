@@ -20,7 +20,12 @@
 
 # Build on base image
 ARG BASE_IMAGE=boca-base
-FROM ${BASE_IMAGE}
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE}
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
