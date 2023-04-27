@@ -49,8 +49,9 @@ jobs:
         run: |
           CONTENT=`cat ${{ steps.set-json.outputs.json }}`
           echo $CONTENT
-          echo $CONTENT | jq ".platform"
-          echo ::set-output name=platform::$(echo $CONTENT | jq ".platform")
+          platform=$(echo $CONTENT | jq ".platform")
+          #echo ::set-output name=platform::$(echo $CONTENT | jq ".platform")
+          echo "platform=$platform" >> $GITHUB_OUTPUT
 
           #CONTENT=$(jq -r 'tostring' ${{ steps.set-json.outputs.json }})
           #echo "matrix=${CONTENT}" >> $GITHUB_OUTPUT
@@ -64,6 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        fast-fail: false
         platform: ${{ fromJSON(needs.setup.outputs.platform) }}
     needs:
       - setup
