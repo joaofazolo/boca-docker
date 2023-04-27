@@ -189,17 +189,10 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  #     # Set an environment variable
-  #     # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
-  #     - 
-  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
-  #       run: |
-  #         platform='${{ matrix.platform }}'
-  #         # Replace '/' with '-'
-  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
-
+      # Set an environment variable
+      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
       - 
-        name: Normalize and write FLAVOR_NAME variable to GITHUB_ENV
+        name: Write FLAVOR_NAME variable to GITHUB_ENV
         run: |
           release='${{ matrix.release }}'
           # Replace 'ubuntu:' with ''
@@ -244,6 +237,7 @@ jobs:
           file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
           platforms: ${{ toJSON(needs.setup.outputs.platform) }}
           push: ${{ github.event_name != 'pull_request' }}
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=${{ matrix.image }} multi-arch image
           tags: |
             ${{ steps.meta_image.outputs.tags }}
           labels: ${{ steps.meta_image.outputs.labels }}
@@ -251,6 +245,13 @@ jobs:
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  #     - 
+  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
+  #       run: |
+  #         platform='${{ matrix.platform }}'
+  #         # Replace '/' with '-'
+  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
 
   #     - 
   #       name: Build and export image to file (${{ matrix.image }})
