@@ -18,19 +18,28 @@
 #
 #========================================================================
 
+# Build on base image (default: ubuntu:focal)
+# Snap did not build boca-jail properly on ubuntu:bionic 
+# error: cannot list snaps: cannot communicate with server: Get http://localhost/v2/snaps: dial unix /run/snapd.socket: connect: no such file or directory
+# https://groups.google.com/g/boca-users/c/QrgnJl-KAKw/m/uSuRO64_CQAJ
+ARG BASE_IMAGE=ubuntu:focal
+
 # This stage clones BOCA's repository
-FROM ubuntu:focal as bocarepo
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE} AS bocarepo
 RUN apt-get -y update \
     && apt-get -y install \
         git
 WORKDIR /
 RUN git clone https://github.com/cassiopc/boca.git
 
-# Build base image using ubuntu:focal
-# Snap did not build boca-jail properly on ubuntu:bionic 
-# error: cannot list snaps: cannot communicate with server: Get http://localhost/v2/snaps: dial unix /run/snapd.socket: connect: no such file or directory
-# https://groups.google.com/g/boca-users/c/QrgnJl-KAKw/m/uSuRO64_CQAJ
-FROM ubuntu:focal
+# The efficient way to publish multi-arch containers from GitHub Actions
+# https://actuated.dev/blog/multi-arch-docker-github-actions
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE}
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
