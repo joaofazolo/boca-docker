@@ -141,6 +141,13 @@ jobs:
   #         # Replace '/' with '-'
   #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
 
+      - 
+        name: Normalize and write FLAVOR_NAME variable to GITHUB_ENV
+        run: |
+          release='${{ matrix.release }}'
+          # Replace 'ubuntu:' with ''
+          echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
+
       # Cache storage backends with GitHub Actions
       # https://github.com/actions/cache
       -
@@ -178,6 +185,9 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          flavor: |
+            latest=auto
+            suffix=${{ env.FLAVOR_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -220,7 +230,9 @@ jobs:
           file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
           platforms: ${{ toJSON(needs.setup.outputs.platform) }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_image.outputs.tags }}
+          tags: |
+            ${{ steps.meta_image.outputs.tags }}
+
           labels: ${{ steps.meta_image.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
