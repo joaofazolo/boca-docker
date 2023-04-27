@@ -189,6 +189,22 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+  #     # Set an environment variable
+  #     # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+  #     - 
+  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
+  #       run: |
+  #         platform='${{ matrix.platform }}'
+  #         # Replace '/' with '-'
+  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
+
+      - 
+        name: Normalize and write FLAVOR_NAME variable to GITHUB_ENV
+        run: |
+          release='${{ matrix.release }}'
+          # Replace 'ubuntu:' with ''
+          echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
+
       - 
         name: Extract Docker metadata (${{ matrix.image }})
         id: meta_image
@@ -212,22 +228,6 @@ jobs:
           # necessarily the newest version of the source code
           flavor: |
             latest=${{ matrix.release == 'ubuntu:jammy' && github.event_name == 'release' }}
-
-  #     # Set an environment variable
-  #     # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
-  #     - 
-  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
-  #       run: |
-  #         platform='${{ matrix.platform }}'
-  #         # Replace '/' with '-'
-  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
-
-      - 
-        name: Normalize and write FLAVOR_NAME variable to GITHUB_ENV
-        run: |
-          release='${{ matrix.release }}'
-          # Replace 'ubuntu:' with ''
-          echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
 
       - 
         name: Write FOLDER_NAME variable to GITHUB_ENV
