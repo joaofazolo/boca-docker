@@ -50,8 +50,9 @@ jobs:
           CONTENT=$(jq -r 'tostring' ${{ steps.set-json.outputs.json }})
           #echo "matrix=${CONTENT}" >> $GITHUB_OUTPUT
           echo ${CONTENT}
-          echo ${CONTENT} | jq -r ".platform"
-          echo "platform=$(echo ${CONTENT} | jq -r '.platform')" >> $GITHUB_OUTPUT
+          platform=$(echo ${CONTENT} | jq -r ".platform")
+          echo $platform
+          #echo "platform=$(echo ${CONTENT} | jq -r '.platform')" >> $GITHUB_OUTPUT
 
   check-setup:
     runs-on: ubuntu-latest
