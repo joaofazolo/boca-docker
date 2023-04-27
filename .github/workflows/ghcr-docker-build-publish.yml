@@ -50,8 +50,7 @@ jobs:
           CONTENT=`cat ${{ steps.set-json.outputs.json }}`
           echo $CONTENT
           platform=$(echo $CONTENT | jq ".platform")
-          #echo ::set-output name=platform::$(echo $CONTENT | jq ".platform")
-          echo "platform=$platform" >> $GITHUB_OUTPUT
+          echo ::set-output name=platform::$(echo $CONTENT | jq ".platform")
 
           #CONTENT=$(jq -r 'tostring' ${{ steps.set-json.outputs.json }})
           #echo "matrix=${CONTENT}" >> $GITHUB_OUTPUT
