@@ -195,6 +195,23 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          tags: |
+            # nightly build
+            type=schedule,pattern=nightly,suffix=-${{ env.FLAVOR_NAME }}
+            type=schedule,pattern=nightly,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            # new release
+            type=semver,pattern={{raw}},suffix=-${{ env.FLAVOR_NAME }}
+            type=semver,pattern={{raw}},enable=${{ matrix.release == 'ubuntu:jammy' }}
+            # branch event
+            type=ref,event=branch,suffix=-${{ env.FLAVOR_NAME }}
+            type=ref,event=branch,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            # tag event
+            type=ref,event=tag,suffix=-${{ env.FLAVOR_NAME }}
+            type=ref,event=tag,enable=${{ matrix.release == 'ubuntu:jammy' }}
+          # This identifies which variant will be published as "latest", which isn't
+          # necessarily the newest version of the source code
+          flavor: |
+            latest=${{ matrix.release == 'ubuntu:jammy' && github.event_name == 'release' }}
 
   #     # Set an environment variable
   #     # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
@@ -229,7 +246,6 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ steps.meta_image.outputs.tags }}
-            ${{ steps.meta_image.outputs.tags }}-${{ env.FLAVOR_NAME }}
           labels: ${{ steps.meta_image.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
