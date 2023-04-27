@@ -50,27 +50,30 @@ jobs:
           CONTENT=$(jq -r 'tostring' ${{ steps.set-json.outputs.json }})
           #echo "matrix=${CONTENT}" >> $GITHUB_OUTPUT
           echo ${CONTENT}
-          platform=$(echo ${CONTENT} | jq -r ".platform")
+          platform=`$(echo ${CONTENT} | jq ".platform")`
           echo $platform
-          #echo "platform=$(echo ${CONTENT} | jq -r '.platform')" >> $GITHUB_OUTPUT
+          echo "platform=$(echo ${CONTENT} | jq -r '.platform')" >> $GITHUB_OUTPUT
 
   check-setup:
     runs-on: ubuntu-latest
+    matrix:
+      platform: ${{ fromJSON(needs.setup.outputs.platform) }}
     needs:
       - setup
 
     steps:
-      - name: Install json2yaml
-        run: |
-          sudo npm install -g json2yaml
+      # - name: Install json2yaml
+      #   run: |
+      #     sudo npm install -g json2yaml
 
       - name: Check test matrix
         run: |
-          echo needs.setup.outputs.platform
-          platform=${{ toJSON(needs.setup.outputs.platform) }}
-          echo $platform
-          echo $platform | jq .
-          echo $platform | json2yaml
+          #echo needs.setup.outputs.platform
+          #platform=${{ toJSON(needs.setup.outputs.platform) }}
+          #echo $platform
+          #echo $platform | jq .
+          #echo $platform | json2yaml
+          echo '${{ matrix.platform }}'
 
   # build:
   #   permissions:
