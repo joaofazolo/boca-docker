@@ -52,7 +52,7 @@ jobs:
 
       - 
         id: set-matrix
-        name: Set build matrix of OS and architectures
+        name: Set build matrix of base releases and architectures
         run: |
 
           # In case jq is not installed
@@ -132,22 +132,6 @@ jobs:
         with:
           driver-opts: network=host
 
-  #     # Set an environment variable
-  #     # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
-  #     - 
-  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
-  #       run: |
-  #         platform='${{ matrix.platform }}'
-  #         # Replace '/' with '-'
-  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
-
-      - 
-        name: Normalize and write FLAVOR_NAME variable to GITHUB_ENV
-        run: |
-          release='${{ matrix.release }}'
-          # Replace 'ubuntu:' with ''
-          echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
-
       # Cache storage backends with GitHub Actions
       # https://github.com/actions/cache
       -
@@ -179,16 +163,6 @@ jobs:
         with:
           images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
 
-      - 
-        name: Extract Docker metadata (${{ matrix.image }})
-        id: meta_image
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
-          flavor: |
-            latest=auto
-            suffix=${{ env.FLAVOR_NAME }}
-
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - 
@@ -216,6 +190,29 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - 
+        name: Extract Docker metadata (${{ matrix.image }})
+        id: meta_image
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+
+  #     # Set an environment variable
+  #     # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+  #     - 
+  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
+  #       run: |
+  #         platform='${{ matrix.platform }}'
+  #         # Replace '/' with '-'
+  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
+
+      - 
+        name: Normalize and write FLAVOR_NAME variable to GITHUB_ENV
+        run: |
+          release='${{ matrix.release }}'
+          # Replace 'ubuntu:' with ''
+          echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
+
+      - 
         name: Write FOLDER_NAME variable to GITHUB_ENV
         run: |
           dir='${{ matrix.image }}'
@@ -232,7 +229,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ steps.meta_image.outputs.tags }}
-
+            ${{ steps.meta_image.outputs.tags }}-${{ env.FLAVOR_NAME }}
           labels: ${{ steps.meta_image.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
