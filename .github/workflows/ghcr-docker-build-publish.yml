@@ -48,8 +48,8 @@ jobs:
         name: Set build matrix of OS and architectures
         run: |
           CONTENT=$(jq -r 'tostring' ${{ steps.set-json.outputs.json }})
-          echo "matrix=${CONTENT}" >> $GITHUB_OUTPUT
-          echo "platform=$(echo $matrix | jq ".platform")" >> $GITHUB_OUTPUT
+          #echo "matrix=${CONTENT}" >> $GITHUB_OUTPUT
+          echo "platform=$(echo ${CONTENT} | jq ".platform")" >> $GITHUB_OUTPUT
           echo ${CONTENT}
 
   check-setup:
@@ -64,6 +64,7 @@ jobs:
 
       - name: Check test matrix
         run: |
+          echo needs.setup.outputs.platform
           platform=${{ toJSON(needs.setup.outputs.platform) }}
           echo $platform
           echo $platform | jq .
