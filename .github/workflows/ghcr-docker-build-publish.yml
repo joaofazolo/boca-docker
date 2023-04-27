@@ -56,8 +56,9 @@ jobs:
 
   check-setup:
     runs-on: ubuntu-latest
-    matrix:
-      platform: ${{ fromJSON(needs.setup.outputs.platform) }}
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(needs.setup.outputs.platform) }}
     needs:
       - setup
 
