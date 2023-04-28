@@ -32,6 +32,7 @@ jobs:
     outputs:
       release: ${{ steps.set-matrix.outputs.release }}
       platform: ${{ steps.set-matrix.outputs.platform }}
+      deprecated: ${{ steps.set-matrix.outputs.deprecated }}
 
     steps:
       # Checkout a repository, so the workflow can access it
@@ -68,11 +69,15 @@ jobs:
           echo $RELEASES
           PLATFORMS=$(echo $CONTENT | jq ".platform")
           echo $PLATFORMS
+          DEPRECATED=$(echo $CONTENT | jq ".deprecated")
+          echo $DEPRECATED
           # Remove square bracket, white spaces and double quotes
           PLATFORMS=$(echo $PLATFORMS | tr -d "[]| |\"")
+          DEPRECATED=$(echo $DEPRECATED | tr -d "[]| |\"")
           # Passing matrix between jobs and/or workflows
           echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
           echo "platform=${PLATFORMS}" >> "$GITHUB_OUTPUT"
+          echo "deprecated=${DEPRECATED}" >> "$GITHUB_OUTPUT"
 
   # check-setup:
   #   runs-on: ubuntu-latest
@@ -380,11 +385,10 @@ jobs:
       # Delete versions of a package from GitHub Packages
       # https://github.com/marketplace/actions/delete-package-versions
       - 
-        name: Delete untagged Docker images on ghcr.io
+        name: Delete deprecated Docker images on ghcr.io
         uses: actions/delete-package-versions@v4
-        with: 
+        with:
+          package-version-ids: '${{ toJSON(needs.setup.outputs.platform) }}'
           package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-versions-to-keep: 5
-          delete-only-untagged-versions: 'true'
