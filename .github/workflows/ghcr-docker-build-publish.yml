@@ -350,9 +350,9 @@ jobs:
   #         sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
   #         category: 'image'
 
-  Ensure that the repository is given Admin access by going on
-  Package settings -> Manage Actions access
-  https://github.com/actions/delete-package-versions/issues/74
+  # Ensure that the repository is given Admin access by going on
+  # Package settings -> Manage Actions access
+  # https://github.com/actions/delete-package-versions/issues/74
   cleanup:
     runs-on: ubuntu-latest
     permissions:
