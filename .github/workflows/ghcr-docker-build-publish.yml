@@ -23,6 +23,8 @@ env:
   REPOSITORY_NAME: ${{ github.repository }}
   # Use github.repository_owner (<account>)
   OWNER_NAME: ${{ github.repository_owner }}
+  # Set Ubuntu base release
+  BASE_RELEASE: "ubuntu:jammy"
 
 jobs:
   setup:
@@ -207,22 +209,22 @@ jobs:
           tags: |
             # nightly build
             type=schedule,pattern=nightly,suffix=-${{ env.FLAVOR_NAME }}
-            type=schedule,pattern=nightly,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=schedule,pattern=nightly,enable=${{ matrix.release == env.BASE_RELEASE }}
             # new release
-            type=semver,pattern={{raw}},suffix=-${{ env.FLAVOR_NAME }}
-            type=semver,pattern={{raw}},priority=1000,enable=${{ matrix.release == 'ubuntu:jammy' }}
-            type=semver,pattern={{major}}.{{minor}},suffix=-${{ env.FLAVOR_NAME }}
-            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=semver,pattern={{raw}},priority=900,suffix=-${{ env.FLAVOR_NAME }}
+            type=semver,pattern={{raw}},priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
+            type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-${{ env.FLAVOR_NAME }}
+            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
             # branch event
-            type=ref,event=branch,suffix=-${{ env.FLAVOR_NAME }}
-            type=ref,event=branch,priority=1000,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=ref,event=branch,priority=900,suffix=-${{ env.FLAVOR_NAME }}
+            type=ref,event=branch,priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
             # tag event
-            type=ref,event=tag,suffix=-${{ env.FLAVOR_NAME }}
-            type=ref,event=tag,priority=1000,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=ref,event=tag,priority=900,suffix=-${{ env.FLAVOR_NAME }}
+            type=ref,event=tag,priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
           # This identifies which variant will be published as "latest", which isn't
           # necessarily the newest version of the source code
           flavor: |
-            latest=${{ matrix.release == 'ubuntu:jammy' && github.event_name == 'release' }}
+            latest=${{ matrix.release == env.BASE_RELEASE && github.event_name == 'release' }}
 
       - 
         name: Write FOLDER_NAME variable to GITHUB_ENV
