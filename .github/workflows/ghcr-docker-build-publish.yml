@@ -384,5 +384,5 @@ jobs:
           package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-versions-to-keep: 1
+          min-versions-to-keep: 5
           delete-only-untagged-versions: 'true'
