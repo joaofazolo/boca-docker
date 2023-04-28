@@ -254,6 +254,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - 
+        name: GitHub Tag Name example
+        run: |
+          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+          echo "Tag name from github.ref_name: ${{  github.ref_name }}"
+
   #     - 
   #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
   #       run: |
@@ -313,27 +319,34 @@ jobs:
   #       name: Set up Docker Buildx
   #       uses: docker/setup-buildx-action@v2
 
-  #     - 
-  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
-  #       run: |
-  #         platform='${{ matrix.platform }}'
-  #         # Replace '/' with '-'
-  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
-
-  #     # Download artifact from build
-  #     # https://github.com/actions/download-artifact
   #     -
-  #       name: Download artifact (Docker image)
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
-  #         path: /tmp
-
-  #     -
-  #       name: Load Docker image from file
+  #       name: Pull Docker image from ghcr.io
   #       run: |
-  #         docker load --input /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
+  #         docker pull --platform ${{ matrix.platform }} ${{github.ref_name}}
   #         docker image ls -a
+
+
+  # #     - 
+  # #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
+  # #       run: |
+  # #         platform='${{ matrix.platform }}'
+  # #         # Replace '/' with '-'
+  # #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
+
+  # #     # Download artifact from build
+  # #     # https://github.com/actions/download-artifact
+  # #     -
+  # #       name: Download artifact (Docker image)
+  # #       uses: actions/download-artifact@v3
+  # #       with:
+  # #         name: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
+  # #         path: /tmp
+
+  # #     -
+  # #       name: Load Docker image from file
+  # #       run: |
+  # #         docker load --input /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
+  # #         docker image ls -a
 
   #     # Run Trivy vulnerability scanner on image
   #     # https://github.com/marketplace/actions/aqua-security-trivy
@@ -362,33 +375,33 @@ jobs:
   # Ensure that the repository is given Admin access by going on
   # Package settings -> Manage Actions access
   # https://github.com/actions/delete-package-versions/issues/74
-  cleanup:
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-    strategy:
-      matrix:
-        image:
-          - boca-web
-          - boca-jail
-    needs: build
+  # cleanup:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     packages: write
+  #   strategy:
+  #     matrix:
+  #       image:
+  #         - boca-web
+  #         - boca-jail
+  #   needs: build
 
-    steps:
-      - 
-        name: Write PACKAGE_NAME variable to GITHUB_ENV
-        run: |
-          owner='${{ env.OWNER_NAME }}'
-          repo='${{ env.REPOSITORY_NAME }}'
-          # Remove owner from repository name
-          echo "PACKAGE_NAME=${repo//$owner\//}" >> $GITHUB_ENV
+  #   steps:
+  #     - 
+  #       name: Write PACKAGE_NAME variable to GITHUB_ENV
+  #       run: |
+  #         owner='${{ env.OWNER_NAME }}'
+  #         repo='${{ env.REPOSITORY_NAME }}'
+  #         # Remove owner from repository name
+  #         echo "PACKAGE_NAME=${repo//$owner\//}" >> $GITHUB_ENV
 
-      # Delete versions of a package from GitHub Packages
-      # https://github.com/marketplace/actions/delete-package-versions
-      - 
-        name: Delete deprecated Docker images on ghcr.io
-        uses: actions/delete-package-versions@v4
-        with:
-          package-version-ids: '${{ toJSON(needs.setup.outputs.platform) }}'
-          package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
-          package-type: 'container'
-          token: ${{ secrets.GITHUB_TOKEN }}
+  #     # Delete versions of a package from GitHub Packages
+  #     # https://github.com/marketplace/actions/delete-package-versions
+  #     - 
+  #       name: Delete deprecated Docker images on ghcr.io
+  #       uses: actions/delete-package-versions@v4
+  #       with:
+  #         package-version-ids: '${{ toJSON(needs.setup.outputs.platform) }}'
+  #         package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
+  #         package-type: 'container'
+  #         token: ${{ secrets.GITHUB_TOKEN }}
