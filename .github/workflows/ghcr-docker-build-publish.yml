@@ -210,13 +210,15 @@ jobs:
             type=schedule,pattern=nightly,enable=${{ matrix.release == 'ubuntu:jammy' }}
             # new release
             type=semver,pattern={{raw}},suffix=-${{ env.FLAVOR_NAME }}
-            type=semver,pattern={{raw}},enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=semver,pattern={{raw}},priority=1000,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=semver,pattern={{major}}.{{minor}},suffix=-${{ env.FLAVOR_NAME }}
+            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.release == 'ubuntu:jammy' }}
             # branch event
             type=ref,event=branch,suffix=-${{ env.FLAVOR_NAME }}
-            type=ref,event=branch,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=ref,event=branch,priority=1000,enable=${{ matrix.release == 'ubuntu:jammy' }}
             # tag event
             type=ref,event=tag,suffix=-${{ env.FLAVOR_NAME }}
-            type=ref,event=tag,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=ref,event=tag,priority=1000,enable=${{ matrix.release == 'ubuntu:jammy' }}
           # This identifies which variant will be published as "latest", which isn't
           # necessarily the newest version of the source code
           flavor: |
