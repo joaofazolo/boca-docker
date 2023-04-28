@@ -4,7 +4,7 @@ BOCA Online Contest Administrator (known simply as BOCA) is an administration sy
 
 BOCA is implemented mainly in PHP and makes use of a PostgreSQL database in the backend (see architecture below). It is a good example of a monolithic system, in which the user interface and database access are all interwoven, rather than containing architecturally separate components. The problem is compound due to the low readability and complex code structuring, which is hard to adapt and to extend.
 
-The _boca-docker_ project is a use case of how we can take advantage of microservices architecture and containerization technology (i.e., Docker) to deploy applications in a more convenient and faster way (see illustration below). After quite some reverse engineering, we provide a dockerized version of BOCA's main components (web app, online automated judge and database) aiming at easing the customization, extensibility and automation of the operational effort required to deploy, run and scale BOCA.
+The _boca-docker_ project is a use case of how we can take advantage of microservices architecture and containerization technology (i.e., Docker) to deploy applications in a more convenient and faster way (see illustration below). After quite some reverse engineering, we provide a multi-platform/arch Docker version of BOCA's main components (web app, online automated judge and database) aiming at easing the customization, extensibility and automation of the operational effort required to deploy, run and scale BOCA.
 
 Original architecture | _boca-docker_ architecture
 :-------------------------:|:-------------------------:
@@ -21,7 +21,7 @@ This work started as part of the undergraduate final year project carried out by
 
 * Open a Terminal window and make sure the Docker engine is up and running:
 
-```bash
+```sh
 # List docker images
 docker images -a
 # List containers
@@ -30,7 +30,7 @@ docker container ls -a
 
 * Download the `docker-compose.yml` and `docker-compose.prod.yml` files, and place them in the current work directory. Then,
 
-```bash
+```sh
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
@@ -40,7 +40,7 @@ Voilà! The application should be running now.
 
 * To stop the application (considering that the shell is in the same directory):
 
-```bash
+```sh
 docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 ```
 
@@ -48,13 +48,13 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 
 * Create the stack (make sure Docker Engine is already running in [swarm mode](https://docs.docker.com/engine/swarm/swarm-mode/)):
 
-```bash
+```sh
 docker stack deploy --compose-file docker-compose.yml -c docker-compose.prod.yml boca-stack
 ```
 
 * Then, check if the stack is running:
 
-```bash
+```sh
 docker stack services boca-stack
 ```
 
@@ -62,7 +62,7 @@ docker stack services boca-stack
 
 * To bring the stack down:
 
-```bash
+```sh
 docker stack rm boca-stack
 ```
 
@@ -80,32 +80,66 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 * **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
 
+## HOW TO RUN ON DIFFERENT UBUNTU RELEASE IMAGES
+
+To run the _boca-docker_ application built on top of different versions of Ubuntu images, please edit the `docker-compose.prod.yml` file with an alternative tag from the table below.
+
+| Tag name          | BOCA version | Ubuntu version | Code name       | Architecture                        |
+|-------------------|--------------|----------------|-----------------|-------------------------------------|
+| latest            | 1.5          | 22.04 LTS      | Jammy Jellyfish | amd64,arm/v7,arm64/v8,ppc64le,s390x |
+| 1.2.0             | 1.5          | 22.04 LTS      | Jammy Jellyfish | amd64,arm/v7,arm64/v8,ppc64le,s390x |
+| 1.2.0-jammy       | 1.5          | 22.04 LTS      | Jammy Jellyfish | amd64,arm/v7,arm64/v8,ppc64le,s390x |
+| 1.2.0-focal       | 1.5          | 20.04 LTS      | Focal Fossa     | amd64,arm/v7,arm64/v8,ppc64le,s390x |
+
+For example, to use BOCA version 1.5 running on Ubuntu 20.04 LTS on any supported architecture:
+```sh
+    ...
+    # web app
+    boca-web:
+        image: ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0-focal
+    ...
+
+    ...
+    # online judge
+    boca-jail:
+        image: ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0-focal
+    ...
+```
+
+### Deprecated Image Tags
+
+The following image tags have been deprecated and are no longer receiving updates:
+- 1.1.0
+- 1.0.0
+
 ## HOW TO BUILD IT (FOR DEVELOPMENT):
 
 * Clone this repo and set it as your working directory:
 
-```bash
+```sh
 git clone https://github.com/joaofazolo/boca-docker.git
 cd boca-docker
 ```
 
 * Then, compose it up with the command below (this might take a while, sit back and relax):
 
-```bash
+```sh
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
+
+> NOTE: Keep in mind that these Docker images are created for and to run on the default platform (i.e. `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/).
 
 Follow the instructions [above](#quick-start) to set up the application.
 
 * To stop it:
 
-```bash
+```sh
 docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 ```
 
 * Alternatively, it is possible to build images without launching the application.
 
-```bash
+```sh
 docker build -t boca-base . -f docker/dev/base/Dockerfile
 docker build -t boca-web . -f docker/dev/web/Dockerfile
 docker build -t boca-jail . -f docker/dev/jail/Dockerfile
@@ -113,13 +147,16 @@ docker build -t boca-jail . -f docker/dev/jail/Dockerfile
 
 ## HOW TO PUBLISH IT:
 
+> NOTE: These instructions take into account the Docker images generated in the previous section (no multi-platform support).
+
 * After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker images -a`.
 
-```bash
+```sh
 docker images -a
-docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.1.0
-docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.1.0
-docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.1.0
+# boca-base only necessary for development
+# docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
+docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
+docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
 ```
 
 * Log in into GitHub's Container Registry using your username and personal access token (details [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry)).
@@ -128,10 +165,11 @@ docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.1.0
 
 * Push the container images to repository.
 
-```bash
-docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.1.0
-docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.1.0
-docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.1.0
+```sh
+# boca-base only necessary for development
+# docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
+docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
+docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
 ```
 
 ## LICENSE:
