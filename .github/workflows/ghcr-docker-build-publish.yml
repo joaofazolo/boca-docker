@@ -254,12 +254,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - 
-        name: GitHub Tag Name example
-        run: |
-          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
-          echo "Tag name from github.ref_name: ${{  github.ref_name }}"
-
   #     - 
   #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
   #       run: |
@@ -291,86 +285,92 @@ jobs:
   #         path: /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
   #         retention-days: 7
 
-  # scan:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     # for actions/checkout to fetch code
-  #     contents: read
-  #     # for github/codeql-action/upload-sarif to upload SARIF results
-  #     security-events: write
-  #     # only required for a private repository by github/codeql-action/upload-sarif 
-  #     # to get the Action run status
-  #     actions: read
-  #   strategy:
-  #     matrix:
-  #       image:
-  #         - boca-web
-  #         # - boca-jail
-  #       platform:
-  #         - linux/amd64
-  #         # - linux/arm/v7
-  #         # - linux/arm64/v8
-  #         # - linux/ppc64le
-  #         # - linux/s390x
-  #   needs: build
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      # for actions/checkout to fetch code
+      contents: read
+      # for github/codeql-action/upload-sarif to upload SARIF results
+      security-events: write
+      # only required for a private repository by github/codeql-action/upload-sarif 
+      # to get the Action run status
+      actions: read
+    strategy:
+      matrix:
+        image:
+          - boca-web
+          # - boca-jail
+        platform:
+          - linux/amd64
+          # - linux/arm/v7
+          # - linux/arm64/v8
+          # - linux/ppc64le
+          # - linux/s390x
+    needs: build
 
-  #   steps:
-  #     -
-  #       name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v2
+    steps:
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-  #     -
-  #       name: Pull Docker image from ghcr.io
+      - 
+        name: GitHub Tag Name example
+        run: |
+          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+          echo "Tag name from github.ref_name: ${{  github.ref_name }}"
+
+      # -
+      #   name: Pull Docker image from ghcr.io
+      #   run: |
+      #     docker pull --platform ${{ matrix.platform }} ${{github.ref_name}}
+      #     docker image ls -a
+
+
+  #     - 
+  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
   #       run: |
-  #         docker pull --platform ${{ matrix.platform }} ${{github.ref_name}}
+  #         platform='${{ matrix.platform }}'
+  #         # Replace '/' with '-'
+  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
+
+  #     # Download artifact from build
+  #     # https://github.com/actions/download-artifact
+  #     -
+  #       name: Download artifact (Docker image)
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
+  #         path: /tmp
+
+  #     -
+  #       name: Load Docker image from file
+  #       run: |
+  #         docker load --input /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
   #         docker image ls -a
 
+      # # Run Trivy vulnerability scanner on image
+      # # https://github.com/marketplace/actions/aqua-security-trivy
+      # - 
+      #   name: Run Trivy vulnerability scanner on image
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
+      #     platform: '${{ matrix.platform }}'
+      #     format: 'sarif'
+      #     output: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
+      #     ignore-unfixed: true
+      #     vuln-type: 'os,library'
+      #     severity: 'CRITICAL,HIGH'
+      #     timeout: 10m
 
-  # #     - 
-  # #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
-  # #       run: |
-  # #         platform='${{ matrix.platform }}'
-  # #         # Replace '/' with '-'
-  # #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
-
-  # #     # Download artifact from build
-  # #     # https://github.com/actions/download-artifact
-  # #     -
-  # #       name: Download artifact (Docker image)
-  # #       uses: actions/download-artifact@v3
-  # #       with:
-  # #         name: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
-  # #         path: /tmp
-
-  # #     -
-  # #       name: Load Docker image from file
-  # #       run: |
-  # #         docker load --input /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
-  # #         docker image ls -a
-
-  #     # Run Trivy vulnerability scanner on image
-  #     # https://github.com/marketplace/actions/aqua-security-trivy
-  #     - 
-  #       name: Run Trivy vulnerability scanner on image
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         image-ref: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
-  #         platform: '${{ matrix.platform }}'
-  #         format: 'sarif'
-  #         output: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
-  #         ignore-unfixed: true
-  #         vuln-type: 'os,library'
-  #         severity: 'CRITICAL,HIGH'
-  #         timeout: 10m
-
-  #     # Upload results to GitHub so they can be displayed in the repository' security tab
-  #     # https://github.com/github/codeql-action
-  #     - 
-  #       name: Upload Trivy image scan results to GitHub Security tab
-  #       uses: github/codeql-action/upload-sarif@v2
-  #       with:
-  #         sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
-  #         category: 'image'
+      # # Upload results to GitHub so they can be displayed in the repository' security tab
+      # # https://github.com/github/codeql-action
+      # - 
+      #   name: Upload Trivy image scan results to GitHub Security tab
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
+      #     category: 'image'
 
   # Ensure that the repository is given Admin access by going on
   # Package settings -> Manage Actions access
