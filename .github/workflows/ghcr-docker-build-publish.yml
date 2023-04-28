@@ -350,37 +350,37 @@ jobs:
   #         sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
   #         category: 'image'
 
-  # Ensure that the repository is given Admin access by going on
-  # Package settings -> Manage Actions access
-  # https://github.com/actions/delete-package-versions/issues/74
-  # cleanup:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     packages: write
-  #   strategy:
-  #     matrix:
-  #       image:
-  #         - boca-web
-  #         - boca-jail
-  #   needs: build
+  Ensure that the repository is given Admin access by going on
+  Package settings -> Manage Actions access
+  https://github.com/actions/delete-package-versions/issues/74
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        image:
+          - boca-web
+          - boca-jail
+    needs: build
 
-  #   steps:
-  #     - 
-  #       name: Write PACKAGE_NAME variable to GITHUB_ENV
-  #       run: |
-  #         owner='${{ env.OWNER_NAME }}'
-  #         repo='${{ env.REPOSITORY_NAME }}'
-  #         # Remove owner from repository name
-  #         echo "PACKAGE_NAME=${repo//$owner\//}" >> $GITHUB_ENV
+    steps:
+      - 
+        name: Write PACKAGE_NAME variable to GITHUB_ENV
+        run: |
+          owner='${{ env.OWNER_NAME }}'
+          repo='${{ env.REPOSITORY_NAME }}'
+          # Remove owner from repository name
+          echo "PACKAGE_NAME=${repo//$owner\//}" >> $GITHUB_ENV
 
-  #     # Delete versions of a package from GitHub Packages
-  #     # https://github.com/marketplace/actions/delete-package-versions
-  #     - 
-  #       name: Delete untagged Docker images on ghcr.io
-  #       uses: actions/delete-package-versions@v4
-  #       with: 
-  #         package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
-  #         package-type: 'container'
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-  #         min-versions-to-keep: 0
-  #         delete-only-untagged-versions: 'true'
+      # Delete versions of a package from GitHub Packages
+      # https://github.com/marketplace/actions/delete-package-versions
+      - 
+        name: Delete untagged Docker images on ghcr.io
+        uses: actions/delete-package-versions@v4
+        with: 
+          package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-versions-to-keep: 1
+          delete-only-untagged-versions: 'true'
