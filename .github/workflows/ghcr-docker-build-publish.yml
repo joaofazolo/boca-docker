@@ -214,6 +214,7 @@ jobs:
             # branch event
             type=ref,event=branch,suffix=-${{ env.FLAVOR_NAME }}
             type=ref,event=branch,enable=${{ matrix.release == 'ubuntu:jammy' }}
+            type=sha,prefix={{branch}}-sha-
             # tag event
             type=ref,event=tag,suffix=-${{ env.FLAVOR_NAME }}
             type=ref,event=tag,enable=${{ matrix.release == 'ubuntu:jammy' }}
