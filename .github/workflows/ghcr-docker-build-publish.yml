@@ -237,7 +237,6 @@ jobs:
           file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
           platforms: ${{ toJSON(needs.setup.outputs.platform) }}
           push: ${{ github.event_name != 'pull_request' }}
-          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=${{ matrix.image }} multi-arch image
           tags: |
             ${{ steps.meta_image.outputs.tags }}
           labels: ${{ steps.meta_image.outputs.labels }}
