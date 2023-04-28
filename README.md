@@ -36,7 +36,9 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 Voilà! The application should be running now.
 
-* Open a web browser and visit the URL http://localhost:8000/boca. First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc. NOTE: consider changing these passwords later on. Find out more information on how to setup a contest [here](https://github.com/cassiopc/boca/tree/master/doc). For general questions about BOCA consider looking at this [forum](https://groups.google.com/g/boca-users).
+* Open a web browser and visit the URL http://localhost:8000/boca. First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc. 
+
+> **NOTE:** consider changing these passwords later on. Find out more information on how to setup a contest [here](https://github.com/cassiopc/boca/tree/master/doc). For general questions about BOCA consider looking at this [forum](https://groups.google.com/g/boca-users).
 
 * To stop the application (considering that the shell is in the same directory):
 
@@ -128,7 +130,7 @@ cd boca-docker
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
-> NOTE: Keep in mind that these Docker images are created for and to run on the default platform (i.e. `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/).
+> **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e. `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/).
 
 Follow the instructions [above](#quick-start) to set up the application.
 
@@ -148,7 +150,7 @@ docker build -t boca-jail . -f docker/dev/jail/Dockerfile
 
 ## HOW TO PUBLISH IT:
 
-> NOTE: These instructions take into account the Docker images generated in the previous section (no multi-platform support).
+> **NOTE:** These instructions take into account the Docker images generated in the previous section (no multi-platform support).
 
 * After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker images -a`.
 
