@@ -171,7 +171,7 @@ jobs:
       - 
         name: Write variables to GITHUB_ENV
         run: |
-          platforms=${{ toJSON(needs.setup.outputs.platform) }}
+          platform=${{ toJSON(needs.setup.outputs.platform) }}
           # Remove square bracket, white spaces and double quotes
           platform=$(echo $platform | tr -d "[]| |\"")
           echo $platform
