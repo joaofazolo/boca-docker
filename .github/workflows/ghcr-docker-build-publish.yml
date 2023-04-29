@@ -32,7 +32,6 @@ jobs:
     outputs:
       release: ${{ steps.set-matrix.outputs.release }}
       platform: ${{ steps.set-matrix.outputs.platform }}
-      deprecated: ${{ steps.set-matrix.outputs.deprecated }}
 
     steps:
       # Checkout a repository, so the workflow can access it
@@ -59,8 +58,8 @@ jobs:
         run: |
 
           # In case jq is not installed
-          # apt-get update -y
-          # apt-get install -y jq
+          apt-get update -y
+          apt-get install -y jq
 
           # Read matrix from file and set variables
           CONTENT=`cat ${{ steps.set-json.outputs.json }}`
@@ -69,15 +68,9 @@ jobs:
           echo $RELEASES
           PLATFORMS=$(echo $CONTENT | jq ".platform")
           echo $PLATFORMS
-          DEPRECATED=$(echo $CONTENT | jq ".deprecated")
-          echo $DEPRECATED
-          # Remove square bracket, white spaces and double quotes
-          PLATFORMS=$(echo $PLATFORMS | tr -d "[]| |\"")
-          DEPRECATED=$(echo $DEPRECATED | tr -d "[]| |\"")
           # Passing matrix between jobs and/or workflows
           echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
-          echo "platform=${PLATFORMS}" >> "$GITHUB_OUTPUT"
-          echo "deprecated=${DEPRECATED}" >> "$GITHUB_OUTPUT"
+          echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
 
   # check-setup:
   #   runs-on: ubuntu-latest
@@ -99,6 +92,9 @@ jobs:
   #         # Print current release and platforms
   #         echo "release = ${{ matrix.release }}"
   #         platform=${{ toJSON(needs.setup.outputs.platform) }}
+  #         echo $platform
+  #         # Remove square bracket, white spaces and double quotes
+  #         platform=$(echo $platform | tr -d "[]| |\"")
   #         echo $platform
 
   build:
@@ -170,6 +166,27 @@ jobs:
         with:
           images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
 
+      # Set an environment variable
+      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+      - 
+        name: Write variables to GITHUB_ENV
+        run: |
+          platforms=${{ toJSON(needs.setup.outputs.platform) }}
+          # Remove square bracket, white spaces and double quotes
+          platform=$(echo $platform | tr -d "[]| |\"")
+          echo "PLATFORMS=$platform" >> $GITHUB_ENV
+          echo $PLATFORMS
+
+          release='${{ matrix.release }}'
+          # Replace 'ubuntu:' with ''
+          echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
+          echo $FLAVOR_NAME
+
+          dir='${{ matrix.image }}'
+          # Remove 'boca-' from image name
+          echo "FOLDER_NAME=${dir//boca-/}" >> $GITHUB_ENV
+          echo $FOLDER_NAME
+
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - 
@@ -178,7 +195,7 @@ jobs:
         with:
           context: .
           file: docker/dev/base/Dockerfile
-          platforms: ${{ toJSON(needs.setup.outputs.platform) }}
+          platforms: ${{ env.PLATFORMS }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
@@ -195,15 +212,6 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-      # Set an environment variable
-      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
-      - 
-        name: Write FLAVOR_NAME variable to GITHUB_ENV
-        run: |
-          release='${{ matrix.release }}'
-          # Replace 'ubuntu:' with ''
-          echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
 
       - 
         name: Extract Docker metadata (${{ matrix.image }})
@@ -232,19 +240,12 @@ jobs:
             latest=${{ matrix.release == env.BASE_RELEASE && github.event_name == 'release' }}
 
       - 
-        name: Write FOLDER_NAME variable to GITHUB_ENV
-        run: |
-          dir='${{ matrix.image }}'
-          # Remove 'boca-' from image name
-          echo "FOLDER_NAME=${dir//boca-/}" >> $GITHUB_ENV
-
-      - 
         name: Build and push image remotely (${{ matrix.image }})
         uses: docker/build-push-action@v4
         with:
           context: .
           file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
-          platforms: ${{ toJSON(needs.setup.outputs.platform) }}
+          platforms: ${{ env.PLATFORMS }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ steps.meta_image.outputs.tags }}
@@ -301,12 +302,7 @@ jobs:
           - boca-web
           # - boca-jail
         release: ${{ fromJSON(needs.setup.outputs.release) }}
-        platform:
-          - linux/amd64
-          # - linux/arm/v7
-          # - linux/arm64/v8
-          # - linux/ppc64le
-          # - linux/s390x
+        platform: ${{ fromJSON(needs.setup.outputs.platform) }}
     needs:
       - setup
       - build
@@ -317,22 +313,20 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - 
-        name: Write FLAVOR_NAME variable to GITHUB_ENV
+        name: Write variables to GITHUB_ENV
         run: |
           release='${{ matrix.release }}'
           # Replace 'ubuntu:' with ''
           echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
+          echo $FLAVOR_NAME
 
-      - 
-        name: Write IMAGE_NAME variable to GITHUB_ENV
-        run: |
           echo "IMAGE_NAME=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-${{ env.FLAVOR_NAME }}" >> $GITHUB_ENV
+          echo $IMAGE_NAME
 
-      # - 
-      #   name: GitHub Tag Name test
-      #   run: |
-      #     echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
-      #     echo "Tag name from github.ref_name: ${{  github.ref_name }}"
+          platform='${{ matrix.platform }}'
+          # Replace '/' with '-'
+          echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
+          echo $PLATFORM_NAME
 
       -
         name: Pull Docker image from ghcr.io
