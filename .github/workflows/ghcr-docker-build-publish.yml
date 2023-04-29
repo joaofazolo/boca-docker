@@ -300,13 +300,16 @@ jobs:
         image:
           - boca-web
           # - boca-jail
+        release: ${{ fromJSON(needs.setup.outputs.release) }}
         platform:
           - linux/amd64
           # - linux/arm/v7
           # - linux/arm64/v8
           # - linux/ppc64le
           # - linux/s390x
-    needs: build
+    needs:
+      - setup
+      - build
 
     steps:
       -
@@ -314,16 +317,23 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - 
-        name: GitHub Tag Name example
+        name: Write FLAVOR_NAME variable to GITHUB_ENV
         run: |
-          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
-          echo "Tag name from github.ref_name: ${{  github.ref_name }}"
+          release='${{ matrix.release }}'
+          # Replace 'ubuntu:' with ''
+          echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
 
-      # -
-      #   name: Pull Docker image from ghcr.io
+      # - 
+      #   name: GitHub Tag Name test
       #   run: |
-      #     docker pull --platform ${{ matrix.platform }} ${{github.ref_name}}
-      #     docker image ls -a
+      #     echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+      #     echo "Tag name from github.ref_name: ${{  github.ref_name }}"
+
+      -
+        name: Pull Docker image from ghcr.io
+        run: |
+          docker pull --platform ${{ matrix.platform }} ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}
+          docker image ls -a
 
 
   #     - 
@@ -348,29 +358,29 @@ jobs:
   #         docker load --input /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
   #         docker image ls -a
 
-      # # Run Trivy vulnerability scanner on image
-      # # https://github.com/marketplace/actions/aqua-security-trivy
-      # - 
-      #   name: Run Trivy vulnerability scanner on image
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
-      #     platform: '${{ matrix.platform }}'
-      #     format: 'sarif'
-      #     output: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
-      #     ignore-unfixed: true
-      #     vuln-type: 'os,library'
-      #     severity: 'CRITICAL,HIGH'
-      #     timeout: 10m
+      # Run Trivy vulnerability scanner on image
+      # https://github.com/marketplace/actions/aqua-security-trivy
+      - 
+        name: Run Trivy vulnerability scanner on image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
+          platform: '${{ matrix.platform }}'
+          format: 'sarif'
+          output: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          timeout: 10m
 
-      # # Upload results to GitHub so they can be displayed in the repository' security tab
-      # # https://github.com/github/codeql-action
-      # - 
-      #   name: Upload Trivy image scan results to GitHub Security tab
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
-      #     category: 'image'
+      # Upload results to GitHub so they can be displayed in the repository' security tab
+      # https://github.com/github/codeql-action
+      - 
+        name: Upload Trivy image scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
+          category: 'image'
 
   # Ensure that the repository is given Admin access by going on
   # Package settings -> Manage Actions access
