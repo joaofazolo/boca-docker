@@ -58,8 +58,8 @@ jobs:
         run: |
 
           # In case jq is not installed
-          apt-get update -y
-          apt-get install -y jq
+          #apt-get update -y
+          #apt-get install -y jq
 
           # Read matrix from file and set variables
           CONTENT=`cat ${{ steps.set-json.outputs.json }}`
