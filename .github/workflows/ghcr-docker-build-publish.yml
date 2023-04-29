@@ -332,7 +332,7 @@ jobs:
       -
         name: Pull Docker image from ghcr.io
         run: |
-          docker pull --platform ${{ matrix.platform }} ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}
+          docker pull --platform ${{ matrix.platform }} ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-${{ env.FLAVOR_NAME }}
           docker image ls -a
 
 
@@ -365,7 +365,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
-          platform: '${{ matrix.platform }}'
+          #platform: '${{ matrix.platform }}'
           format: 'sarif'
           output: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
           ignore-unfixed: true
