@@ -321,9 +321,8 @@ jobs:
           # Replace 'ubuntu:' with ''
           release=${release//ubuntu:/}
           echo $release
-          echo "FLAVOR_NAME=$release" >> $GITHUB_ENV
 
-          img=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-${{ env.FLAVOR_NAME }}
+          img=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-$release
           echo $img
           echo "IMAGE_NAME=$img" >> $GITHUB_ENV
 
