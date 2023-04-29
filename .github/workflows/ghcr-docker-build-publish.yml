@@ -323,6 +323,11 @@ jobs:
           # Replace 'ubuntu:' with ''
           echo "FLAVOR_NAME=${release//ubuntu:/}" >> $GITHUB_ENV
 
+      - 
+        name: Write IMAGE_NAME variable to GITHUB_ENV
+        run: |
+          echo "IMAGE_NAME=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-${{ env.FLAVOR_NAME }}" >> $GITHUB_ENV
+
       # - 
       #   name: GitHub Tag Name test
       #   run: |
@@ -332,7 +337,7 @@ jobs:
       -
         name: Pull Docker image from ghcr.io
         run: |
-          docker pull --platform ${{ matrix.platform }} ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-${{ env.FLAVOR_NAME }}
+          docker pull --platform ${{ matrix.platform }} ${{ env.IMAGE_NAME }}
           docker image ls -a
 
 
