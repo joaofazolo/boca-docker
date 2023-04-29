@@ -254,6 +254,7 @@ jobs:
           labels: ${{ steps.meta_image.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
+          provenance: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
