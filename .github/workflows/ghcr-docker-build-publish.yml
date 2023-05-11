@@ -106,7 +106,7 @@ jobs:
       matrix:
         image:
           - boca-web
-          # - boca-jail
+          - boca-jail
         release: ${{ fromJSON(needs.setup.outputs.release) }}
     needs:
       - setup
@@ -127,7 +127,8 @@ jobs:
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      # Create and boot a builder that can be used in the following steps of the workflow
+      # Create and boot a builder that can be used in the following steps of
+      # the workflow
       # https://github.com/docker/setup-buildx-action
       -
         name: Set up Docker Buildx
@@ -166,7 +167,8 @@ jobs:
         with:
           images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
 
-      # Set environment variables
+      # Set environment variables (NOTE: alternatively could have used an
+      # output parameter between steps, see above)
       # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
       - 
         name: Write variables to GITHUB_ENV
@@ -236,8 +238,8 @@ jobs:
             # tag event
             type=ref,event=tag,priority=900,suffix=-${{ env.FLAVOR_NAME }}
             type=ref,event=tag,priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
-          # This identifies which variant will be published as "latest", which isn't
-          # necessarily the newest version of the source code
+          # This identifies which variant will be published as "latest", which
+          # isn't necessarily the newest version of the source code
           flavor: |
             latest=${{ matrix.release == env.BASE_RELEASE && github.event_name == 'release' }}
 
@@ -303,7 +305,7 @@ jobs:
       matrix:
         image:
           - boca-web
-          # - boca-jail
+          - boca-jail
         release: ${{ fromJSON(needs.setup.outputs.release) }}
         platform: ${{ fromJSON(needs.setup.outputs.platform) }}
     needs:
