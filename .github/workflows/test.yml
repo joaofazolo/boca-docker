@@ -1,0 +1,33 @@
+name: Delete all untagged container versions
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  # Run or on button click
+  workflow_dispatch:
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY_HOST: ghcr.io
+  # Use github.repository (<account>/<repo>)
+  REPOSITORY_NAME: ${{ github.repository }}
+  # Use github.repository_owner (<account>)
+  OWNER_NAME: ${{ github.repository_owner }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - 
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - uses: imjasonh/setup-crane@v0.1
+      - run: |
+
+          crane manifest ghcr.io/rlaiola/boca-docker/boca-web:builds-focal | jq .manifests[].digest
