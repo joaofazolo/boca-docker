@@ -49,7 +49,7 @@ jobs:
           digestKeys="${digestKeys// /|}"
 
           echo $digestKeys
-          echo "DIGESTS=${digestKeys}" >> $GITHUB_ENV
+          echo "DIGEST_KEYS=${digestKeys}" >> $GITHUB_ENV
 
       - 
         name: Write PACKAGE_NAME variable to GITHUB_ENV
@@ -67,7 +67,7 @@ jobs:
         name: Delete deprecated Docker images on ghcr.io
         uses: actions/delete-package-versions@v4
         with:
-          package-version-ids: '${{ env.DIGESTS }}'
           package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
           package-type: 'container'
+          ignore-versions: '${{ env.DIGEST_KEYS }}'
           token: ${{ secrets.GITHUB_TOKEN }}
