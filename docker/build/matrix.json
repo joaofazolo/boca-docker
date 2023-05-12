@@ -1,7 +1,15 @@
 {
     "release": [
-        "ubuntu:focal",
-        "ubuntu:jammy"
+        "latest",
+        "nightly",
+        "1.2.0-jammy",
+        "1.2.0-focal",
+        "1.1.0",
+        "1.0.0"
+    ],
+    "parent": [
+        "ubuntu:jammy",
+        "ubuntu:focal"
     ],
     "platform": [
         "linux/amd64",
