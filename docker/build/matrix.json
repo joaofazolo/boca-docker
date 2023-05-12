@@ -1,7 +1,9 @@
 {
     "release": [
-        "latest",
-        "nightly",
+        "latest-jammy",
+        "latest-focal",
+        "nightly-jammy",
+        "nightly-focal",
         "1.2.0-jammy",
         "1.2.0-focal",
         "1.1.0",
