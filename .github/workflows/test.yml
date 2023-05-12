@@ -69,5 +69,6 @@ jobs:
         with:
           package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
           package-type: 'container'
+          delete-only-untagged-versions: 'true'
           ignore-versions: '${{ env.DIGEST_KEYS }}'
           token: ${{ secrets.GITHUB_TOKEN }}
