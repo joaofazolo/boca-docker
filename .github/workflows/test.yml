@@ -20,6 +20,13 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        image:
+          - boca-web
+        #   - boca-jail
 
     steps:
       - 
@@ -27,7 +34,40 @@ jobs:
         with:
           go-version: 1.15
 
-      - uses: imjasonh/setup-crane@v0.1
-      - run: |
+      - 
+        uses: imjasonh/setup-crane@v0.1
+      - 
+        run: |
 
-          crane manifest ghcr.io/rlaiola/boca-docker/boca-web:builds-focal | jq .manifests[].digest
+          digestKeys="${digestKeys} `crane manifest ghcr.io/rlaiola/boca-docker/boca-web:builds-focal | jq .manifests[].digest`"
+          digestKeys="${digestKeys} `crane manifest ghcr.io/rlaiola/boca-docker/boca-web:builds-jammy | jq .manifests[].digest`"
+
+          # Remove newlines, tabs, carriage returns and double quotes
+          digestKeys=$(echo $digestKeys | tr -d "\n\t\r|\"")
+
+          # Replace whitespaces with '|'
+          digestKeys="${digestKeys// /|}"
+
+          echo $digestKeys
+          echo "DIGESTS=${digestKeys}" >> $GITHUB_ENV
+
+      - 
+        name: Write PACKAGE_NAME variable to GITHUB_ENV
+        run: |
+
+          owner='${{ env.OWNER_NAME }}'
+          repo='${{ env.REPOSITORY_NAME }}'
+          # Remove owner from repository name
+          package=${repo//$owner\//}
+          echo "PACKAGE_NAME=${package}" >> $GITHUB_ENV
+
+      # Delete versions of a package from GitHub Packages
+      # https://github.com/marketplace/actions/delete-package-versions
+      - 
+        name: Delete deprecated Docker images on ghcr.io
+        uses: actions/delete-package-versions@v4
+        with:
+          package-version-ids: '${{ env.DIGESTS }}'
+          package-name: '${{ env.PACKAGE_NAME }}/${{ matrix.image }}'
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
