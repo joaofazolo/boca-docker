@@ -155,7 +155,7 @@ jobs:
 
           # Remove newlines, tabs, carriage returns and double quotes
           DIGESTKEYS=$(echo $DIGESTKEYS | tr -d "\n\t\r|\"")
-          # Replace whitespaces with '|'
+          # Replace white spaces with '|'
           DIGESTKEYS="${DIGESTKEYS// /|}"
           echo $DIGESTKEYS
 
@@ -163,7 +163,7 @@ jobs:
           echo "digest_keys=${DIGESTKEYS}" >> $GITHUB_ENV
 
       - 
-        name: Write variable to GITHUB_ENV
+        name: Write package_name variable to GITHUB_ENV
         run: |
 
           OWNER='${{ env.OWNER_NAME }}'
