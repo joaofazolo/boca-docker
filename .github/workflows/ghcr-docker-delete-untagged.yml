@@ -90,6 +90,9 @@ jobs:
   #         PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
   #         echo $PLATFORM
 
+  # Ensure that the repository is given Admin access by going on
+  # Package settings -> Manage Actions access
+  # https://github.com/actions/delete-package-versions/issues/74
   cleanup:
     runs-on: ubuntu-latest
     permissions:
