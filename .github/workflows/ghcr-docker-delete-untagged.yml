@@ -83,7 +83,7 @@ jobs:
   #       run: |
 
   #         # Print current parent image and platforms
-  #         echo "PARENT = ${{ matrix.parent }}"
+  #         echo "${{ matrix.parent }}"
   #         PLATFORM=${{ toJSON(needs.setup.outputs.platform) }}
   #         echo $PLATFORM
   #         # Remove square bracket, white spaces and double quotes
