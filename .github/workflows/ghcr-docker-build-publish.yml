@@ -23,14 +23,14 @@ env:
   REPOSITORY_NAME: ${{ github.repository }}
   # Use github.repository_owner (<account>)
   OWNER_NAME: ${{ github.repository_owner }}
-  # Set Ubuntu base release
-  BASE_RELEASE: "ubuntu:jammy"
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
       release: ${{ steps.set-matrix.outputs.release }}
+      parent: ${{ steps.set-matrix.outputs.parent }}
+      default_parent: ${{ steps.set-matrix.outputs.default_parent }}
       platform: ${{ steps.set-matrix.outputs.platform }}
 
     steps:
@@ -54,29 +54,38 @@ jobs:
 
       - 
         id: set-matrix
-        name: Set build matrix of base releases and architectures
+        name: Set build matrix of releases, parent images and os/architectures
         run: |
-
-          # In case jq is not installed
-          #apt-get update -y
-          #apt-get install -y jq
 
           # Read matrix from file and set variables
           CONTENT=`cat ${{ steps.set-json.outputs.json }}`
           echo $CONTENT
           RELEASES=$(echo $CONTENT | jq ".release")
           echo $RELEASES
+          PARENTS=$(echo $CONTENT | jq ".parent")
+          echo $PARENTS
           PLATFORMS=$(echo $CONTENT | jq ".platform")
           echo $PLATFORMS
+
+          # Remove square brackets and double quotes
+          DEFAULTPARENT=$(echo $PARENTS | tr -d "[]|\"")
+          # Split string into an array
+          IFS=', ' read -r -a DEFAULTPARENT <<< "$DEFAULTPARENT"
+          # Set base image (parent) as the first value of the array
+          DEFAULTPARENT=${DEFAULTPARENT[0]}
+          echo $DEFAULTPARENT
+
           # Passing matrix between jobs and/or workflows
           echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
+          echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
+          echo "default_parent=${DEFAULTPARENT}" >> "$GITHUB_OUTPUT"
           echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
 
   # check-setup:
   #   runs-on: ubuntu-latest
   #   strategy:
   #     matrix:
-  #       release: ${{ fromJSON(needs.setup.outputs.release) }}
+  #       parent: ${{ fromJSON(needs.setup.outputs.parent) }}
   #   needs:
   #     - setup
 
@@ -85,17 +94,15 @@ jobs:
   #       name: Check build matrix
   #       run: |
 
-  #         # In case jq is not installed
-  #         apt-get update -y
-  #         apt-get install -y jq
-
-  #         # Print current release and platforms
-  #         echo "release = ${{ matrix.release }}"
-  #         platform=${{ toJSON(needs.setup.outputs.platform) }}
-  #         echo $platform
+  #         # Print current parent image, default parent and platforms
+  #         echo "${{ matrix.parent }}"
+  #         DEFAULTPARENT=${{ toJSON(needs.setup.outputs.default_parent) }}
+  #         echo $DEFAULTPARENT
+  #         PLATFORM=${{ toJSON(needs.setup.outputs.platform) }}
+  #         echo $PLATFORM
   #         # Remove square bracket, white spaces and double quotes
-  #         platform=$(echo $platform | tr -d "[]| |\"")
-  #         echo $platform
+  #         PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
+  #         echo $PLATFORM
 
   build:
     runs-on: ubuntu-latest
@@ -107,7 +114,7 @@ jobs:
         image:
           - boca-web
           - boca-jail
-        release: ${{ fromJSON(needs.setup.outputs.release) }}
+        parent: ${{ fromJSON(needs.setup.outputs.parent) }}
     needs:
       - setup
     services:
@@ -173,23 +180,27 @@ jobs:
       - 
         name: Write variables to GITHUB_ENV
         run: |
-          platform=${{ toJSON(needs.setup.outputs.platform) }}
-          # Remove square bracket, white spaces and double quotes
-          platform=$(echo $platform | tr -d "[]| |\"")
-          echo $platform
-          echo "PLATFORMS=$platform" >> $GITHUB_ENV
-          
-          release='${{ matrix.release }}'
+          PARENT='${{ matrix.parent }}'
           # Replace 'ubuntu:' with ''
-          release=${release//ubuntu:/}
-          echo $release
-          echo "FLAVOR_NAME=$release" >> $GITHUB_ENV
+          PARENT=${PARENT//ubuntu:/}
+          echo $PARENT
+          echo "flavor_name=$PARENT" >> $GITHUB_ENV
 
-          dir='${{ matrix.image }}'
+          DEFAULTPARENT=${{ toJSON(needs.setup.outputs.default_parent) }}
+          echo $DEFAULTPARENT
+          echo "default_parent=$DEFAULTPARENT" >> $GITHUB_ENV
+
+          PLATFORM=${{ toJSON(needs.setup.outputs.platform) }}
+          # Remove square bracket, white spaces and double quotes
+          PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
+          echo $PLATFORM
+          echo "platforms=$PLATFORM" >> $GITHUB_ENV
+
+          DIR='${{ matrix.image }}'
           # Remove 'boca-' from image name
-          dir=${dir//boca-/}
-          echo $dir
-          echo "FOLDER_NAME=$dir" >> $GITHUB_ENV
+          DIR=${DIR//boca-/}
+          echo $DIR
+          echo "folder_name=$DIR" >> $GITHUB_ENV
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -199,12 +210,12 @@ jobs:
         with:
           context: .
           file: docker/dev/base/Dockerfile
-          platforms: ${{ env.PLATFORMS }}
+          platforms: ${{ env.platforms }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
           build-args: |
-            BASE_IMAGE=${{ matrix.release }}
+            BASE_IMAGE=${{ matrix.parent }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -225,31 +236,31 @@ jobs:
           images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
           tags: |
             # nightly build
-            type=schedule,pattern=nightly,suffix=-${{ env.FLAVOR_NAME }}
-            type=schedule,pattern=nightly,enable=${{ matrix.release == env.BASE_RELEASE }}
+            type=schedule,pattern=nightly,suffix=-${{ env.flavor_name }}
+            type=schedule,pattern=nightly,enable=${{ matrix.parent == env.default_parent }}
             # new release
-            type=semver,pattern={{raw}},priority=900,suffix=-${{ env.FLAVOR_NAME }}
-            type=semver,pattern={{raw}},priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
-            type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-${{ env.FLAVOR_NAME }}
-            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
+            type=semver,pattern={{raw}},priority=900,suffix=-${{ env.flavor_name }}
+            type=semver,pattern={{raw}},priority=1000,enable=${{ matrix.parent == env.default_parent }}
+            type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-${{ env.flavor_name }}
+            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.parent == env.default_parent }}
             # branch event
-            type=ref,event=branch,priority=900,suffix=-${{ env.FLAVOR_NAME }}
-            type=ref,event=branch,priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
+            type=ref,event=branch,priority=900,suffix=-${{ env.flavor_name }}
+            type=ref,event=branch,priority=1000,enable=${{ matrix.parent == env.default_parent }}
             # tag event
-            type=ref,event=tag,priority=900,suffix=-${{ env.FLAVOR_NAME }}
-            type=ref,event=tag,priority=1000,enable=${{ matrix.release == env.BASE_RELEASE }}
+            type=ref,event=tag,priority=900,suffix=-${{ env.flavor_name }}
+            type=ref,event=tag,priority=1000,enable=${{ matrix.parent == env.default_parent }}
           # This identifies which variant will be published as "latest", which
           # isn't necessarily the newest version of the source code
           flavor: |
-            latest=${{ matrix.release == env.BASE_RELEASE && github.event_name == 'release' }}
+            latest=${{ matrix.parent == env.default_parent && github.event_name == 'release' }}
 
       - 
         name: Build and push image remotely (${{ matrix.image }})
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
-          platforms: ${{ env.PLATFORMS }}
+          file: docker/dev/${{ env.folder_name }}/Dockerfile
+          platforms: ${{ env.platforms }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ steps.meta_image.outputs.tags }}
@@ -272,7 +283,7 @@ jobs:
   #       uses: docker/build-push-action@v4
   #       with:
   #         context: .
-  #         file: docker/dev/${{ env.FOLDER_NAME }}/Dockerfile
+  #         file: docker/dev/${{ env.folder_name }}/Dockerfile
   #         platforms: ${{ matrix.platform }}
   #         tags: ${{ matrix.image }}_${{ env.PLATFORM_NAME }}
   #         build-args: |
@@ -306,7 +317,7 @@ jobs:
         image:
           - boca-web
           - boca-jail
-        release: ${{ fromJSON(needs.setup.outputs.release) }}
+        parent: ${{ fromJSON(needs.setup.outputs.parent) }}
         platform: ${{ fromJSON(needs.setup.outputs.platform) }}
     needs:
       - setup
@@ -320,25 +331,25 @@ jobs:
       - 
         name: Write variables to GITHUB_ENV
         run: |
-          release='${{ matrix.release }}'
+          PARENT='${{ matrix.parent }}'
           # Replace 'ubuntu:' with ''
-          release=${release//ubuntu:/}
-          echo $release
+          PARENT=${PARENT//ubuntu:/}
+          echo $PARENT
 
-          img=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-$release
-          echo $img
-          echo "IMAGE_NAME=$img" >> $GITHUB_ENV
+          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-$PARENT
+          echo $IMG
+          echo "image_name=$IMG" >> $GITHUB_ENV
 
-          platform='${{ matrix.platform }}'
+          PLATFORM='${{ matrix.platform }}'
           # Replace '/' with '-'
-          platform=${platform//\//-}
-          echo $platform
-          echo "PLATFORM_NAME=$platform" >> $GITHUB_ENV
+          PLATFORM=${PLATFORM//\//-}
+          echo $PLATFORM
+          echo "platform_name=$PLATFORM" >> $GITHUB_ENV
 
       -
         name: Pull Docker image from ghcr.io
         run: |
-          docker pull --platform ${{ matrix.platform }} ${{ env.IMAGE_NAME }}
+          docker pull --platform ${{ matrix.platform }} ${{ env.image_name }}
           docker image ls -a
 
   #     - 
@@ -369,10 +380,10 @@ jobs:
         name: Run Trivy vulnerability scanner on image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.IMAGE_NAME }}'
+          image-ref: '${{ env.image_name }}'
           #platform: '${{ matrix.platform }}'
           format: 'sarif'
-          output: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
+          output: 'trivy-${{ matrix.image }}-${{ env.platform_name }}-image-results.sarif'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
@@ -384,7 +395,7 @@ jobs:
         name: Upload Trivy image scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'trivy-${{ matrix.image }}-${{ env.PLATFORM_NAME }}-image-results.sarif'
+          sarif_file: 'trivy-${{ matrix.image }}-${{ env.platform_name }}-image-results.sarif'
           category: 'image'
 
   # Ensure that the repository is given Admin access by going on
