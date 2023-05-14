@@ -5,6 +5,9 @@ name: Delete GitHub Actions caches for repository
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# GitHub Actions Documentation
+# https://docs.github.com/en/github-ae@latest/actions
+
 on:
   # Run on Sundays at 10:15 AM UTC
   schedule:
@@ -50,14 +53,6 @@ jobs:
                                               -R ${{ env.REPOSITORY_NAME }} \
                                               | cut -f 1)
 
-            # Setting this to not fail the workflow while deleting cache keys. 
-            set +e
-            echo "Deleting caches..."
-            for cachekey in $CACHEKEYS
-            do
-              gh actions-cache delete ${cachekey} --confirm
-            done
-
             # Get length of $CACHEKEYS array
             len=${#CACHEKEYS[@]}
             if [[ $len -eq 1 ]];
@@ -65,6 +60,14 @@ jobs:
               echo "Done"
               break
             fi
+
+            # Setting this to not fail the workflow while deleting cache keys. 
+            set +e
+            echo "Deleting caches..."
+            for cachekey in $CACHEKEYS
+            do
+              gh actions-cache delete ${cachekey} --confirm
+            done
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
