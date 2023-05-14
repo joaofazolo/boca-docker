@@ -6,6 +6,8 @@
         "nightly-jammy",
         "nightly-focal",
         "1.2",
+        "1.2-jammy",
+        "1.2-focal",
         "1.2.0",
         "1.2.0-jammy",
         "1.2.0-focal",
