@@ -12,6 +12,10 @@ on:
           - info
           - warning
           - debug
+      print_tags:
+        description: 'True to print to STDOUT'
+        required: true
+        type: boolean
       tags:
         description: 'Test scenario tags'
         required: true
