@@ -264,7 +264,7 @@ jobs:
 
       - 
         name: Delete multiple specific Docker images on ghcr.io
-        uses: actions/delete-package-versions@v4
+        uses: actions/delete-package-versions@v4.1.0
         with:
           package-version-ids: '${{ env.digest_keys }}'
           package-name: '${{ env.package_name }}/${{ matrix.image }}'
