@@ -247,8 +247,8 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-${{ env.flavor_name }}
             type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.parent == env.default_parent }}
             # branch event
-            # type=ref,event=branch,priority=900,suffix=-${{ env.flavor_name }}
-            # type=ref,event=branch,priority=1000,enable=${{ matrix.parent == env.default_parent }}
+            type=ref,event=branch,priority=900,suffix=-${{ env.flavor_name }},enable=${{ !contains(github.ref, 'refs/tags/') }}
+            type=ref,event=branch,priority=1000,enable=${{ matrix.parent == env.default_parent && !contains(github.ref, 'refs/tags/') }}
             # tag event
             type=ref,event=tag,priority=900,suffix=-${{ env.flavor_name }}
             type=ref,event=tag,priority=1000,enable=${{ matrix.parent == env.default_parent }}
