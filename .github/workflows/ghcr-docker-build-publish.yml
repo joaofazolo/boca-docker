@@ -17,7 +17,26 @@ on:
     # Publish semver tags as releases (e.g., 1.0.0)
     tags: [ '*.*.*' ]
   # or on button click
+  # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
   workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+      print_tags:
+        description: 'True to print to STDOUT'
+        required: true
+        type: boolean
+      tags:
+        description: 'Test scenario tags'
+        required: true
+        type: string
 
 env:
   # Use docker.io for Docker Hub if empty
