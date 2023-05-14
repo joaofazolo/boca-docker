@@ -89,7 +89,7 @@ To run the _boca-docker_ application built on top of different versions of Ubunt
 | Tag name                                   | BOCA version | Ubuntu version | Code name       | Architecture                            |
 |--------------------------------------------|--------------|----------------|-----------------|-----------------------------------------|
 | latest, 1.2, 1.2-jammy, 1.2.0, 1.2.0-jammy | 1.5          | 22.04 LTS      | Jammy Jellyfish | amd64, arm/v7, arm64/v8, ppc64le, s390x |
-| latest-focal, 1.2-focal, 1.2.0-focal       | 1.5          | 20.04 LTS      | Focal Fossa     | amd64, arm/v7, arm64/v8, ppc64le, s390x |
+| 1.2-focal, 1.2.0-focal                     | 1.5          | 20.04 LTS      | Focal Fossa     | amd64, arm/v7, arm64/v8, ppc64le, s390x |
 | nightly, nightly-jammy                     | 1.5          | 22.04 LTS      | Jammy Jellyfish | amd64, arm/v7, arm64/v8, ppc64le, s390x |
 | nightly-focal                              | 1.5          | 20.04 LTS      | Focal Fossa     | amd64, arm/v7, arm64/v8, ppc64le, s390x |
 
