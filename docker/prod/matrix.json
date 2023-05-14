@@ -1,5 +1,5 @@
 {
-    "//comment1": "List of all supported image releases (e.g., boca-web:latest)",
+    "//comment1": "List of supported image releases (e.g., boca-web:latest)",
     "release": [
         "latest",
         "nightly",
