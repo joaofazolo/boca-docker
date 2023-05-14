@@ -274,37 +274,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  #     - 
-  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
-  #       run: |
-  #         platform='${{ matrix.platform }}'
-  #         # Replace '/' with '-'
-  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
-
-  #     - 
-  #       name: Build and export image to file (${{ matrix.image }})
-  #       uses: docker/build-push-action@v4
-  #       with:
-  #         context: .
-  #         file: docker/dev/${{ env.folder_name }}/Dockerfile
-  #         platforms: ${{ matrix.platform }}
-  #         tags: ${{ matrix.image }}_${{ env.PLATFORM_NAME }}
-  #         build-args: |
-  #           BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
-  #         outputs: type=docker,dest=/tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
-  #         cache-from: type=gha
-  #         cache-to: type=gha,mode=max
-
-  #     # Upload images allowing to share them between jobs
-  #     # https://github.com/actions/upload-artifact
-  #     -
-  #       name: Upload image (${{ matrix.image }})
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: ${{ matrix.image }}_${{ env.PLATFORM_NAME }}
-  #         path: /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
-  #         retention-days: 7
-
   scan:
     runs-on: ubuntu-latest
     permissions:
@@ -354,28 +323,6 @@ jobs:
         run: |
           docker pull --platform ${{ matrix.platform }} ${{ env.image_name }}
           docker image ls -a
-
-  #     - 
-  #       name: Normalize and write PLATFORM_NAME variable to GITHUB_ENV
-  #       run: |
-  #         platform='${{ matrix.platform }}'
-  #         # Replace '/' with '-'
-  #         echo "PLATFORM_NAME=${platform//\//-}" >> $GITHUB_ENV
-
-  #     # Download artifact from build
-  #     # https://github.com/actions/download-artifact
-  #     -
-  #       name: Download artifact (Docker image)
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: '${{ matrix.image }}_${{ env.PLATFORM_NAME }}'
-  #         path: /tmp
-
-  #     -
-  #       name: Load Docker image from file
-  #       run: |
-  #         docker load --input /tmp/${{ matrix.image }}_${{ env.PLATFORM_NAME }}.tar
-  #         docker image ls -a
 
       # Run Trivy vulnerability scanner on image
       # https://github.com/marketplace/actions/aqua-security-trivy
