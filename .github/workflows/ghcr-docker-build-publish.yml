@@ -5,6 +5,9 @@ name: Build and publish multi-platform Docker images on ghcr.io (nightly/new rel
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# GitHub Actions Documentation
+# https://docs.github.com/en/github-ae@latest/actions
+
 on:
   # Run daily at 9:15 AM UTC (nightly builds)
   schedule:
