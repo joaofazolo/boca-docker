@@ -51,7 +51,7 @@ jobs:
         run: |
 
           # Specify path of matrix file
-          JSON=docker/build/matrix.json
+          JSON=docker/prod/matrix.json
           echo "json=${JSON}" >> $GITHUB_OUTPUT
           echo ${JSON}
 
