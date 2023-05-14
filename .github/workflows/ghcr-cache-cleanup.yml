@@ -37,6 +37,17 @@ jobs:
         name: Checkout repository
         uses: actions/checkout@v3
 
+      # Necessary if testing locally with 'act'
+      # https://github.com/nektos/act
+
+      # Install GH CLI (self-hosted runners do not come with it out of the box)
+      # https://github.com/dev-hanz-ops/install-gh-cli-action
+      # - 
+      #   name: Install GH CLI
+      #   uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
+      #   with:
+      #     gh-cli-version: 2.14.2 # optional, see action.yml for current default
+
       # Force deletion of caches overriding default cache eviction policy
       # https://github.com/marketplace/actions/cache
       - 
@@ -53,9 +64,15 @@ jobs:
                                               -R ${{ env.REPOSITORY_NAME }} \
                                               | cut -f 1)
 
+            # Remove newlines, tabs, carriage returns and double quotes
+            CACHEKEYS=$(echo $CACHEKEYS | tr -d "\n\t\r|\"")
+            # Split string into an array
+            IFS=', ' read -r -a CACHEKEYS <<< "$CACHEKEYS"
             # Get length of $CACHEKEYS array
-            len=${#CACHEKEYS[@]}
-            if [[ $len -eq 1 ]];
+            LEN=${#CACHEKEYS[@]}
+            echo "Number of cache entries: $LEN"
+
+            if [[ $LEN -eq 0 ]];
             then
               echo "Done"
               break
@@ -64,7 +81,7 @@ jobs:
             # Setting this to not fail the workflow while deleting cache keys. 
             set +e
             echo "Deleting caches..."
-            for cachekey in $CACHEKEYS
+            for cachekey in ${CACHEKEYS[@]}
             do
               gh actions-cache delete ${cachekey} --confirm
             done
