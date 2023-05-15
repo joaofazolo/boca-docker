@@ -264,9 +264,10 @@ jobs:
             # tag event (same as new release)
             type=ref,event=tag,priority=900,suffix=-${{ env.flavor_name }}
             type=ref,event=tag,priority=1000,enable=${{ matrix.parent == env.default_parent }}
-            # workflow_dispatch event
-            type=raw,value=${{ inputs.tags }},enable=${{ github.event_name == 'workflow_dispatch' }}
-            # branch event (set on workflow_dispatch only)
+            # workflow_dispatch (debug)
+            type=raw,value=${{ inputs.tags }},enable=${{ matrix.parent == env.default_parent && github.event_name == 'workflow_dispatch' }}
+            type=raw,value=${{ inputs.tags }},suffix=-${{ env.flavor_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            # branch event (set on workflow_dispatch event only)
             type=ref,event=branch,priority=900,suffix=-${{ env.flavor_name }},enable=${{ !contains(github.ref, 'refs/tags/') && github.event_name != 'schedule' }}
             type=ref,event=branch,priority=1000,enable=${{ matrix.parent == env.default_parent && !contains(github.ref, 'refs/tags/') && github.event_name != 'schedule' }}
           # This identifies which variant will be published as "latest", which
