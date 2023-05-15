@@ -27,4 +27,4 @@ jobs:
     if:  ${{ inputs.print_tags }} 
     steps:
       - name: Print the input tag to STDOUT
-        run: echo  The tags are ${{ inputs.tags }}
+        run: echo  The tags are ${{ inputs.tags }} and event is ${{ github.event_name }}
