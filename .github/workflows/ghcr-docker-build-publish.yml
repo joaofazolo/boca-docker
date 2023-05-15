@@ -30,7 +30,7 @@ on:
           - warning
           - debug
       tags:
-        description: 'Test scenario tags'
+        description: 'Test scenario tag'
         required: true
         type: string
 
@@ -198,6 +198,7 @@ jobs:
       - 
         name: Write variables to GITHUB_ENV
         run: |
+
           PARENT='${{ matrix.parent }}'
           # Replace 'ubuntu:' with ''
           PARENT=${PARENT//ubuntu:/}
@@ -243,6 +244,7 @@ jobs:
         # https://github.com/moby/buildkit/issues/1896
         name: Move cache
         run: |
+
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
@@ -321,6 +323,7 @@ jobs:
       - 
         name: Write variables to GITHUB_ENV
         run: |
+
           PARENT='${{ matrix.parent }}'
           # Replace 'ubuntu:' with ''
           PARENT=${PARENT//ubuntu:/}
@@ -339,6 +342,7 @@ jobs:
       -
         name: Pull Docker image from ghcr.io
         run: |
+        
           docker pull --platform ${{ matrix.platform }} ${{ env.image_name }}
           docker image ls -a
 
