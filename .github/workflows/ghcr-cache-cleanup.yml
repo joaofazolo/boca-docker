@@ -53,6 +53,7 @@ jobs:
       - 
         name: Delete all cache entries
         run: |
+
           gh extension install actions/gh-actions-cache
 
           while true
