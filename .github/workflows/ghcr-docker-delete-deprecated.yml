@@ -299,7 +299,7 @@ jobs:
 
       - 
         name: Delete multiple specific Docker images on ghcr.io
-        uses: actions/delete-package-versions@v4.1.0
+        uses: actions/delete-package-versions@v4
         if: ${{ env.version_ids != '' }}
         with:
           package-version-ids: '${{ env.version_ids }}'
