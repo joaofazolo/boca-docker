@@ -46,7 +46,7 @@ jobs:
         run: |
 
           # Specify path of matrix file
-          JSON=docker/prod/matrix.json
+          JSON=docker/build/matrix.json
           echo ${JSON}
 
           # Passing filename between jobs and/or workflows
