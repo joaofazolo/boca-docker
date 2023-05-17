@@ -1,0 +1,308 @@
+name: Delete untagged and/or unsupported Docker images on ghcr.io
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub Actions Documentation
+# https://docs.github.com/en/github-ae@latest/actions
+
+on:
+  # Run on every 15th day-of-month at 10:15 AM UTC
+  schedule:
+    - cron: '15 10 */15 * *'
+  # or on button click
+  workflow_dispatch:
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY_HOST: ghcr.io
+  # Use github.repository (<account>/<repo>)
+  REPOSITORY_NAME: ${{ github.repository }}
+  # Use github.repository_owner (<account>)
+  OWNER_NAME: ${{ github.repository_owner }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.set-matrix.outputs.release }}
+      parent: ${{ steps.set-matrix.outputs.parent }}
+      platform: ${{ steps.set-matrix.outputs.platform }}
+
+    steps:
+      # Checkout a repository, so the workflow can access it
+      # https://github.com/marketplace/actions/checkout
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setting an output parameter between jobs and/or workflows
+      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
+      - 
+        id: set-json
+        name: Get build matrix from file
+        run: |
+
+          # Specify path of matrix file
+          JSON=docker/build/matrix.json
+          echo ${JSON}
+
+          # Passing filename between jobs and/or workflows
+          echo "json=${JSON}" >> $GITHUB_OUTPUT
+
+      - 
+        id: set-matrix
+        name: Set build matrix of releases, parent images and os/architectures
+        run: |
+
+          # Read matrix from file and set variables
+          CONTENT=`cat ${{ steps.set-json.outputs.json }}`
+          echo $CONTENT
+          RELEASES=$(echo $CONTENT | jq ".release")
+          echo $RELEASES
+          PARENTS=$(echo $CONTENT | jq ".parent")
+          echo $PARENTS
+          PLATFORMS=$(echo $CONTENT | jq ".platform")
+          echo $PLATFORMS
+
+          # Passing matrix between jobs and/or workflows
+          echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
+          echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
+          echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
+
+  # check-setup:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       parent: ${{ fromJSON(needs.setup.outputs.parent) }}
+  #   needs:
+  #     - setup
+
+  #   steps:
+  #     - 
+  #       name: Check build matrix
+  #       run: |
+
+  #         # Print current parent image and platforms
+  #         echo "${{ matrix.parent }}"
+  #         PLATFORM=${{ toJSON(needs.setup.outputs.platform) }}
+  #         echo $PLATFORM
+  #         # Remove square bracket, white spaces and double quotes
+  #         PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
+  #         echo $PLATFORM
+
+  # Ensure that the repository is given Admin access by going on
+  # Package settings -> Manage Actions access
+  # https://github.com/actions/delete-package-versions/issues/74
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        image:
+          - boca-web
+          - boca-jail
+    needs: setup
+
+    steps:
+      # Set up GitHub Actions workflow with a specific version of Go
+      # https://github.com/marketplace/actions/setup-go-environment
+      - 
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.15
+
+      # Install and setup crane
+      # https://github.com/imjasonh/setup-crane
+      - 
+        uses: imjasonh/setup-crane@v0.3
+
+      - 
+        name: Compile versions/releases to ignore
+        run: |
+
+          # Get supported releases
+          RELEASES=${{ toJSON(needs.setup.outputs.release) }}
+          # Remove square brackets and double quotes
+          RELEASES=$(echo $RELEASES | tr -d "[]|\"")
+          # Split string into an array
+          IFS=', ' read -r -a RELEASES <<< "$RELEASES"
+          echo "${RELEASES[@]}"
+
+          # Unset variable
+          unset DIGESTKEYS
+          # Set image
+          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+
+          # Iterate over releases to get digests
+          for version in ${RELEASES[@]}
+          do
+            echo "${version}"
+
+            # If manifest does not exist just skip image
+            MANIFEST=$(crane manifest ${IMG}:${version} || echo "")
+            if [ -z "${MANIFEST}" ];
+            then
+              continue
+            fi
+
+            # Get digest key(s) of regular image (if not multi-arch)
+            DIGESTKEYS="${DIGESTKEYS} \
+              `crane manifest ${IMG}:${version} | \
+                jq 'select (.config != null) | .config.digest'`"
+            # or of multi-platform images builds
+            DIGESTKEYS="${DIGESTKEYS} \
+              `crane manifest ${IMG}:${version} | \
+                jq 'select (.manifests != null) | .manifests[].digest'`"
+          done
+
+          # Remove newlines, tabs, carriage returns and double quotes
+          DIGESTKEYS=$(echo $DIGESTKEYS | tr -d "\n\t\r|\"")
+          # Replace white spaces with '|'
+          DIGESTKEYS="${DIGESTKEYS// /|}"
+          echo $DIGESTKEYS
+
+          # Passing env variable between steps
+          echo "digest_keys=${DIGESTKEYS}" >> $GITHUB_ENV
+
+      - 
+        name: Write package_name variable to GITHUB_ENV
+        run: |
+
+          OWNER='${{ env.OWNER_NAME }}'
+          REPO='${{ env.REPOSITORY_NAME }}'
+          # Remove owner from repository name
+          PACKAGE=${REPO//$OWNER\//}
+          echo "package_name=${PACKAGE}" >> $GITHUB_ENV
+
+      # Delete Package Versions
+      # https://github.com/marketplace/actions/delete-package-versions
+      - 
+        name: Delete untagged Docker images on ghcr.io
+        uses: actions/delete-package-versions@v4
+        if: ${{ env.digest_keys != '' }}
+        with:
+          package-name: '${{ env.package_name }}/${{ matrix.image }}'
+          package-type: 'container'
+          delete-only-untagged-versions: 'true'
+          ignore-versions: '${{ env.digest_keys }}'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Necessary if testing locally with 'act'
+      # https://github.com/nektos/act
+
+      # Install GH CLI (self-hosted runners do not come with it out of the box)
+      # https://github.com/dev-hanz-ops/install-gh-cli-action
+      # - 
+      #   name: Install GH CLI
+      #   uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
+      #   with:
+      #     gh-cli-version: 2.14.2 # optional, see action.yml for current default
+
+      - 
+        name: Compile unsupported releases
+        run: |
+
+          # Get supported releases
+          RELEASES=${{ toJSON(needs.setup.outputs.release) }}
+          # Remove square brackets and double quotes
+          RELEASES=$(echo $RELEASES | tr -d "[]|\"")
+          # Split string into an array
+          IFS=', ' read -r -a RELEASES <<< "$RELEASES"
+          echo "${RELEASES[@]}"
+
+          # Set image
+          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+
+          # Get all releases/tags
+          ALLRELEASES=$(crane ls ${IMG} || echo "")
+          # If list of tags is empty just skip it
+          if [ -z "${ALLRELEASES}" ];
+          then
+            exit 0
+          fi
+
+          # Remove newlines, tabs, carriage returns and double quotes
+          ALLRELEASES=$(echo $ALLRELEASES | tr -d "\n\t\r|\"")
+          # Split string into an array
+          IFS=', ' read -r -a ALLRELEASES <<< "$ALLRELEASES"
+          echo "${ALLRELEASES[@]}"
+
+          # Get unsupported releases
+          DEPRECATED=()
+          for i in "${ALLRELEASES[@]}"; do
+              skip=
+              for j in "${RELEASES[@]}"; do
+                  [[ $i == $j ]] && { skip=1; break; }
+              done
+              [[ -n $skip ]] || DEPRECATED+=("$i")
+          done
+          declare -p DEPRECATED
+          echo "${DEPRECATED[@]}"
+
+          PACKAGE=${{ env.package_name }}
+          ENCODED_PACKAGE="${PACKAGE}/${{ matrix.image }}"
+          # Replace '/' with '%2F'
+          ENCODED_PACKAGE="${ENCODED_PACKAGE//\//\%2F}"
+          echo $ENCODED_PACKAGE
+
+          PACKAGESJSON=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /users/${{ env.OWNER_NAME }}/packages/container/${ENCODED_PACKAGE}/versions || echo "")
+          echo $PACKAGESJSON
+
+          # If list of package versions does not exist just fail
+          if [ -z "${PACKAGESJSON}" ];
+          then
+            exit 1
+          fi
+
+          # Unset variable
+          unset VERSIONIDS
+
+          # Iterate over releases to get digests
+          for version in ${DEPRECATED[@]}
+          do
+            echo "${version}"
+
+            VERSIONIDS="${VERSIONIDS} \
+              `echo $PACKAGESJSON | \
+                jq --arg var $version \
+                  '.[] | select(any(.metadata.container.tags[]; contains ($var))) | .id'`"
+          done
+
+          # Remove newlines, tabs, carriage returns and double quotes
+          VERSIONIDS=$(echo ${VERSIONIDS} | tr -d "\n\t\r|\"")
+          # Replace white spaces with ', '
+          VERSIONIDS="${VERSIONIDS// /, }"
+          # Split string into an array
+          IFS=', ' read -r -a VERSIONIDS <<< "$VERSIONIDS"
+          echo "${VERSIONIDS[@]}"
+
+          # Keep unique version ids only
+          UNIQIDS=($(printf "%s\n" "${VERSIONIDS[@]}" | sort -u))
+          echo "${UNIQIDS[@]}"
+
+          # Convert to string
+          UNIQSTR=$(echo $(IFS=, ; echo "${UNIQIDS[*]}"))
+          # Add white space after ','
+          UNIQSTR="${UNIQSTR//,/, }"
+          echo $UNIQSTR
+          # Passing env variable between steps
+          echo "version_ids=${UNIQSTR}" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - 
+        name: Delete multiple specific Docker images on ghcr.io
+        uses: actions/delete-package-versions@v4
+        if: ${{ env.version_ids != '' }}
+        with:
+          package-version-ids: '${{ env.version_ids }}'
+          package-name: '${{ env.package_name }}/${{ matrix.image }}'
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
