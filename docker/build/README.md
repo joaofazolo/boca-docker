@@ -2,7 +2,7 @@
 
 The JSON file(s) in this folder will be read in the GitHub Actions workflows and used as shown below.
 
-:warning: Edit the `matrix.json` file to add/remove supported image releases/tags (e.g., boca-web:1.2.0). **Untagged or unsupported images will be deleted periodically.** :warning:
+:warning: Edit the `matrix.json` file to add/remove supported image releases/tags (e.g., `latest`, `1.2`, `1.2.0`), parent/base images (e.g., `ubuntu:jammy`, `ubuntu:focal`), and platforms (e.g., `linux/amd64`, `linux/arm/v7`, `linux/ppc64le`). **Untagged or unsupported build images will be deleted periodically.** :warning:
 
 ```yml
 jobs:
@@ -28,7 +28,7 @@ jobs:
 
       - 
         id: set-matrix
-        name: Set build matrix of releases, parent images and os/architectures
+        name: Set build matrix of parent images
         run: |
 
           # Read matrix from file and set variables
