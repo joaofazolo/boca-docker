@@ -11,7 +11,7 @@ The _boca-docker_ project is a use case of how we can take advantage of microser
 
 Original architecture | _boca-docker_ architecture
 :-------------------------:|:-------------------------:
-![Alt text](/imgs/arquitetura-boca.png?raw=true "boca-docker architecture")  |  ![Alt text](/imgs/arquitetura-boca-docker.png?raw=true "boca-docker architecture")
+![Alt text](/imgs/arquitetura-boca.png?raw=true "BOCA architecture")  |  ![Alt text](/imgs/arquitetura-boca-docker.png?raw=true "boca-docker architecture")
 
 This work started as part of the undergraduate final year project carried out by João Vitor Alves Fazolo under supervision of Prof. Dr. Rodrigo Laiola Guimaraes at Universidade Federal do Espirito Santo ([UFES](https://www.ufes.br/)).
 
