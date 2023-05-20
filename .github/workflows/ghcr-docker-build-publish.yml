@@ -163,14 +163,6 @@ jobs:
         with:
           driver-opts: network=host
 
-      - 
-        name: Start local Docker registry
-        run: |
-
-          docker run --rm --detach --publish 5000:5000 \
-            --volume ${REGISTRY_PATH}:/var/lib/registry \
-            --name registry registry:2
-
       # Set environment variables (NOTE: alternatively could have used an
       # output parameter between steps, see above)
       # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
@@ -189,6 +181,14 @@ jobs:
           PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
           echo $PLATFORM
           echo "platforms=$PLATFORM" >> $GITHUB_ENV
+
+      - 
+        name: Start local Docker registry
+        run: |
+
+          docker run --rm --detach --publish 5000:5000 \
+            --volume ${REGISTRY_PATH}/boca-base-${flavor_name}:/var/lib/registry \
+            --name registry registry:2
 
       # Cache storage backends with GitHub Actions
       # https://github.com/actions/cache
@@ -247,7 +247,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: docker-registry-data
-          path: ${{ env.REGISTRY_PATH }}/
+          path: ${{ env.REGISTRY_PATH }}/boca-base-${{ env.flavor_name }}/
 
   # build:
   #   runs-on: ubuntu-latest
@@ -261,16 +261,31 @@ jobs:
   #         - boca-jail
   #       parent: ${{ fromJSON(needs.setup.outputs.parent) }}
   #   needs:
-  #     - setup
-  #   services:
-  #     registry:
-  #       image: registry:2
-  #       volumes: 
-  #         - ${REGISTRY_PATH}:/var/lib/registry
-  #       ports:
-  #         - 5000:5000
+  #     - build-base
 
   #   steps:
+
+  #     - 
+  #       name: Checkout repository
+  #       uses: actions/checkout@v3
+
+  #     -
+  #       name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v2
+
+  #     -
+  #       name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v2
+  #       with:
+  #         driver-opts: network=host
+
+  #     - 
+  #       name: Start local Docker registry
+  #       run: |
+
+  #         docker run --rm --detach --publish 5000:5000 \
+  #           --volume ${REGISTRY_PATH}:/var/lib/registry \
+  #           --name registry registry:2
 
   #     # Login to a Docker registry (except on PR)
   #     # https://github.com/docker/login-action
