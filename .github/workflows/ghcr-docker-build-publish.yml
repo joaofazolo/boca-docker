@@ -141,13 +141,6 @@ jobs:
         parent: ${{ fromJSON(needs.setup.outputs.parent) }}
     needs:
       - setup
-    # services:
-    #   registry:
-    #     image: registry:2
-    #     volumes: 
-    #       - ${{ env.REGISTRY_PATH }}:/var/lib/registry
-    #     ports:
-    #       - 5000:5000
     name: build (boca-base, ${{ matrix.parent}})
 
     steps:
@@ -228,16 +221,6 @@ jobs:
           cache-from: type=local,src=${{ env.CACHE_PATH }}
           cache-to: type=local,dest=${{ env.CACHE_PATH }}-new,mode=max
 
-      -
-        # Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-        name: Move cache
-        run: |
-
-          rm -rf ${{ env.CACHE_PATH }}
-          mv ${{ env.CACHE_PATH }}-new ${{ env.CACHE_PATH }}
-
       - name: Stop local Docker registry
         run: |
 
@@ -249,6 +232,23 @@ jobs:
         with:
           name: docker-registry-data
           path: ${{ env.REGISTRY_PATH }}/
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs:
+      - build-base
+    
+    steps:
+      -
+        # Temp fix
+        # https://github.com/docker/build-push-action/issues/252
+        # https://github.com/moby/buildkit/issues/1896
+        name: Cache cleanup
+        run: |
+
+          rm -rf ${{ env.CACHE_PATH }}
+          mv ${{ env.CACHE_PATH }}-new ${{ env.CACHE_PATH }}
+
 
   # build:
   #   runs-on: ubuntu-latest
