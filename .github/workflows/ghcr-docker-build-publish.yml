@@ -134,7 +134,9 @@ jobs:
   build-base:
     runs-on: ubuntu-latest
     permissions:
+      # for actions/checkout to fetch code
       contents: read
+      # can upload and download package, as well as read/write package metadata
       packages: write
     strategy:
       matrix:
@@ -410,77 +412,76 @@ jobs:
 
           docker stop registry
 
-  # scan:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     # for actions/checkout to fetch code
-  #     contents: read
-  #     # for github/codeql-action/upload-sarif to upload SARIF results
-  #     security-events: write
-  #     # only required for a private repository by github/codeql-action/upload-sarif 
-  #     # to get the Action run status
-  #     actions: read
-  #   strategy:
-  #     matrix:
-  #       image:
-  #         - boca-web
-  #         - boca-jail
-  #       parent: ${{ fromJSON(needs.setup.outputs.parent) }}
-  #       platform: ${{ fromJSON(needs.setup.outputs.platform) }}
-  #   needs:
-  #     - setup
-  #     - build
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # for github/codeql-action/upload-sarif to upload SARIF results
+      security-events: write
+      # only required for a private repository by github/codeql-action/upload-sarif 
+      # to get the Action run status
+      actions: read
+    strategy:
+      matrix:
+        image:
+          - boca-web
+          - boca-jail
+        parent: ${{ fromJSON(needs.setup.outputs.parent) }}
+        platform: ${{ fromJSON(needs.setup.outputs.platform) }}
+    needs:
+      - setup
+      - build
 
-  #   steps:
-  #     -
-  #       name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v2
+    steps:
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-  #     - 
-  #       name: Write variables to GITHUB_ENV
-  #       run: |
+      - 
+        name: Write variables to GITHUB_ENV
+        run: |
 
-  #         PARENT='${{ matrix.parent }}'
-  #         # Replace 'ubuntu:' with ''
-  #         PARENT=${PARENT//ubuntu:/}
-  #         echo $PARENT
+          PARENT='${{ matrix.parent }}'
+          # Replace 'ubuntu:' with ''
+          PARENT=${PARENT//ubuntu:/}
+          echo $PARENT
 
-  #         IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-$PARENT
-  #         echo $IMG
-  #         echo "image_name=$IMG" >> $GITHUB_ENV
+          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{github.ref_name}}-$PARENT
+          echo $IMG
+          echo "image_name=$IMG" >> $GITHUB_ENV
 
-  #         PLATFORM='${{ matrix.platform }}'
-  #         # Replace '/' with '-'
-  #         PLATFORM=${PLATFORM//\//-}
-  #         echo $PLATFORM
-  #         echo "platform_name=$PLATFORM" >> $GITHUB_ENV
+          PLATFORM='${{ matrix.platform }}'
+          # Replace '/' with '-'
+          PLATFORM=${PLATFORM//\//-}
+          echo $PLATFORM
+          echo "platform_name=$PLATFORM" >> $GITHUB_ENV
 
-  #     -
-  #       name: Pull Docker image from ghcr.io
-  #       run: |
+      -
+        name: Pull Docker image from ghcr.io
+        run: |
         
-  #         docker pull --platform ${{ matrix.platform }} ${{ env.image_name }}
-  #         docker image ls -a
+          docker pull --platform ${{ matrix.platform }} ${{ env.image_name }}
+          docker image ls -a
 
-  #     # Run Trivy vulnerability scanner on image
-  #     # https://github.com/marketplace/actions/aqua-security-trivy
-  #     - 
-  #       name: Run Trivy vulnerability scanner on image
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         image-ref: '${{ env.image_name }}'
-  #         format: 'sarif'
-  #         output: 'trivy-${{ matrix.image }}-${{ env.platform_name }}-image-results.sarif'
-  #         ignore-unfixed: true
-  #         vuln-type: 'os,library'
-  #         severity: 'CRITICAL,HIGH'
-  #         timeout: 10m
+      # Run Trivy vulnerability scanner on image
+      # https://github.com/marketplace/actions/aqua-security-trivy
+      - 
+        name: Run Trivy vulnerability scanner on image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.image_name }}'
+          format: 'sarif'
+          output: 'trivy-${{ matrix.image }}-${{ env.platform_name }}-image-results.sarif'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          timeout: 10m
 
-  #     # Upload results to GitHub so they can be displayed in the repository' security tab
-  #     # https://github.com/github/codeql-action
-  #     - 
-  #       name: Upload Trivy image scan results to GitHub Security tab
-  #       uses: github/codeql-action/upload-sarif@v2
-  #       with:
-  #         sarif_file: 'trivy-${{ matrix.image }}-${{ env.platform_name }}-image-results.sarif'
-  #         category: 'image'
+      # Upload results to GitHub so they can be displayed in the repository' security tab
+      # https://github.com/github/codeql-action
+      - 
+        name: Upload Trivy image scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-${{ matrix.image }}-${{ env.platform_name }}-image-results.sarif'
+          category: 'image'
