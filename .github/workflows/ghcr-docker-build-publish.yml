@@ -145,7 +145,7 @@ jobs:
       registry:
         image: registry:2
         volumes: 
-          - ${{ REGISTRY_PATH }}:/var/lib/registry
+          - ${{ env.REGISTRY_PATH }}:/var/lib/registry
         ports:
           - 5000:5000
     name: build (boca-base, ${{ matrix.parent}})
