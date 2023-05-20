@@ -311,7 +311,7 @@ jobs:
       # Download artifacts that have been uploaded from previous jobs
       # https://github.com/actions/download-artifact
       -
-        name: Download Docker registry data from boca-base job
+        name: Download Docker registry data from build-base job
         uses: actions/download-artifact@v3
         with:
           name: docker-registry-data
@@ -403,7 +403,7 @@ jobs:
         run: |
 
           rm -rf ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
-          mv ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new ${{ env.CACHE_PATH }}/boca-base-${{ env.flavor_name }}
+          mv ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
 
       - name: Stop local Docker registry
         run: |
