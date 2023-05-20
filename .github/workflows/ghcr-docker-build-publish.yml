@@ -261,7 +261,7 @@ jobs:
           - boca-jail
         parent: ${{ fromJSON(needs.setup.outputs.parent) }}
     needs:
-      - build-base
+      - setup
 
     steps:
 
