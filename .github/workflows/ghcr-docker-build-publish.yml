@@ -141,13 +141,13 @@ jobs:
         parent: ${{ fromJSON(needs.setup.outputs.parent) }}
     needs:
       - setup
-    services:
-      registry:
-        image: registry:2
-        volumes: 
-          - ${{ env.REGISTRY_PATH }}:/var/lib/registry
-        ports:
-          - 5000:5000
+    # services:
+    #   registry:
+    #     image: registry:2
+    #     volumes: 
+    #       - ${{ env.REGISTRY_PATH }}:/var/lib/registry
+    #     ports:
+    #       - 5000:5000
     name: build (boca-base, ${{ matrix.parent}})
 
     steps:
@@ -169,6 +169,14 @@ jobs:
         uses: docker/setup-buildx-action@v2
         with:
           driver-opts: network=host
+
+      - 
+        name: Start local Docker registry
+        run: |
+
+          docker run --rm --detach --publish 5000:5000 \
+            --volume ${REGISTRY_PATH}:/var/lib/registry \
+            --name registry registry:2
 
       # Cache storage backends with GitHub Actions
       # https://github.com/actions/cache
@@ -230,7 +238,7 @@ jobs:
           rm -rf ${{ env.CACHE_PATH }}
           mv ${{ env.CACHE_PATH }}-new ${{ env.CACHE_PATH }}
 
-      - name: Stop Docker registry
+      - name: Stop local Docker registry
         run: |
 
           docker stop registry
