@@ -384,12 +384,8 @@ jobs:
           build-args: |
             BASE_IMAGE=${{ steps.meta_base.outputs.tags }}
           provenance: false
-          cache-from: |
-            type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
-            #type=gha
-          cache-to: |
-            type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new,mode=max
-            #type=gha,mode=max
+          cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new,mode=max
 
       -
         # Temp fix
