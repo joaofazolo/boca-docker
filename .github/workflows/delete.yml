@@ -2,6 +2,10 @@ name: Delete test
 
 on:
   workflow_dispatch:
+    inputs:
+      tags:
+        required: false
+        type: string
   # or on calling as reusable workflow
   workflow_call:
     inputs:
