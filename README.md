@@ -1,5 +1,10 @@
-[![GitHub release](https://img.shields.io/github/release/joaofazolo/boca-docker.svg?style=flat-square)](https://github.com/joaofazolo/boca-docker/releases/latest)
-[![Build and publish Docker images on ghcr.io workflow](https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?branch=master&label=build-and-publish-Docker-images-on-ghcr.io&logo=github&style=flat-square)](https://github.com/joaofazolo/boca-docker/actions?workflow=build)
+[![GitHub release][release_badge]][release_link]
+[![Build and publish Docker images on ghcr.io workflow][build_action_badge]][build_action_link]
+
+[release_badge]: https://img.shields.io/github/release/joaofazolo/boca-docker.svg?style=flat-square
+[release_link]: https://github.com/joaofazolo/boca-docker/releases/latest "latest release"
+[build_action_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?branch=master&label=build&logo=github&style=flat-square
+[build_action_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=build "build and publish docker images"
 
 [![Ubuntu JAMMY][ubuntu_jammy_badge]][ubuntu_jammy_link]
 [![Ubuntu FOCAL][ubuntu_focal_badge]][ubuntu_focal_link]
@@ -12,7 +17,7 @@
 [![Multi-Architecture][arch_badge]][arch_link]
 
 [arch_badge]: https://img.shields.io/badge/multi--arch-%20amd64%20|%20arm/v7%20|%20arm64/v8%20|%20ppc64le%20|%20s390x%20-lightgray.svg?logo=Docker
-[arch_link]: #computer-how-to-run-on-different-ubuntu-release-images "multi-arch images"
+[arch_link]: #how-to-run-on-different-ubuntu-release-images "multi-arch images"
 
 # :balloon: boca-docker
 
