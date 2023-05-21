@@ -12,7 +12,7 @@
 [![Multi-Architecture][arch_badge]][arch_link]
 
 [arch_badge]: https://img.shields.io/badge/multi--arch-%20amd64%20|%20arm/v7%20|%20arm64/v8%20|%20ppc64le%20|%20s390x%20-lightgray.svg?logo=Docker
-[arch_link]: https://github.com/rlaiola/boca-docker/tree/builds#computer-how-to-run-on-different-ubuntu-release-images "multi-arch images"
+[arch_link]: #computer-how-to-run-on-different-ubuntu-release-images "multi-arch images"
 
 # :balloon: boca-docker
 
