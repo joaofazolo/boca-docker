@@ -299,8 +299,8 @@ jobs:
             type=ref,event=tag,priority=900,suffix=-${{ env.flavor_name }}
             type=ref,event=tag,priority=1000,enable=${{ matrix.parent == env.default_parent }}
             # workflow_dispatch (debug)
-            type=raw,value=${{ inputs.tags }},enable=${{ matrix.parent == env.default_parent && github.event_name == 'workflow_dispatch' }}
-            type=raw,value=${{ inputs.tags }},suffix=-${{ env.flavor_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=raw,value=${{ inputs.tag }},enable=${{ matrix.parent == env.default_parent && github.event_name == 'workflow_dispatch' }}
+            type=raw,value=${{ inputs.tag }},suffix=-${{ env.flavor_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
             # branch event
             type=ref,event=branch,priority=900,suffix=-${{ env.flavor_name }}
             type=ref,event=branch,priority=1000,enable=${{ matrix.parent == env.default_parent }}
