@@ -1,24 +1,25 @@
 [![GitHub release][release_badge]][release_link]
-[![Build and publish Docker images on ghcr.io workflow][build_publish_workflow_badge]][build_publish_workflow_link]
+[![Build and publish multi-platform_Docker images on ghcr.io workflow][build_publish_workflow_badge]][build_publish_workflow_link]
 [![Delete GitHub Actions caches for repository workflow][cache_cleanup_workflow_badge]][cache_cleanup_workflow_link]
+[![Delete_untagged_and/or_unsupported_Docker_images_on_ghcr.io_workflow][packages_cleanup_workflow_badge]][packages_cleanup_workflow_link]
 
 [release_badge]: https://img.shields.io/github/release/joaofazolo/boca-docker.svg?style=flat-square
 [release_link]: https://github.com/joaofazolo/boca-docker/releases/latest "latest release"
 [build_publish_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?label=build%20and%20publish&logo=github&style=flat-square
-[build_publish_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=build "build and publish docker images"
+[build_publish_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=build "build and publish images"
 [cache_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-cache-cleanup.yml?label=cache%20cleanup&logo=github&style=flat-square
-[cache_cleanup_workflow_link]: [https://github.com/joaofazolo/boca-docker/actions?workflow=cache](https://github.com/rlaiola/boca-docker/actions?workflow=delete%20github) "build and publish docker images"
+[cache_cleanup_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=delete%20github "delete workflow caches"
+[packages_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-delete-deprecated.yml?label=packages%20cleanup&logo=github&style=flat-square
+[packages_cleanup_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=delete%20untagged "delete deprecated images"
 
 [![Ubuntu JAMMY][ubuntu_jammy_badge]][ubuntu_jammy_link]
 [![Ubuntu FOCAL][ubuntu_focal_badge]][ubuntu_focal_link]
+[![Multi-Architecture][arch_badge]][arch_link]
 
 [ubuntu_jammy_badge]: https://img.shields.io/badge/ubuntu-jammy-E95420.svg?logo=Ubuntu
 [ubuntu_focal_badge]: https://img.shields.io/badge/ubuntu-focal-E95420.svg?logo=Ubuntu
 [ubuntu_jammy_link]: https://hub.docker.com/_/ubuntu/tags?page=1&name=jammy "ubuntu:jammy image"
 [ubuntu_focal_link]: https://hub.docker.com/_/ubuntu/tags?page=1&name=focal "ubuntu:focal image"
-
-[![Multi-Architecture][arch_badge]][arch_link]
-
 [arch_badge]: https://img.shields.io/badge/multi--arch-%20amd64%20|%20arm/v7%20|%20arm64/v8%20|%20ppc64le%20|%20s390x%20-lightgray.svg?logo=Docker
 [arch_link]: #how-to-run-on-different-ubuntu-release-images "multi-arch images"
 
