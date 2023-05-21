@@ -2,7 +2,7 @@
 
 The _boca-docker_ application uses several environment variables which are easy to miss. The variables required are `POSTGRES_PASSWORD` (`boca-db` service) and `BOCA_DB_SUPER_PASSWORD` (`boca-web` service), the rest are optional.
 
-**Note:** DO NOT set the optional `POSTGRES_DB` environment variable in the `boca-db` service. Find out the reasons for that [here](https://github.com/joaofazolo/boca-docker/issues/17).
+> **NOTE:** DO NOT set the optional `POSTGRES_DB` environment variable in the `boca-db` service. Find out the reasons for that [here](https://github.com/joaofazolo/boca-docker/issues/17).
 
 #### **`BOCA_DB_HOST`**
 
@@ -12,13 +12,13 @@ This optional environment variable, which can be set in the `boca-web` and `boca
 
 This optional environment variable is used in conjunction with `BOCA_DB_SUPER_PASSWORD` (`boca-web` service) to manage the database. This environment variable must be the superuser for PostgreSQL. If it is not specified, then the default user of _postgres_ will be used.
 
-**Note:** If specified, this parameter and the `POSTGRES_USER` variable (`boca-db` service) must be set with the same value.
+> **NOTE:** If specified, this parameter and the `POSTGRES_USER` variable (`boca-db` service) must be set with the same value.
 
 #### **`BOCA_DB_SUPER_PASSWORD`**
 
 This environment variable is required for the `boca-web` service (web app) to manage the database (`boca-db` service). It must not be empty or undefined. This environment variable must be the superuser password for PostgreSQL. The default superuser is defined by the `BOCA_DB_SUPER_USER` environment variable.
 
-**Note:** It must have the same value of the `POSTGRES_PASSWORD` variable (`boca-db` service).
+> **NOTE:** It must have the same value of the `POSTGRES_PASSWORD` variable (`boca-db` service).
 
 #### **`BOCA_DB_USER`** and **`BOCA_DB_PASSWORD`**
 
@@ -40,13 +40,13 @@ This optional environment variable can be specified in the `boca-web` service to
 
 This optional environment variable is used in conjunction with `POSTGRES_PASSWORD` (`boca-db` service) to set a user and its password. This variable will create the specified user with superuser power and a database with the same name. If it is not specified, then the default user of _postgres_ will be used.
 
-**Note:** Be aware that if this parameter is specified, the `BOCA_DB_SUPER_USER` variable (`boca-web` service) must be defined with the same value.
+> **NOTE:** Be aware that if this parameter is specified, the `BOCA_DB_SUPER_USER` variable (`boca-web` service) must be defined with the same value.
 
 #### **`POSTGRES_PASSWORD`**
 
 This environment variable is required to setup the `boca-db` service (PostgreSQL database). It must not be empty or undefined. This environment variable sets the superuser password for PostgreSQL. The default superuser is defined by the `POSTGRES_USER` environment variable.
 
-**Note:** The `BOCA_DB_SUPER_PASSWORD` variable (`boca-web` service) must be set with the same value.
+> **NOTE:** The `BOCA_DB_SUPER_PASSWORD` variable (`boca-web` service) must be set with the same value.
 
 #### **`BOCA_WEB_HOST`**
 
