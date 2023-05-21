@@ -1,3 +1,6 @@
+[![GitHub release](https://img.shields.io/github/release/joaofazolo/boca-docker.svg?style=flat-square)](https://github.com/joaofazolo/boca-docker/releases/latest)
+[![Build and publish Docker images on ghcr.io workflow](https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?branch=master&label=build-and-publish-Docker-images-on-ghcr.io&logo=github&style=flat-square)](https://github.com/joaofazolo/boca-docker/actions?workflow=build)
+
 # :balloon: boca-docker
 
 BOCA Online Contest Administrator (known simply as BOCA) is an administration system to held programming contests (e.g., ACM-ICPC, Maratona de Programação da SBC). According to the developers, its main features are portability, concurrency control, multi-site and distributed contests, and a simple web interface (for details refer to https://www.ime.usp.br/~cassio/boca/ and https://github.com/cassiopc/boca).
@@ -8,7 +11,7 @@ The _boca-docker_ project is a use case of how we can take advantage of microser
 
 Original architecture | _boca-docker_ architecture
 :-------------------------:|:-------------------------:
-![Alt text](/imgs/arquitetura-boca.png?raw=true "boca-docker architecture")  |  ![Alt text](/imgs/arquitetura-boca-docker.png?raw=true "boca-docker architecture")
+![Alt text](/imgs/arquitetura-boca.png?raw=true "BOCA architecture")  |  ![Alt text](/imgs/arquitetura-boca-docker.png?raw=true "boca-docker architecture")
 
 This work started as part of the undergraduate final year project carried out by João Vitor Alves Fazolo under supervision of Prof. Dr. Rodrigo Laiola Guimaraes at Universidade Federal do Espirito Santo ([UFES](https://www.ufes.br/)).
 
