@@ -93,10 +93,10 @@ jobs:
           if [ ! -z "${{ inputs.tags }}" ]
           then
             tags=${{ inputs.tags }}
-            echo "AQUI = ${{ inputs.tags }}"
             for tag in "$tags"
             do
-              RELEASES+=("$tag")
+              echo "$tag"
+              #RELEASES+=("$tag")
             done
           fi
           echo "${RELEASES[@]}"
