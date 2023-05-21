@@ -169,7 +169,7 @@ jobs:
             VERSIONIDS="${VERSIONIDS} \
               `echo $PACKAGESJSON | \
                 jq --arg var $version \
-                  '.[] | select(any(.metadata.container.tags[]; contains ($var))) | .id'`"
+                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | .id'`"
           done
 
           # Remove newlines, tabs, carriage returns and double quotes
