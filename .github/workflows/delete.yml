@@ -90,7 +90,7 @@ jobs:
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
           echo "${{ inputs.tags }}"
-          if [ ! -z "${{ inputs.tags }}" ]
+          if [ ! -z "${{ inputs.tags }}" ];
           then
             read -a TAGS <<< "${{ inputs.tags }}"
             for tag in ${TAGS[@]};
@@ -197,11 +197,13 @@ jobs:
           # Split string into an array
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
-          if [ ! -n "${{ inputs.tags }}" ]
+          echo "${{ inputs.tags }}"
+          if [ ! -z "${{ inputs.tags }}" ];
           then
-            tags=${{ inputs.tags }}
-            for tag in "$tags"
+            read -a TAGS <<< "${{ inputs.tags }}"
+            for tag in ${TAGS[@]};
             do
+              echo "${tag}"
               RELEASES+=("$tag")
             done
           fi
