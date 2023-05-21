@@ -1,10 +1,13 @@
 [![GitHub release][release_badge]][release_link]
-[![Build and publish Docker images on ghcr.io workflow][build_action_badge]][build_action_link]
+[![Build and publish Docker images on ghcr.io workflow][build_publish_workflow_badge]][build_publish_workflow_link]
+[![Delete GitHub Actions caches for repository workflow][cache_cleanup_workflow_badge]][cache_cleanup_workflow_link]
 
 [release_badge]: https://img.shields.io/github/release/joaofazolo/boca-docker.svg?style=flat-square
 [release_link]: https://github.com/joaofazolo/boca-docker/releases/latest "latest release"
-[build_action_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?branch=master&label=build&logo=github&style=flat-square
-[build_action_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=build "build and publish docker images"
+[build_publish_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?label=build%20and%20publish&logo=github&style=flat-square
+[build_publish_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=build "build and publish docker images"
+[cache_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-cache-cleanup.yml?label=cache%20cleanup&logo=github&style=flat-square
+[cache_cleanup_workflow_link]: [https://github.com/joaofazolo/boca-docker/actions?workflow=cache](https://github.com/rlaiola/boca-docker/actions?workflow=delete%20github) "build and publish docker images"
 
 [![Ubuntu JAMMY][ubuntu_jammy_badge]][ubuntu_jammy_link]
 [![Ubuntu FOCAL][ubuntu_focal_badge]][ubuntu_focal_link]
