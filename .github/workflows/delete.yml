@@ -90,7 +90,7 @@ jobs:
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
           echo ""${{ inputs.tags }}
-          if [ ! -n "${{ inputs.tags }}" ]
+          if [ ! -z "${{ inputs.tags }}" ]
           then
             tags=${{ inputs.tags }}
             echo "AQUI = ${{ inputs.tags }}"
