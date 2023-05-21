@@ -29,7 +29,7 @@ on:
           - info
           - warning
           - debug
-      tags:
+      tag:
         description: 'Test scenario tag'
         required: true
         type: string
