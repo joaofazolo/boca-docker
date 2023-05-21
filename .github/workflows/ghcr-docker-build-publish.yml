@@ -56,7 +56,7 @@ jobs:
   setup:
     uses: ./.github/workflows/read-matrix-file.yml
     with:
-        matrix-path: docker/build/matrix.json
+      matrix-path: docker/build/matrix.json
 
   build-base:
     runs-on: ubuntu-latest
