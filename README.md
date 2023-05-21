@@ -9,6 +9,11 @@
 [ubuntu_jammy_docker_hub]: https://hub.docker.com/_/ubuntu/tags?page=1&name=jammy "ubuntu:jammy image"
 [ubuntu_focal_docker_hub]: https://hub.docker.com/_/ubuntu/tags?page=1&name=focal "ubuntu:focal image"
 
+[![Multi-Architecture][arch_badge]][arch_link]
+
+[arch_badge]: https://img.shields.io/badge/multi--arch-%20amd64%20|%20arm/v7%20|%20arm64/v8%20|%20ppc64le%20|%20s390x%20-blue.svg?logo=Docker
+[arch_link]: https://github.com/rlaiola/boca-docker/edit/builds/README.md#computer-how-to-run-on-different-ubuntu-release-images "multi-arch images"
+
 # :balloon: boca-docker
 
 BOCA Online Contest Administrator (known simply as BOCA) is an administration system to held programming contests (e.g., ACM-ICPC, Maratona de Programação da SBC). According to the developers, its main features are portability, concurrency control, multi-site and distributed contests, and a simple web interface (for details refer to https://www.ime.usp.br/~cassio/boca/ and https://github.com/cassiopc/boca).
