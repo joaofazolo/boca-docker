@@ -89,6 +89,7 @@ jobs:
           # Split string into an array
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
+          echo ""${{ inputs.tags }}
           if [ ! -n "${{ inputs.tags }}" ]
           then
             tags=${{ inputs.tags }}
