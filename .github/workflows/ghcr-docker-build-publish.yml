@@ -52,84 +52,11 @@ env:
   CACHE_PATH: /tmp/.buildx-cache
 
 jobs:
+  # Calling a reusable workflow
   setup:
-    runs-on: ubuntu-latest
-    outputs:
-      release: ${{ steps.set-matrix.outputs.release }}
-      parent: ${{ steps.set-matrix.outputs.parent }}
-      default_parent: ${{ steps.set-matrix.outputs.default_parent }}
-      platform: ${{ steps.set-matrix.outputs.platform }}
-
-    steps:
-      # Checkout a repository, so the workflow can access it
-      # https://github.com/marketplace/actions/checkout
-      - 
-        name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Setting an output parameter between jobs and/or workflows
-      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
-      - 
-        id: set-json
-        name: Get build matrix from file
-        run: |
-
-          # Specify path of matrix file
-          JSON=docker/build/matrix.json
-          echo "json=${JSON}" >> $GITHUB_OUTPUT
-          echo ${JSON}
-
-      - 
-        id: set-matrix
-        name: Set build matrix of releases, parent images and os/architectures
-        run: |
-
-          # Read matrix from file and set variables
-          CONTENT=`cat ${{ steps.set-json.outputs.json }}`
-          echo $CONTENT
-          RELEASES=$(echo $CONTENT | jq ".release")
-          echo $RELEASES
-          PARENTS=$(echo $CONTENT | jq ".parent")
-          echo $PARENTS
-          PLATFORMS=$(echo $CONTENT | jq ".platform")
-          echo $PLATFORMS
-
-          # Remove square brackets and double quotes
-          DEFAULTPARENT=$(echo $PARENTS | tr -d "[]|\"")
-          # Split string into an array
-          IFS=', ' read -r -a DEFAULTPARENT <<< "$DEFAULTPARENT"
-          # Set base image (parent) as the first value of the array
-          DEFAULTPARENT=${DEFAULTPARENT[0]}
-          echo $DEFAULTPARENT
-
-          # Passing matrix between jobs and/or workflows
-          echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
-          echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
-          echo "default_parent=${DEFAULTPARENT}" >> "$GITHUB_OUTPUT"
-          echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
-
-  # check-setup:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       parent: ${{ fromJSON(needs.setup.outputs.parent) }}
-  #   needs:
-  #     - setup
-
-  #   steps:
-  #     - 
-  #       name: Check build matrix
-  #       run: |
-
-  #         # Print current parent image, default parent and platforms
-  #         echo "${{ matrix.parent }}"
-  #         DEFAULTPARENT=${{ toJSON(needs.setup.outputs.default_parent) }}
-  #         echo $DEFAULTPARENT
-  #         PLATFORM=${{ toJSON(needs.setup.outputs.platform) }}
-  #         echo $PLATFORM
-  #         # Remove square bracket, white spaces and double quotes
-  #         PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
-  #         echo $PLATFORM
+    uses: ./.github/workflows/read-matrix-file.yml
+    with:
+        matrix-path: docker/build/matrix.json
 
   build-base:
     runs-on: ubuntu-latest

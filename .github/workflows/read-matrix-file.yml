@@ -1,0 +1,113 @@
+name: Read build matrix from file
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub Actions Documentation
+# https://docs.github.com/en/github-ae@latest/actions
+
+# Reusing workflows
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+on:
+  workflow_call:
+    inputs:
+      matrix-path:
+        required: true
+        type: string
+    # Map the workflow outputs to job outputs
+    outputs:
+      release:
+        description: "Matrix of supported image tags/releases (e.g., boca-web:latest)"
+        value: ${{ jobs.get-matrix.outputs.release }}
+      parent:
+        description: "Matrix of parent/base images in builds"
+        value: ${{ jobs.get-matrix.outputs.parent }}
+      default_parent:
+        description: "Default parent/base image"
+        value: ${{ jobs.get-matrix.outputs.default_parent }}
+      platform:
+        description: "Matrix of os/platform-specific target builds (multi-arch)"
+        value: ${{ jobs.get-matrix.outputs.platform }}
+
+jobs:
+  get-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.parse-matrix.outputs.release }}
+      parent: ${{ steps.parse-matrix.outputs.parent }}
+      default_parent: ${{ steps.parse-matrix.outputs.default_parent }}
+      platform: ${{ steps.parse-matrix.outputs.platform }}
+
+    steps:
+      # Checkout a repository, so the workflow can access it
+      # https://github.com/marketplace/actions/checkout
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setting an output parameter between jobs and/or workflows
+      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
+      - 
+        id: set-json
+        name: Get build matrix from file
+        run: |
+
+          # Specify path of matrix file
+          JSON=${{ inputs.matrix-path }}
+          echo ${JSON}
+
+          # Passing filename between jobs and/or workflows
+          echo "json=${JSON}" >> $GITHUB_OUTPUT
+
+      - 
+        id: parse-matrix
+        name: Set build matrix of releases, parent images and os/architectures
+        run: |
+
+          # Read matrix from file and set variables
+          CONTENT=`cat ${{ steps.set-json.outputs.json }}`
+          echo $CONTENT
+          RELEASES=$(echo $CONTENT | jq ".release")
+          echo $RELEASES
+          PARENTS=$(echo $CONTENT | jq ".parent")
+          echo $PARENTS
+          PLATFORMS=$(echo $CONTENT | jq ".platform")
+          echo $PLATFORMS
+
+          # Remove square brackets and double quotes
+          DEFAULTPARENT=$(echo $PARENTS | tr -d "[]|\"")
+          # Split string into an array
+          IFS=', ' read -r -a DEFAULTPARENT <<< "$DEFAULTPARENT"
+          # Set base image (parent) as the first value of the array
+          DEFAULTPARENT=${DEFAULTPARENT[0]}
+          echo $DEFAULTPARENT
+
+          # Passing matrix between jobs and/or workflows
+          echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
+          echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
+          echo "default_parent=${DEFAULTPARENT}" >> "$GITHUB_OUTPUT"
+          echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
+
+  # check-setup:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       parent: ${{ fromJSON(needs.get-matrix.outputs.parent) }}
+  #   needs:
+  #     - get-matrix
+
+  #   steps:
+  #     - 
+  #       name: Check build matrix
+  #       run: |
+
+  #         # Print current parent image and platforms
+  #         echo "${{ matrix.parent }}"
+  #         PLATFORM=${{ toJSON(needs.get-matrix.outputs.platform) }}
+  #         echo $PLATFORM
+  #         # Remove square bracket, white spaces and double quotes
+  #         PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
+  #         echo $PLATFORM

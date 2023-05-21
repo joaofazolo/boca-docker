@@ -24,74 +24,11 @@ env:
   OWNER_NAME: ${{ github.repository_owner }}
 
 jobs:
+  # Calling a reusable workflow
   setup:
-    runs-on: ubuntu-latest
-    outputs:
-      release: ${{ steps.set-matrix.outputs.release }}
-      parent: ${{ steps.set-matrix.outputs.parent }}
-      platform: ${{ steps.set-matrix.outputs.platform }}
-
-    steps:
-      # Checkout a repository, so the workflow can access it
-      # https://github.com/marketplace/actions/checkout
-      - 
-        name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Setting an output parameter between jobs and/or workflows
-      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
-      - 
-        id: set-json
-        name: Get build matrix from file
-        run: |
-
-          # Specify path of matrix file
-          JSON=docker/build/matrix.json
-          echo ${JSON}
-
-          # Passing filename between jobs and/or workflows
-          echo "json=${JSON}" >> $GITHUB_OUTPUT
-
-      - 
-        id: set-matrix
-        name: Set build matrix of releases, parent images and os/architectures
-        run: |
-
-          # Read matrix from file and set variables
-          CONTENT=`cat ${{ steps.set-json.outputs.json }}`
-          echo $CONTENT
-          RELEASES=$(echo $CONTENT | jq ".release")
-          echo $RELEASES
-          PARENTS=$(echo $CONTENT | jq ".parent")
-          echo $PARENTS
-          PLATFORMS=$(echo $CONTENT | jq ".platform")
-          echo $PLATFORMS
-
-          # Passing matrix between jobs and/or workflows
-          echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
-          echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
-          echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
-
-  # check-setup:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       parent: ${{ fromJSON(needs.setup.outputs.parent) }}
-  #   needs:
-  #     - setup
-
-  #   steps:
-  #     - 
-  #       name: Check build matrix
-  #       run: |
-
-  #         # Print current parent image and platforms
-  #         echo "${{ matrix.parent }}"
-  #         PLATFORM=${{ toJSON(needs.setup.outputs.platform) }}
-  #         echo $PLATFORM
-  #         # Remove square bracket, white spaces and double quotes
-  #         PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
-  #         echo $PLATFORM
+    uses: ./.github/workflows/read-matrix-file.yml
+    with:
+        matrix-path: docker/build/matrix.json
 
   # Ensure that the repository is given Admin access by going on
   # Package settings -> Manage Actions access
@@ -237,7 +174,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Delete Package Versions
+      # Delete package versions
       # https://github.com/marketplace/actions/delete-package-versions
       - 
         name: Delete multiple specific Docker images on ghcr.io
@@ -250,7 +187,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - 
-        name: Compile versions/releases to ignore
+        name: Compile untagged versions/releases to ignore
         run: |
 
           # Get supported releases
