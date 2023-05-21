@@ -1,4 +1,4 @@
-name: Delete untagged and/or unsupported Docker images on ghcr.io
+name: Delete test
 
 on:
   workflow_dispatch:
