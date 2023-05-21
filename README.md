@@ -1,13 +1,13 @@
 [![GitHub release](https://img.shields.io/github/release/joaofazolo/boca-docker.svg?style=flat-square)](https://github.com/joaofazolo/boca-docker/releases/latest)
 [![Build and publish Docker images on ghcr.io workflow](https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?branch=master&label=build-and-publish-Docker-images-on-ghcr.io&logo=github&style=flat-square)](https://github.com/joaofazolo/boca-docker/actions?workflow=build)
 
-[![Ubuntu JAMMY][ubuntu_jammy_badge]][ubuntu_jammy_docker_hub]
-[![Ubuntu FOCAL][ubuntu_focal_badge]][ubuntu_focal_docker_hub]
+[![Ubuntu JAMMY][ubuntu_jammy_badge]][ubuntu_jammy_link]
+[![Ubuntu FOCAL][ubuntu_focal_badge]][ubuntu_focal_link]
 
 [ubuntu_jammy_badge]: https://img.shields.io/badge/ubuntu-jammy-E95420.svg?logo=Ubuntu
 [ubuntu_focal_badge]: https://img.shields.io/badge/ubuntu-focal-E95420.svg?logo=Ubuntu
-[ubuntu_jammy_docker_hub]: https://hub.docker.com/_/ubuntu/tags?page=1&name=jammy "ubuntu:jammy image"
-[ubuntu_focal_docker_hub]: https://hub.docker.com/_/ubuntu/tags?page=1&name=focal "ubuntu:focal image"
+[ubuntu_jammy_link]: https://hub.docker.com/_/ubuntu/tags?page=1&name=jammy "ubuntu:jammy image"
+[ubuntu_focal_link]: https://hub.docker.com/_/ubuntu/tags?page=1&name=focal "ubuntu:focal image"
 
 [![Multi-Architecture][arch_badge]][arch_link]
 
@@ -15,6 +15,19 @@
 [arch_link]: #computer-how-to-run-on-different-ubuntu-release-images "multi-arch images"
 
 # :balloon: boca-docker
+
+- [What is boca-docker?](#what-is-boca-docker)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [How To Deploy It To A Swarm](#how-to-deploy-it-to-a-swarm)
+- [How To Add Custom Configuration](#how-to-add-custom-configuration)
+- [How To Run On Different Ubuntu Release Images](#how-to-run-on-different-ubuntu-release-images)
+- [How To Build It (For Development)](#how-to-build-it-for-development)
+- [How To Publish It](#how-to-publish-it)
+- [License](#license)
+- [Support](#support)
+
+## What is boca-docker?
 
 BOCA Online Contest Administrator (known simply as BOCA) is an administration system to held programming contests (e.g., ACM-ICPC, Maratona de Programação da SBC). According to the developers, its main features are portability, concurrency control, multi-site and distributed contests, and a simple web interface (for details refer to https://www.ime.usp.br/~cassio/boca/ and https://github.com/cassiopc/boca).
 
@@ -28,12 +41,12 @@ Original architecture | _boca-docker_ architecture
 
 This work started as part of the undergraduate final year project carried out by João Vitor Alves Fazolo under supervision of Prof. Dr. Rodrigo Laiola Guimaraes at Universidade Federal do Espirito Santo ([UFES](https://www.ufes.br/)).
 
-## :construction: REQUIREMENTS:
+## Requirements:
 
 * Install [Docker Desktop](https://www.docker.com/get-started).
 * Install [Git](https://github.com/git-guides/install-git) (only for building and publishing).
 
-## :rocket: QUICK START:
+## Quick Start:
 
 * Open a Terminal window and make sure the Docker engine is up and running:
 
@@ -62,7 +75,7 @@ Voilà! The application should be running now.
 docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 ```
 
-## :whale: HOW TO DEPLOY IT TO A SWARM:
+## How To Deploy It To A Swarm:
 
 * Create the stack (make sure Docker Engine is already running in [swarm mode](https://docs.docker.com/engine/swarm/swarm-mode/)):
 
@@ -84,7 +97,7 @@ docker stack services boca-stack
 docker stack rm boca-stack
 ```
 
-## :gear: HOW TO ADD CUSTOM CONFIGURATION:
+## How To Add Custom Configuration:
 
 There are many ways to customize the _boca-docker_ application. Without trying to support every possible use case, here are just a few that we have found useful.
 
@@ -98,7 +111,7 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 * **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
 
-## :computer: HOW TO RUN ON DIFFERENT UBUNTU RELEASE IMAGES
+## How To Run On Different Ubuntu Release Images:
 
 To run the _boca-docker_ application built on top of different versions of Ubuntu images, please edit the `docker-compose.prod.yml` file with an alternative tag from the table below.
 
@@ -130,7 +143,7 @@ The following image tags have been deprecated and are no longer receiving update
 - 1.1.0
 - 1.0.0
 
-## :hammer_and_wrench: HOW TO BUILD IT (FOR DEVELOPMENT):
+## How To Build It (For Development):
 
 * Clone this repo and set it as your working directory:
 
@@ -163,7 +176,7 @@ docker build -t boca-web . -f docker/dev/web/Dockerfile
 docker build -t boca-jail . -f docker/dev/jail/Dockerfile
 ```
 
-## :package: HOW TO PUBLISH IT:
+## How To Publish It:
 
 > **NOTE:** These instructions take into account the Docker images generated in the previous section (no multi-platform support).
 
@@ -190,7 +203,7 @@ docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
 docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
 ```
 
-## :page_with_curl: LICENSE:
+## License:
 
 Copyright Universidade Federal do Espirito Santo (Ufes)
 
@@ -209,6 +222,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 This program is released under license GNU GPL v3+ license.
 
-## :toolbox: SUPPORT:
+## Support:
 
 Please report any issues with _boca-docker_ at https://github.com/joaofazolo/boca-docker/issues
