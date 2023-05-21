@@ -79,7 +79,7 @@ jobs:
           echo "package_name=${PACKAGE}" >> $GITHUB_ENV
 
       - 
-        name: Compile unsupported releases
+        name: Compile unsupported versions/releases to delete
         run: |
 
           # Get supported releases
