@@ -96,7 +96,7 @@ jobs:
             for tag in ${TAGS[@]};
             do
               echo "${tag}"
-              #RELEASES+=("$tag")
+              RELEASES+=("$tag")
             done
           fi
           echo "${RELEASES[@]}"
