@@ -12,12 +12,12 @@ Original architecture | _boca-docker_ architecture
 
 This work started as part of the undergraduate final year project carried out by João Vitor Alves Fazolo under supervision of Prof. Dr. Rodrigo Laiola Guimaraes at Universidade Federal do Espirito Santo ([UFES](https://www.ufes.br/)).
 
-## REQUIREMENTS:
+## :rescue_worker_helmet: REQUIREMENTS:
 
 * Install [Docker Desktop](https://www.docker.com/get-started).
 * Install [Git](https://github.com/git-guides/install-git) (only for building and publishing).
 
-## QUICK START:
+## :rocket: QUICK START:
 
 * Open a Terminal window and make sure the Docker engine is up and running:
 
@@ -46,7 +46,7 @@ Voilà! The application should be running now.
 docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 ```
 
-## HOW TO DEPLOY IT TO A SWARM:
+## :whale::whale: HOW TO DEPLOY IT TO A SWARM:
 
 * Create the stack (make sure Docker Engine is already running in [swarm mode](https://docs.docker.com/engine/swarm/swarm-mode/)):
 
@@ -68,7 +68,7 @@ docker stack services boca-stack
 docker stack rm boca-stack
 ```
 
-## HOW TO ADD CUSTOM CONFIGURATION:
+## :gear: HOW TO ADD CUSTOM CONFIGURATION:
 
 There are many ways to customize the _boca-docker_ application. Without trying to support every possible use case, here are just a few that we have found useful.
 
@@ -82,7 +82,7 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 * **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
 
-## HOW TO RUN ON DIFFERENT UBUNTU RELEASE IMAGES
+## :computer: HOW TO RUN ON DIFFERENT UBUNTU RELEASE IMAGES
 
 To run the _boca-docker_ application built on top of different versions of Ubuntu images, please edit the `docker-compose.prod.yml` file with an alternative tag from the table below.
 
@@ -114,7 +114,7 @@ The following image tags have been deprecated and are no longer receiving update
 - 1.1.0
 - 1.0.0
 
-## HOW TO BUILD IT (FOR DEVELOPMENT):
+## :hammer_and_wrench: HOW TO BUILD IT (FOR DEVELOPMENT):
 
 * Clone this repo and set it as your working directory:
 
@@ -147,7 +147,7 @@ docker build -t boca-web . -f docker/dev/web/Dockerfile
 docker build -t boca-jail . -f docker/dev/jail/Dockerfile
 ```
 
-## HOW TO PUBLISH IT:
+## :package: HOW TO PUBLISH IT:
 
 > **NOTE:** These instructions take into account the Docker images generated in the previous section (no multi-platform support).
 
@@ -174,7 +174,7 @@ docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
 docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
 ```
 
-## LICENSE:
+## :page_with_curl: LICENSE:
 
 Copyright Universidade Federal do Espirito Santo (Ufes)
 
@@ -193,6 +193,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 This program is released under license GNU GPL v3+ license.
 
-## SUPPORT:
+## :toolbox: SUPPORT:
 
 Please report any issues with _boca-docker_ at https://github.com/joaofazolo/boca-docker/issues
