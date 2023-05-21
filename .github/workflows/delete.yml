@@ -89,13 +89,13 @@ jobs:
           # Split string into an array
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
-          echo ""${{ inputs.tags }}
+          echo "${{ inputs.tags }}"
           if [ ! -z "${{ inputs.tags }}" ]
           then
-            tags=${{ inputs.tags }}
-            for tag in "$tags"
+            read -a TAGS <<< "${{ inputs.tags }}"
+            for tag in ${TAGS[@]};
             do
-              echo "$tag"
+              echo "${tag}"
               #RELEASES+=("$tag")
             done
           fi
@@ -120,12 +120,14 @@ jobs:
 
           # Get unsupported releases
           DEPRECATED=()
-          for i in "${ALLRELEASES[@]}"; do
-              skip=
-              for j in "${RELEASES[@]}"; do
-                  [[ $i == $j ]] && { skip=1; break; }
-              done
-              [[ -n $skip ]] || DEPRECATED+=("$i")
+          for i in "${ALLRELEASES[@]}";
+          do
+            skip=
+            for j in "${RELEASES[@]}";
+            do
+              [[ $i == $j ]] && { skip=1; break; }
+            done
+            [[ -n $skip ]] || DEPRECATED+=("$i")
           done
           declare -p DEPRECATED
           echo "${DEPRECATED[@]}"
@@ -152,7 +154,7 @@ jobs:
           unset VERSIONIDS
 
           # Iterate over releases to get digests
-          for version in ${DEPRECATED[@]}
+          for version in ${DEPRECATED[@]};
           do
             echo "${version}"
 
@@ -211,7 +213,7 @@ jobs:
           IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
 
           # Iterate over releases to get digests
-          for version in ${RELEASES[@]}
+          for version in ${RELEASES[@]};
           do
             echo "${version}"
 
