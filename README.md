@@ -12,7 +12,7 @@ Original architecture | _boca-docker_ architecture
 
 This work started as part of the undergraduate final year project carried out by João Vitor Alves Fazolo under supervision of Prof. Dr. Rodrigo Laiola Guimaraes at Universidade Federal do Espirito Santo ([UFES](https://www.ufes.br/)).
 
-## :rescue_worker_helmet: REQUIREMENTS:
+## :construction: REQUIREMENTS:
 
 * Install [Docker Desktop](https://www.docker.com/get-started).
 * Install [Git](https://github.com/git-guides/install-git) (only for building and publishing).
@@ -46,7 +46,7 @@ Voilà! The application should be running now.
 docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 ```
 
-## :whale::whale: HOW TO DEPLOY IT TO A SWARM:
+## :whale: HOW TO DEPLOY IT TO A SWARM:
 
 * Create the stack (make sure Docker Engine is already running in [swarm mode](https://docs.docker.com/engine/swarm/swarm-mode/)):
 
