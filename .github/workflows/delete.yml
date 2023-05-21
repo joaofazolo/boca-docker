@@ -75,6 +75,7 @@ jobs:
           REPO='${{ env.REPOSITORY_NAME }}'
           # Remove owner from repository name
           PACKAGE=${REPO//$OWNER\//}
+          echo $PACKAGE
           echo "package_name=${PACKAGE}" >> $GITHUB_ENV
 
       - 
