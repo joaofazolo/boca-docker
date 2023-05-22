@@ -54,7 +54,7 @@ env:
 jobs:
   # Calling a reusable workflow
   setup:
-    uses: ./.github/workflows/read-matrix-file.yml
+    uses: ./.github/workflows/read-build-matrix-from-file.yml
     with:
       matrix-path: docker/build/matrix.json
 
@@ -73,6 +73,8 @@ jobs:
     name: build (boca-base, ${{ matrix.parent}})
 
     steps:
+      # Checkout a repository, so the workflow can access it
+      # https://github.com/marketplace/actions/checkout
       - 
         name: Checkout repository
         uses: actions/checkout@v3
@@ -101,9 +103,9 @@ jobs:
 
           PARENT='${{ matrix.parent }}'
           # Replace 'ubuntu:' with ''
-          PARENT=${PARENT//ubuntu:/}
-          echo $PARENT
-          echo "flavor_name=$PARENT" >> $GITHUB_ENV
+          FLAVOR=${PARENT//ubuntu:/}
+          echo $FLAVOR
+          echo "flavor_name=$FLAVOR" >> $GITHUB_ENV
 
           PLATFORM=${{ toJSON(needs.setup.outputs.platform) }}
           # Remove square bracket, white spaces and double quotes
@@ -216,9 +218,9 @@ jobs:
 
           PARENT='${{ matrix.parent }}'
           # Replace 'ubuntu:' with ''
-          PARENT=${PARENT//ubuntu:/}
-          echo $PARENT
-          echo "flavor_name=$PARENT" >> $GITHUB_ENV
+          FLAVOR=${FLAVOR//ubuntu:/}
+          echo $FLAVOR
+          echo "flavor_name=$FLAVOR" >> $GITHUB_ENV
 
           DEFAULTPARENT=${{ toJSON(needs.setup.outputs.default_parent) }}
           echo $DEFAULTPARENT

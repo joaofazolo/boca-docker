@@ -14,10 +14,16 @@ on:
     - cron: '15 10 */15 * *'
   # on button click
   workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Unsupported tags to spare (whitespace-separated)'
+        required: false
+        type: string
   # or on calling as reusable workflow
   workflow_call:
     inputs:
       tags:
+        description: 'Unsupported tags to spare (whitespace-separated)'
         required: false
         type: string
 
@@ -32,7 +38,7 @@ env:
 jobs:
   # Calling a reusable workflow
   setup:
-    uses: ./.github/workflows/read-matrix-file.yml
+    uses: ./.github/workflows/read-build-matrix-from-file.yml
     with:
       matrix-path: docker/build/matrix.json
 
