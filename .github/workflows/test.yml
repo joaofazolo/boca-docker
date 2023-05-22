@@ -13,12 +13,12 @@ jobs:
   build:
     uses: ./.github/workflows/build-image.yml
     with:
-      images: needs.setup.outputs.image
+      images: ${{ needs.setup.outputs.image }}
       image_build_local: true
-      parents: needs.setup.outputs.parent
-      default_parent: needs.setup.outputs.default_parent
+      parents: ${{ needs.setup.outputs.parent }}
+      default_parent: ${{ needs.setup.outputs.default_parent }}
       parent_build_local: false
-      platforms: needs.setup.outputs.platform
+      platforms: ${{ needs.setup.outputs.platform }}
       tag: 'debug'
     needs:
       - setup
