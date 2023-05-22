@@ -30,7 +30,7 @@ on:
           - warning
           - debug
       tag:
-        description: 'Test scenario tag'
+        description: 'Test scenario tag (only one)'
         required: true
         type: string
 
