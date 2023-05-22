@@ -3,6 +3,12 @@ name: Call a reusable workflow and use its outputs
 on:
   workflow_dispatch:
 
+# Save computation power by stopping obsolete jobs for the current workflow
+# https://docs.github.com/en/enterprise-cloud@latest/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   # Calling a reusable workflow
   setup:
@@ -10,14 +16,17 @@ jobs:
     with:
       matrix-path: docker/build/matrix.json
 
-  build:
+  build-base:
     uses: ./.github/workflows/build-image.yml
+    strategy:
+      matrix:
+        image:
+          - boca-base
+        parent: ${{ fromJSON(needs.setup.outputs.parent) }}
     with:
-      images: '[ "boca-base" ]'
-      image_build_local: true
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      parent_build_local: false
+      image: ${{ matrix.image }}
+      parent: ${{ matrix.parent }}
+      is_default_parent: ${{ needs.setup.outputs.default_parent == matrix.parent }}
       platforms: ${{ needs.setup.outputs.platform }}
       tag: 'debug'
     needs:
