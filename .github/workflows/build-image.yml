@@ -123,6 +123,9 @@ jobs:
           echo $DIR
           echo "folder_name=$DIR" >> $GITHUB_ENV
 
+          echo "image_name=${{ matrix.image }}" >> $GITHUB_ENV
+          echo "parent_name=${{ matrix.parent }}" >> $GITHUB_ENV
+
       # Download artifacts that have been uploaded from previous jobs
       # https://github.com/actions/download-artifact
       -
@@ -134,21 +137,21 @@ jobs:
           path: ${{ env.REGISTRY_PATH }}/${{ matrix.parent }}-${{ env.flavor_name }}/
 
       - 
-        name: Start local Docker registry
+        name: Start local Docker registry (local parent)
         if: inputs.parent_build_local == true
         run: |
 
           docker run --rm --detach --publish 5000:5000 \
-            --volume ${REGISTRY_PATH}/${matrix.parent}-${flavor_name}:/var/lib/registry \
+            --volume ${REGISTRY_PATH}/${parent_name}-${flavor_name}:/var/lib/registry \
             --name registry registry:2
 
       - 
-        name: Start local Docker registry
+        name: Start local Docker registry (local image)
         if: inputs.image_build_local == true
         run: |
 
           docker run --rm --detach --publish 5000:5000 \
-            --volume ${REGISTRY_PATH}/${matrix.image}-${flavor_name}:/var/lib/registry \
+            --volume ${REGISTRY_PATH}/${image_name}-${flavor_name}:/var/lib/registry \
             --name registry registry:2
 
       # Cache storage backends with GitHub Actions
