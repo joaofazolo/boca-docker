@@ -12,9 +12,7 @@ name: Build and publish multi-platform Docker images on ghcr.io
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
 on:
-  # Run on button click
-  # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
-  workflow_dispatch:
+  workflow_call:
     inputs:
       images:
         description: "Matrix of images to build (i.e., boca-base, boca-web and boca-jail)"

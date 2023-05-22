@@ -1,0 +1,24 @@
+name: Call a reusable workflow and use its outputs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # Calling a reusable workflow
+  setup:
+    uses: ./.github/workflows/read-build-matrix-from-file.yml
+    with:
+        matrix-path: docker/build/matrix.json
+
+  build:
+    uses: ./.github/workflows/build-image.yml
+    with:
+      images: needs.setup.outputs.image
+      image_build_local: 'true'
+      parents: needs.setup.outputs.parent
+      default_parent: needs.setup.outputs.default_parent
+      parent_build_local: 'false'
+      platforms: needs.setup.outputs.platform
+      tag: 'debug'
+    needs:
+      - setup
