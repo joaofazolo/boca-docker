@@ -1,4 +1,4 @@
-name: Build and publish multi-platform Docker images on ghcr.io
+name: Build and publish multi-platform Docker image
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by

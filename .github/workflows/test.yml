@@ -31,3 +31,33 @@ jobs:
       tag: 'debug'
     needs:
       - setup
+
+  build-web:
+    uses: ./.github/workflows/build-image.yml
+    strategy:
+      matrix:
+        parent: ${{ fromJSON(needs.setup.outputs.parent) }}
+    with:
+      image: boca-web
+      parent: ${{ matrix.parent }}
+      is_default_parent: ${{ needs.setup.outputs.default_parent == matrix.parent }}
+      platforms: ${{ needs.setup.outputs.platform }}
+      tag: 'debug'
+    needs:
+      - setup
+      - build-base
+
+  build-jail:
+    uses: ./.github/workflows/build-image.yml
+    strategy:
+      matrix:
+        parent: ${{ fromJSON(needs.setup.outputs.parent) }}
+    with:
+      image: boca-jail
+      parent: ${{ matrix.parent }}
+      is_default_parent: ${{ needs.setup.outputs.default_parent == matrix.parent }}
+      platforms: ${{ needs.setup.outputs.platform }}
+      tag: 'debug'
+    needs:
+      - setup
+      - build-base
