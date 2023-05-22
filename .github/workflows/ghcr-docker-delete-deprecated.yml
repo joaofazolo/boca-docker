@@ -16,14 +16,14 @@ on:
   workflow_dispatch:
     inputs:
       tags:
-        description: 'Unsupported tags to spare (whitespace-separated)'
+        description: 'Spare unsupported tags (whitespace-separated)'
         required: false
         type: string
   # or on calling as reusable workflow
   workflow_call:
     inputs:
       tags:
-        description: 'Unsupported tags to spare (whitespace-separated)'
+        description: 'Spare unsupported tags (whitespace-separated)'
         required: false
         type: string
 
