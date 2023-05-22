@@ -23,7 +23,7 @@ on:
         description: "Matrix of supported image tags/releases (e.g., boca-web:latest)"
         value: ${{ jobs.get-matrix.outputs.release }}
       parent:
-        description: "Matrix of parent/base images in builds"
+        description: "Matrix of parent/base images used in builds"
         value: ${{ jobs.get-matrix.outputs.parent }}
       default_parent:
         description: "Default parent/base image"

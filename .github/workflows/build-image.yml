@@ -1,0 +1,287 @@
+name: Build and publish multi-platform Docker images on ghcr.io
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub Actions Documentation
+# https://docs.github.com/en/github-ae@latest/actions
+
+# Reusing workflows
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+on:
+  # Run on button click
+  # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
+  workflow_dispatch:
+    inputs:
+      images:
+        description: "Matrix of images to build (i.e., boca-base, boca-web and boca-jail)"
+        required: true
+        type: string
+      image_build_local:
+        description: "Indicates whether or not image must be built locally"
+        required: true
+        type: boolean
+      parents:
+        description: 'Matrix of parent/base images used in builds'
+        required: true
+        type: string
+      default_parent:
+        description: 'Default parent/base image'
+        required: true
+        type: string
+      parent_build_local:
+        description: "Indicates whether of not parent image was built locally"
+        required: true
+        type: boolean
+      platforms:
+        description: "Matrix of os/platform-specific target builds (multi-arch)"
+        required: true
+        type: string
+      tag:
+        description: "Image tags (whitespace-separated)"
+        required: true
+        type: string
+
+# Save computation power by stopping obsolete jobs for the current workflow
+# https://docs.github.com/en/enterprise-cloud@latest/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY_HOST: ghcr.io
+  # Use github.repository (<account>/<repo>)
+  REPOSITORY_NAME: ${{ github.repository }}
+  # Use github.repository_owner (<account>)
+  OWNER_NAME: ${{ github.repository_owner }}
+  # Use GitHub local cache exporter
+  REGISTRY_PATH: ${{ github.workspace }}/registry
+  CACHE_PATH: /tmp/.buildx-cache
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      # for actions/checkout to fetch code
+      contents: read
+      # can upload and download package, as well as read/write package metadata
+      packages: write
+    strategy:
+      matrix:
+        image: ${{ fromJSON(inputs.images) }}
+        parent: ${{ fromJSON(inputs.parents) }}
+    name: build (${{ matrix.image }}, ${{ matrix.parent }})
+
+    steps:
+      # Checkout a repository, so the workflow can access it
+      # https://github.com/marketplace/actions/checkout
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Add support for more platforms with QEMU (optional)
+      # https://github.com/docker/setup-qemu-action
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      # Create and boot a builder that can be used in the following steps of
+      # the workflow
+      # https://github.com/docker/setup-buildx-action
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
+
+      # Set environment variables (NOTE: alternatively could have used an
+      # output parameter between steps, see above)
+      # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+      - 
+        name: Write variables to GITHUB_ENV
+        run: |
+
+          PARENT='${{ matrix.parent }}'
+          # Replace 'ubuntu:' with ''
+          FLAVOR=${PARENT//ubuntu:/}
+          echo $FLAVOR
+          echo "flavor_name=$FLAVOR" >> $GITHUB_ENV
+
+          DEFAULTPARENT=${{ toJSON(inputs.default_parent) }}
+          echo $DEFAULTPARENT
+          echo "default_parent=$DEFAULTPARENT" >> $GITHUB_ENV
+
+          PLATFORM=${{ toJSON(inputs.platforms) }}
+          # Remove square bracket, white spaces and double quotes
+          PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
+          echo $PLATFORM
+          echo "platforms=$PLATFORM" >> $GITHUB_ENV
+
+          DIR='${{ matrix.image }}'
+          # Remove 'boca-' from image name
+          DIR=${DIR//boca-/}
+          echo $DIR
+          echo "folder_name=$DIR" >> $GITHUB_ENV
+
+      # Download artifacts that have been uploaded from previous jobs
+      # https://github.com/actions/download-artifact
+      -
+        name: Download Docker registry data from parent image
+        if: inputs.parent_build_local == 'true'
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-registry-data
+          path: ${{ env.REGISTRY_PATH }}/${{ matrix.parent }}-${{ env.flavor_name }}/
+
+      - 
+        name: Start local Docker registry
+        if: inputs.parent_build_local == 'true'
+        run: |
+
+          docker run --rm --detach --publish 5000:5000 \
+            --volume ${REGISTRY_PATH}/${matrix.parent}-${flavor_name}:/var/lib/registry \
+            --name registry registry:2
+
+      - 
+        name: Start local Docker registry
+        if: inputs.image_build_local == 'true'
+        run: |
+
+          docker run --rm --detach --publish 5000:5000 \
+            --volume ${REGISTRY_PATH}/${matrix.image}-${flavor_name}:/var/lib/registry \
+            --name registry registry:2
+
+      # Cache storage backends with GitHub Actions
+      # https://github.com/actions/cache
+      -
+        name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      # Login to a Docker registry (except on PR)
+      # https://github.com/docker/login-action
+      - 
+        name: Login to GitHub Container Registry
+        if: inputs.image_build_local == 'false'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_HOST }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - 
+        name: Extract Docker metadata (${{ matrix.parent }})
+        if: inputs.parent_build_local == 'true'
+        id: meta_parent
+        uses: docker/metadata-action@v4
+        with:
+          images: localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.parent }}
+
+      - 
+        name: Extract Docker metadata (${{ matrix.image }})
+        if: inputs.image_build_local == 'true'
+        id: meta_local
+        uses: docker/metadata-action@v4
+        with:
+          images: localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+
+      - 
+        name: Extract Docker metadata (${{ matrix.image }})
+        if: inputs.image_build_local == 'false'
+        id: meta_remote
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          tags: |
+            # nightly build
+            type=schedule,pattern=nightly,suffix=-${{ env.flavor_name }}
+            type=schedule,pattern=nightly,enable=${{ matrix.parent == env.default_parent }}
+            # new release
+            type=semver,pattern={{raw}},priority=900,suffix=-${{ env.flavor_name }}
+            type=semver,pattern={{raw}},priority=1000,enable=${{ matrix.parent == env.default_parent }}
+            type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-${{ env.flavor_name }}
+            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.parent == env.default_parent }}
+            # tag event (same as new release)
+            type=ref,event=tag,priority=900,suffix=-${{ env.flavor_name }}
+            type=ref,event=tag,priority=1000,enable=${{ matrix.parent == env.default_parent }}
+            # workflow_dispatch (debug)
+            type=raw,value=${{ inputs.tag }},enable=${{ matrix.parent == env.default_parent && github.event_name == 'workflow_dispatch' }}
+            type=raw,value=${{ inputs.tag }},suffix=-${{ env.flavor_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            # branch event
+            type=ref,event=branch,priority=900,suffix=-${{ env.flavor_name }}
+            type=ref,event=branch,priority=1000,enable=${{ matrix.parent == env.default_parent }}
+          # This identifies which variant will be published as "latest", which
+          # isn't necessarily the newest version of the source code
+          flavor: |
+            latest=${{ matrix.parent == env.default_parent && github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
+    
+      # Build and push Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - 
+        name: Build and push image locally (${{ matrix.image }})
+        if: inputs.image_build_local == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/${{ env.folder_name }}/Dockerfile
+          platforms: ${{ env.platforms }}
+          push: true
+          tags: ${{ steps.meta_local.outputs.tags }}
+          labels: ${{ steps.meta_local.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ matrix.parent }}
+          cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new,mode=max
+
+      - 
+        name: Build and push image remotely (${{ matrix.image }})
+        if: inputs.image_build_local == 'false'
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/dev/${{ env.folder_name }}/Dockerfile
+          platforms: ${{ env.platforms }}
+          push: true
+          tags: |
+            ${{ steps.meta_remote.outputs.tags }}
+          labels: ${{ steps.meta_remote.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ steps.meta_parent.outputs.tags }}
+          provenance: false
+          cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new,mode=max
+
+      -
+        # Temp fix
+        # https://github.com/docker/build-push-action/issues/252
+        # https://github.com/moby/buildkit/issues/1896
+        name: Move cache
+        run: |
+
+          rm -rf ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          mv ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+
+      - name: Stop local Docker registry
+        run: |
+
+          docker stop registry
+
+      # Upload artifacts from workflow allowing to share data between jobs
+      # https://github.com/actions/upload-artifact
+      - 
+        name: Upload Docker registry data for child images
+        if: inputs.image_build_local == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-registry-data
+          path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}/
