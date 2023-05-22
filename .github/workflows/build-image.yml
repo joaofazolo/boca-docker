@@ -1,4 +1,4 @@
-name: Build and publish multi-platform Docker image
+name: Build and publish Docker image
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -26,8 +26,8 @@ on:
         description: 'Default parent/base image'
         required: true
         type: boolean
-      platforms:
-        description: "Matrix of os/platform-specific target builds (multi-arch)"
+      platform:
+        description: "OS/platform-specific target build"
         required: true
         type: string
       tag:
@@ -90,12 +90,6 @@ jobs:
           FLAVOR=${PARENT//ubuntu:/}
           echo $FLAVOR
           echo "flavor_name=$FLAVOR" >> $GITHUB_ENV
-
-          PLATFORM=${{ toJSON(inputs.platforms) }}
-          # Remove square bracket, white spaces and double quotes
-          PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
-          echo $PLATFORM
-          echo "platforms=$PLATFORM" >> $GITHUB_ENV
 
           DIR='${{ inputs.image }}'
           # Remove 'boca-' from image name
@@ -186,17 +180,18 @@ jobs:
       # https://github.com/docker/build-push-action
       - 
         name: Build and push image locally (boca-base)
+        id: build
         if: inputs.image == 'boca-base'
         uses: docker/build-push-action@v4
         with:
           context: .
           file: docker/dev/${{ env.folder_name }}/Dockerfile
-          platforms: ${{ env.platforms }}
-          push: true
+          platforms: ${{ inputs.platform }}
           tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ inputs.parent }}
+          outputs: type=image,name=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base,push-by-digest=true,name-canonical=true,push=true
           cache-from: type=local,src=${{ env.CACHE_PATH }}/boca-base-${{ env.flavor_name }}
           cache-to: type=local,dest=${{ env.CACHE_PATH }}/boca-base-${{ env.flavor_name }}-new,mode=max
 
@@ -207,7 +202,7 @@ jobs:
         with:
           context: .
           file: docker/dev/${{ env.folder_name }}/Dockerfile
-          platforms: ${{ env.platforms }}
+          platforms: ${{ inputs.platform }}
           push: true
           tags: |
             ${{ steps.meta_image.outputs.tags }}
@@ -217,6 +212,22 @@ jobs:
           provenance: false
           cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ inputs.image }}-${{ env.flavor_name }}
           cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ inputs.image }}-${{ env.flavor_name }}-new,mode=max
+
+      -
+        name: Export digest
+        run: |
+          mkdir -p /tmp/digests/${{ inputs.image }}
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${{ inputs.image }}/${digest#sha256:}"
+
+      -
+        name: Upload digest
+        uses: actions/upload-artifact@v3
+        with:
+          name: digests
+          path: /tmp/digests/${{ inputs.image }}/*
+          if-no-files-found: error
+          retention-days: 1
 
       -
         # Temp fix

@@ -23,41 +23,31 @@ jobs:
         image:
           - boca-base
         parent: ${{ fromJSON(needs.setup.outputs.parent) }}
+        platform: ${{ fromJSON(needs.setup.outputs.platform) }}
     with:
       image: ${{ matrix.image }}
       parent: ${{ matrix.parent }}
       is_default_parent: ${{ needs.setup.outputs.default_parent == matrix.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
+      platform: ${{ matrix.platform }}
       tag: 'debug'
     needs:
       - setup
 
-  build-web:
-    uses: ./.github/workflows/build-image.yml
-    strategy:
-      matrix:
-        parent: ${{ fromJSON(needs.setup.outputs.parent) }}
-    with:
-      image: boca-web
-      parent: ${{ matrix.parent }}
-      is_default_parent: ${{ needs.setup.outputs.default_parent == matrix.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: 'debug'
-    needs:
-      - setup
-      - build-base
+  # build:
+  #   uses: ./.github/workflows/build-image.yml
+  #   strategy:
+  #     matrix:
+  #       image:
+  #         - boca-web
+  #         - boca-jail
+  #       parent: ${{ fromJSON(needs.setup.outputs.parent) }}
+  #   with:
+  #     image: ${{ matrix.image }}
+  #     parent: ${{ matrix.parent }}
+  #     is_default_parent: ${{ needs.setup.outputs.default_parent == matrix.parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: 'debug'
+  #   needs:
+  #     - setup
+  #     - build-base
 
-  build-jail:
-    uses: ./.github/workflows/build-image.yml
-    strategy:
-      matrix:
-        parent: ${{ fromJSON(needs.setup.outputs.parent) }}
-    with:
-      image: boca-jail
-      parent: ${{ matrix.parent }}
-      is_default_parent: ${{ needs.setup.outputs.default_parent == matrix.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: 'debug'
-    needs:
-      - setup
-      - build-base
