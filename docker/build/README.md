@@ -6,39 +6,11 @@ The JSON file(s) in this folder will be read in the GitHub Actions workflows and
 
 ```yml
 jobs:
+  # Calling a reusable workflow
   setup:
-    runs-on: ubuntu-latest
-    outputs:
-      parent: ${{ steps.set-matrix.outputs.parent }}
-
-    steps:
-      - 
-        name: Checkout repository
-        uses: actions/checkout@v3
-
-      - 
-        id: set-json
-        name: Get build matrix from file
-        run: |
-
-          # Specify path of matrix file
-          JSON=docker/build/matrix.json
-          echo "json=${JSON}" >> $GITHUB_OUTPUT
-          echo ${JSON}
-
-      - 
-        id: set-matrix
-        name: Set build matrix of parent images
-        run: |
-
-          # Read matrix from file and set variables
-          CONTENT=`cat ${{ steps.set-json.outputs.json }}`
-          echo $CONTENT
-          PARENTS=$(echo $CONTENT | jq ".parent")
-          echo $PARENTS
-
-          # Passing matrix between jobs and/or workflows
-          echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
+    uses: ./.github/workflows/read-matrix-file.yml
+    with:
+        matrix-path: docker/build/matrix.json
 
   check-setup:
     runs-on: ubuntu-latest

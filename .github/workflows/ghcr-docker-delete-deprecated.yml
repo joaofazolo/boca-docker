@@ -12,8 +12,14 @@ on:
   # Run on every 15th day-of-month at 10:15 AM UTC
   schedule:
     - cron: '15 10 */15 * *'
-  # or on button click
+  # on button click
   workflow_dispatch:
+  # or on calling as reusable workflow
+  workflow_call:
+    inputs:
+      tags:
+        required: false
+        type: string
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -24,74 +30,11 @@ env:
   OWNER_NAME: ${{ github.repository_owner }}
 
 jobs:
+  # Calling a reusable workflow
   setup:
-    runs-on: ubuntu-latest
-    outputs:
-      release: ${{ steps.set-matrix.outputs.release }}
-      parent: ${{ steps.set-matrix.outputs.parent }}
-      platform: ${{ steps.set-matrix.outputs.platform }}
-
-    steps:
-      # Checkout a repository, so the workflow can access it
-      # https://github.com/marketplace/actions/checkout
-      - 
-        name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Setting an output parameter between jobs and/or workflows
-      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
-      - 
-        id: set-json
-        name: Get build matrix from file
-        run: |
-
-          # Specify path of matrix file
-          JSON=docker/build/matrix.json
-          echo ${JSON}
-
-          # Passing filename between jobs and/or workflows
-          echo "json=${JSON}" >> $GITHUB_OUTPUT
-
-      - 
-        id: set-matrix
-        name: Set build matrix of releases, parent images and os/architectures
-        run: |
-
-          # Read matrix from file and set variables
-          CONTENT=`cat ${{ steps.set-json.outputs.json }}`
-          echo $CONTENT
-          RELEASES=$(echo $CONTENT | jq ".release")
-          echo $RELEASES
-          PARENTS=$(echo $CONTENT | jq ".parent")
-          echo $PARENTS
-          PLATFORMS=$(echo $CONTENT | jq ".platform")
-          echo $PLATFORMS
-
-          # Passing matrix between jobs and/or workflows
-          echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
-          echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
-          echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
-
-  # check-setup:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       parent: ${{ fromJSON(needs.setup.outputs.parent) }}
-  #   needs:
-  #     - setup
-
-  #   steps:
-  #     - 
-  #       name: Check build matrix
-  #       run: |
-
-  #         # Print current parent image and platforms
-  #         echo "${{ matrix.parent }}"
-  #         PLATFORM=${{ toJSON(needs.setup.outputs.platform) }}
-  #         echo $PLATFORM
-  #         # Remove square bracket, white spaces and double quotes
-  #         PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
-  #         echo $PLATFORM
+    uses: ./.github/workflows/read-matrix-file.yml
+    with:
+      matrix-path: docker/build/matrix.json
 
   # Ensure that the repository is given Admin access by going on
   # Package settings -> Manage Actions access
@@ -140,10 +83,11 @@ jobs:
           REPO='${{ env.REPOSITORY_NAME }}'
           # Remove owner from repository name
           PACKAGE=${REPO//$OWNER\//}
+          echo $PACKAGE
           echo "package_name=${PACKAGE}" >> $GITHUB_ENV
 
       - 
-        name: Compile unsupported releases
+        name: Compile unsupported versions/releases to delete
         run: |
 
           # Get supported releases
@@ -152,6 +96,17 @@ jobs:
           RELEASES=$(echo $RELEASES | tr -d "[]|\"")
           # Split string into an array
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
+          # Include custom tags provided as argument
+          echo "${{ inputs.tags }}"
+          if [ ! -z "${{ inputs.tags }}" ];
+          then
+            read -a TAGS <<< "${{ inputs.tags }}"
+            for tag in ${TAGS[@]};
+            do
+              echo "${tag}"
+              RELEASES+=("$tag")
+            done
+          fi
           echo "${RELEASES[@]}"
 
           # Set image
@@ -173,12 +128,14 @@ jobs:
 
           # Get unsupported releases
           DEPRECATED=()
-          for i in "${ALLRELEASES[@]}"; do
-              skip=
-              for j in "${RELEASES[@]}"; do
-                  [[ $i == $j ]] && { skip=1; break; }
-              done
-              [[ -n $skip ]] || DEPRECATED+=("$i")
+          for i in "${ALLRELEASES[@]}";
+          do
+            skip=
+            for j in "${RELEASES[@]}";
+            do
+              [[ $i == $j ]] && { skip=1; break; }
+            done
+            [[ -n $skip ]] || DEPRECATED+=("$i")
           done
           declare -p DEPRECATED
           echo "${DEPRECATED[@]}"
@@ -205,14 +162,14 @@ jobs:
           unset VERSIONIDS
 
           # Iterate over releases to get digests
-          for version in ${DEPRECATED[@]}
+          for version in ${DEPRECATED[@]};
           do
             echo "${version}"
 
             VERSIONIDS="${VERSIONIDS} \
               `echo $PACKAGESJSON | \
                 jq --arg var $version \
-                  '.[] | select(any(.metadata.container.tags[]; contains ($var))) | .id'`"
+                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | .id'`"
           done
 
           # Remove newlines, tabs, carriage returns and double quotes
@@ -237,7 +194,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Delete Package Versions
+      # Delete package versions
       # https://github.com/marketplace/actions/delete-package-versions
       - 
         name: Delete multiple specific Docker images on ghcr.io
@@ -250,7 +207,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - 
-        name: Compile versions/releases to ignore
+        name: Compile untagged versions/releases to ignore
         run: |
 
           # Get supported releases
@@ -259,6 +216,17 @@ jobs:
           RELEASES=$(echo $RELEASES | tr -d "[]|\"")
           # Split string into an array
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
+          # Include custom tags provided as argument
+          echo "${{ inputs.tags }}"
+          if [ ! -z "${{ inputs.tags }}" ];
+          then
+            read -a TAGS <<< "${{ inputs.tags }}"
+            for tag in ${TAGS[@]};
+            do
+              echo "${tag}"
+              RELEASES+=("$tag")
+            done
+          fi
           echo "${RELEASES[@]}"
 
           # Unset variable
@@ -267,7 +235,7 @@ jobs:
           IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
 
           # Iterate over releases to get digests
-          for version in ${RELEASES[@]}
+          for version in ${RELEASES[@]};
           do
             echo "${version}"
 
