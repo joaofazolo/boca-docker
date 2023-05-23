@@ -187,7 +187,7 @@ jobs:
           context: .
           file: docker/dev/${{ env.folder_name }}/Dockerfile
           platforms: ${{ inputs.platform }}
-          tags: ${{ steps.meta_base.outputs.tags }}
+          # tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ inputs.parent }}
