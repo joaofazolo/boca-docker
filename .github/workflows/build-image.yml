@@ -244,12 +244,12 @@ jobs:
 
           docker stop registry
 
-      # Upload artifacts from workflow allowing to share data between jobs
-      # https://github.com/actions/upload-artifact
-      - 
-        name: Upload Docker registry data for boca-web and boca-jail images
-        if: inputs.image == 'boca-base'
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-registry-data
-          path: ${{ env.REGISTRY_PATH }}/boca-base-${{ env.flavor_name }}/
+      # # Upload artifacts from workflow allowing to share data between jobs
+      # # https://github.com/actions/upload-artifact
+      # - 
+      #   name: Upload Docker registry data for boca-web and boca-jail images
+      #   if: inputs.image == 'boca-base'
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: docker-registry-data
+      #     path: ${{ env.REGISTRY_PATH }}/boca-base-${{ env.flavor_name }}/
