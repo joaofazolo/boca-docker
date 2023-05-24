@@ -27,7 +27,7 @@ on:
         required: true
         type: string
       platforms:
-        description: "Matrix of os/platform-specific target builds (multi-arch)"
+        description: "Matrix of target os/platform-specific (multi-arch)"
         required: true
         type: string
       tag:
@@ -61,10 +61,13 @@ jobs:
       # can upload and download package, as well as read/write package metadata
       packages: write
     strategy:
+      # If is set to true (default), GitHub will cancel all in-progress and
+      # queued jobs in the matrix if any job in the matrix fails.
+      fail-fast: false
       matrix:
         image: ${{ fromJSON(inputs.images) }}
         parent: ${{ fromJSON(inputs.parents) }}
-        # platform: ${{ fromJSON(inputs.platforms) }}
+        platform: ${{ fromJSON(inputs.platforms) }}
     name: build (${{ matrix.image }}, ${{ matrix.parent }})
 
     steps:
@@ -106,11 +109,11 @@ jobs:
           echo $DEFAULTPARENT
           echo "default_parent=$DEFAULTPARENT" >> $GITHUB_ENV
 
-          PLATFORM=${{ toJSON(inputs.platforms) }}
-          # Remove square bracket, white spaces and double quotes
-          PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
-          echo $PLATFORM
-          echo "platforms=$PLATFORM" >> $GITHUB_ENV
+          # PLATFORM=${{ toJSON(inputs.platforms) }}
+          # # Remove square bracket, white spaces and double quotes
+          # PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
+          # echo $PLATFORM
+          # echo "platforms=$PLATFORM" >> $GITHUB_ENV
 
           DIR='${{ matrix.image }}'
           # Remove 'boca-' from image name
@@ -118,35 +121,22 @@ jobs:
           echo $DIR
           echo "folder_name=$DIR" >> $GITHUB_ENV
 
-          echo "image_name=${{ matrix.image }}" >> $GITHUB_ENV
-          echo "parent_name=${{ matrix.parent }}" >> $GITHUB_ENV
-
-      # Download artifacts that have been uploaded from previous jobs
-      # https://github.com/actions/download-artifact
-      -
-        name: Download Docker registry data from parent image
-        if: inputs.parent_build_local == true
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-registry-data
-          path: ${{ env.REGISTRY_PATH }}/${{ matrix.parent }}-${{ env.flavor_name }}/
+      # # Download artifacts that have been uploaded from previous jobs
+      # # https://github.com/actions/download-artifact
+      # -
+      #   name: Download Docker registry data from parent image
+      #   if: matrix.parent_build_local == true
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: docker-registry-data
+      #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.parent }}-${{ env.flavor_name }}/
 
       - 
-        name: Start local Docker registry (local parent)
-        if: inputs.parent_build_local == true
+        name: Start local Docker registry (boca-base)
         run: |
 
           docker run --rm --detach --publish 5000:5000 \
-            --volume ${REGISTRY_PATH}/${parent_name}-${flavor_name}:/var/lib/registry \
-            --name registry registry:2
-
-      - 
-        name: Start local Docker registry (local image)
-        if: inputs.image_build_local == true
-        run: |
-
-          docker run --rm --detach --publish 5000:5000 \
-            --volume ${REGISTRY_PATH}/${image_name}-${flavor_name}:/var/lib/registry \
+            --volume ${REGISTRY_PATH}/boca-base-${flavor_name}:/var/lib/registry \
             --name registry registry:2
 
       # # Cache storage backends with GitHub Actions
@@ -164,7 +154,7 @@ jobs:
       # https://github.com/docker/login-action
       - 
         name: Login to GitHub Container Registry (push remotely)
-        if: inputs.image_build_local == false
+        if: ${{ matrix.image }} != 'boca-base'
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY_HOST }}
@@ -174,25 +164,16 @@ jobs:
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - 
-        name: Extract parent metadata (${{ matrix.parent }})
-        if: inputs.parent_build_local == true
-        id: meta_parent
+        name: Extract Docker metadata (boca-base)
+        id: meta_base
         uses: docker/metadata-action@v4
         with:
-          images: localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.parent }}
-
-      - 
-        name: Extract image metadata (${{ matrix.image }})
-        if: inputs.image_build_local == true
-        id: meta_local
-        uses: docker/metadata-action@v4
-        with:
-          images: localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
 
       - 
         name: Extract Docker metadata (${{ matrix.image }})
-        if: inputs.image_build_local == false
-        id: meta_remote
+        if: ${{ matrix.image }} != 'boca-base'
+        id: meta_image
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
@@ -222,13 +203,14 @@ jobs:
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - 
-        name: Build and push image locally (${{ matrix.image }})
-        if: inputs.image_build_local == true
+        name: Build and push image locally (boca-base)
+        id: build-base
+        if: ${{ matrix.image }} == 'boca-base'
         uses: docker/build-push-action@v4
         with:
           context: .
           file: docker/dev/${{ env.folder_name }}/Dockerfile
-          platforms: ${{ env.platforms }}
+          platforms: ${{ matrix.platform }}
           push: true
           tags: ${{ steps.meta_local.outputs.tags }}
           labels: ${{ steps.meta_local.outputs.labels }}
@@ -236,15 +218,17 @@ jobs:
             BASE_IMAGE=${{ matrix.parent }}
           cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
           cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new,mode=max
+          outputs: |
+            type=image,name=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base,push-by-digest=true,name-canonical=true,push=true
 
       - 
         name: Build and push image remotely (${{ matrix.image }})
-        if: inputs.image_build_local == false
+        if: ${{ matrix.image }} != 'boca-base'
         uses: docker/build-push-action@v4
         with:
           context: .
           file: docker/dev/${{ env.folder_name }}/Dockerfile
-          platforms: ${{ env.platforms }}
+          platforms: ${{ matrix.platform }}
           push: true
           tags: |
             ${{ steps.meta_remote.outputs.tags }}
@@ -264,6 +248,20 @@ jobs:
 
       #     rm -rf ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
       #     mv ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests/boca-base
+          digest='${{ steps.build-base.outputs.digest }}'
+          touch "/tmp/digests/boca-base/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v3
+        with:
+          name: digests
+          path: /tmp/digests/boca-base/*
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Stop local Docker registry
         run: |
