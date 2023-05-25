@@ -328,7 +328,7 @@ jobs:
     steps:
       - 
         name: Write variables to GITHUB_ENV
-        id: set-env
+        id: setup
         run: |
 
           # Set OS release
@@ -337,69 +337,56 @@ jobs:
           RELEASE=${PARENT//ubuntu:/}
           echo $RELEASE
           echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
-          echo "release_name=$RELEASE" >> $GITHUB_ENV
 
-          DEFAULT_PARENT=${{ toJSON(inputs.default_parent) }}
-          echo $DEFAULT_PARENT
-          echo "default_parent=$DEFAULT_PARENT" >> $GITHUB_ENV
-
-          # Set architecture
-          PLATFORM='${{ matrix.platform }}'
-          # Replace 'linux/' with '' and '/' with '-'
-          ARCH=${PLATFORM//linux\//}
-          ARCH=${ARCH//\//-}
-          echo $ARCH
-          echo "arch_name=$ARCH" >> $GITHUB_OUTPUT
-          echo "arch_name=$ARCH" >> $GITHUB_ENV
-
-          # Set image
-          #IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
+          # Set image name
           IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
-          echo "boca_image=$IMG" >> $GITHUB_OUTPUT
-          echo "image=${{ matrix.image }}" >> $GITHUB_ENV
+          echo "image_name=$IMG" >> $GITHUB_OUTPUT
 
           # Set digests path
           DIGESTS_PATH="${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
-      # Download artifacts that have been uploaded from previous jobs
-      # https://github.com/actions/download-artifact
-      # -
-      #   name: Download Docker registry data from build-base job
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: docker-registry-data
-      #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
-
-      # - 
-      #   name: Start local Docker registry (boca-base)
-      #   run: |
-
-      #     docker run --rm --detach --publish 5000:5000 \
-      #       --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
-      #       --name registry registry:2
-
       -
         name: Download digests
         uses: actions/download-artifact@v3
         with:
           name: digests
-          path: ${{ steps.set-env.outputs.digests_path }}
+          path: ${{ steps.setup.outputs.digests_path }}
 
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        with:
-          driver-opts: network=host
 
       - 
-        name: Extract Docker metadata (boca-base)
+        name: Extract Docker metadata (${{ matrix.image }})
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ steps.set-env.outputs.boca_image }}
+          images: ${{ steps.setup.outputs.image_name }}
+          tags: |
+            # nightly build
+            type=schedule,pattern=nightly,suffix=-${{ steps.setup.outputs.release_name }}
+            type=schedule,pattern=nightly,enable=${{ matrix.parent == inputs.default_parent }}
+            # new release
+            type=semver,pattern={{raw}},priority=900,suffix=-${{ steps.setup.outputs.release_name }}
+            type=semver,pattern={{raw}},priority=1000,enable=${{ matrix.parent == inputs.default_parent }}
+            type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-${{ steps.setup.outputs.release_name }}
+            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.parent == inputs.default_parent }}
+            # tag event (same as new release)
+            type=ref,event=tag,priority=900,suffix=-${{ steps.setup.outputs.release_name }}
+            type=ref,event=tag,priority=1000,enable=${{ matrix.parent == inputs.default_parent }}
+            # workflow_dispatch (debug)
+            type=raw,value=${{ inputs.tag }},enable=${{ matrix.parent == inputs.default_parent && github.event_name == 'workflow_dispatch' }}
+            type=raw,value=${{ inputs.tag }},suffix=-${{ steps.setup.outputs.release_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            # branch event
+            type=ref,event=branch,priority=900,suffix=-${{ steps.setup.outputs.release_name }}
+            type=ref,event=branch,priority=1000,enable=${{ matrix.parent == inputs.default_parent }}
+          # This identifies which variant will be published as "latest", which
+          # isn't necessarily the newest version of the source code
+          flavor: |
+            latest=${{ matrix.parent == inputs.default_parent && github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
 
       - 
         name: Login to GitHub Container Registry
@@ -411,13 +398,16 @@ jobs:
 
       - 
         name: Create manifest list and push
-        working-directory: ${{ steps.set-env.outputs.digests_path }}
+        working-directory: ${{ steps.setup.outputs.digests_path }}
         run: |
-          docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< '${{ steps.meta.outputs.json }}') \
-            $(printf '${{ steps.set-env.outputs.boca_image }}@sha256:%s ' *)
+
+          docker buildx imagetools create \
+            $(jq -r '"-t " + (.tags | join(" -t "))' <<< '${{ steps.meta.outputs.json }}') \
+              $(printf '${{ steps.setup.outputs.image_name }}@sha256:%s ' *)
 
       - 
         name: Inspect image
         run: |
       
-          docker buildx imagetools inspect '${{ steps.set-env.outputs.boca_image }}:${{ steps.meta.outputs.version }}'
+          docker buildx imagetools inspect \
+            '${{ steps.setup.outputs.image_name }}:${{ steps.meta.outputs.version }}'
