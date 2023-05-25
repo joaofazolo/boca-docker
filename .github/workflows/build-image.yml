@@ -241,7 +241,6 @@ jobs:
           context: .
           file: docker/dev/${{ steps.set-env.outputs.folder_name }}/Dockerfile
           platforms: ${{ matrix.platform }}
-          push: true
           # tags: ${{ steps.meta_base.outputs.tags }}
           # labels: ${{ steps.meta_base.outputs.labels }}
           build-args: |
