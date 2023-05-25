@@ -93,7 +93,7 @@ jobs:
       # Set environment variables and output parameters between steps
       # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
       - 
-        name: Write variables to GITHUB_ENV
+        name: Write variables to GITHUB_ENV and GITHUB_OUTPUT
         id: setup
         run: |
 
@@ -103,7 +103,6 @@ jobs:
           RELEASE=${PARENT//ubuntu:/}
           echo $RELEASE
           echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
-          echo "release_name=$RELEASE" >> $GITHUB_ENV
 
           # Set architecture
           PLATFORM='${{ matrix.platform }}'
@@ -127,7 +126,6 @@ jobs:
           IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
           echo "image_name=$IMG" >> $GITHUB_OUTPUT
-          echo "image=${{ matrix.image }}" >> $GITHUB_ENV
 
           # Set folder
           DIR='${{ matrix.image }}'
@@ -191,7 +189,7 @@ jobs:
           file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
           platforms: ${{ matrix.platform }}
           build-args: |
-            BASE_IMAGE=${{ matrix.parent }}
+            BASE_IMAGE=${{ steps.setup.outputs.base_image }}
           provenance: false
           outputs: type=image,name=${{ steps.setup.outputs.image_name }},push-by-digest=true,name-canonical=true,push=true
           cache-from: |
