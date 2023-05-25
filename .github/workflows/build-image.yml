@@ -323,31 +323,57 @@ jobs:
       - build
 
     steps:
-        # Download artifacts that have been uploaded from previous jobs
-        # https://github.com/actions/download-artifact
-        -
-          name: Download digests
-          uses: actions/download-artifact@v3
-          with:
-            name: digests
-            path: ${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}
+      - 
+        name: Write variables to GITHUB_ENV
+        id: set-env
+        run: |
 
-        -
-          name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v2
-          with:
-            driver-opts: network=host
+          # Set OS release
+          PARENT='${{ matrix.parent }}'
+          # Replace 'ubuntu:' with ''
+          RELEASE=${PARENT//ubuntu:/}
+          echo $RELEASE
+          echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
 
-        - 
-          name: Extract Docker metadata (boca-base)
-          id: meta_base
-          uses: docker/metadata-action@v4
-          with:
-            images: ${{ steps.set-env.outputs.boca_base_img }}
+          DEFAULT_PARENT=${{ toJSON(inputs.default_parent) }}
+          echo $DEFAULT_PARENT
+          echo "default_parent=$DEFAULT_PARENT" >> $GITHUB_ENV
 
-        - 
-          name: Create manifest list and push
-          working-directory: ${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}
-          run: |
-            docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< ${{ steps.meta_base.outputs.tags }}') \
-              $(printf '${{ steps.set-env.outputs.boca_base_img }}@sha256:%s ' *)
+          # Set image
+          IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
+          echo $IMG
+          echo "boca_base_img=$IMG" >> $GITHUB_OUTPUT
+
+          # Set digests path
+          DIGESTS_PATH='${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-$RELEASE }}
+          echo $DIGESTS_PATH
+          echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
+
+      # Download artifacts that have been uploaded from previous jobs
+      # https://github.com/actions/download-artifact
+      -
+        name: Download digests
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}-digests
+          path: ${{ steps.set-env.outputs.digests_path }}
+
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
+
+      - 
+        name: Extract Docker metadata (boca-base)
+        id: meta_base
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ steps.set-env.outputs.boca_base_img }}
+
+      - 
+        name: Create manifest list and push
+        working-directory: ${{ steps.set-env.outputs.digests_path }}
+        run: |
+          docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< ${{ steps.meta_base.outputs.tags }}') \
+            $(printf '${{ steps.set-env.outputs.boca_base_img }}@sha256:%s ' *)
