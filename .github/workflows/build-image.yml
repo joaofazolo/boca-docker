@@ -64,7 +64,7 @@ jobs:
     strategy:
       # If is set to true (default), GitHub will cancel all in-progress and
       # queued jobs in the matrix if any job in the matrix fails.
-      # fail-fast: false
+      fail-fast: false
       matrix:
         image: ${{ fromJSON(inputs.images) }}
         parent: ${{ fromJSON(inputs.parents) }}
