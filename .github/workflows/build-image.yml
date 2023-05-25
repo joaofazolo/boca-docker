@@ -398,14 +398,6 @@ jobs:
           images: ${{ steps.set-env.outputs.boca_img }}
 
       - 
-        name: Stop local Docker registry
-        run: |
-
-          docker image ls -a
-          crane digest localhost:5000/rlaiola/boca-docker/boca-base
-          curl localhost:5000/V2/_catalog
-    
-      - 
         name: Create manifest list and push
         working-directory: ${{ steps.set-env.outputs.digests_path }}
         run: |
