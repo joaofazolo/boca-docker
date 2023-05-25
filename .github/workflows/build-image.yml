@@ -360,6 +360,15 @@ jobs:
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
+      # Download artifacts that have been uploaded from previous jobs
+      # https://github.com/actions/download-artifact
+      -
+        name: Download Docker registry data from build-base job
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-registry-data
+          path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
+
       - 
         name: Start local Docker registry (boca-base)
         run: |
@@ -368,8 +377,6 @@ jobs:
             --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
             --name registry registry:2
 
-      # Download artifacts that have been uploaded from previous jobs
-      # https://github.com/actions/download-artifact
       -
         name: Download digests
         uses: actions/download-artifact@v3
