@@ -127,11 +127,6 @@ jobs:
           echo $CACHE_PATH
           echo "cache_path=$CACHE_PATH" >> $GITHUB_OUTPUT
 
-          # Set cache key
-          CACHE_KEY="${{ matrix.image }}-$RELEASE-$ARCH"
-          echo $CACHE_KEY
-          echo "cache_key=$CACHE_key" >> $GITHUB_ENV
-
           # Set image
           IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
@@ -338,16 +333,26 @@ jobs:
           # Replace 'ubuntu:' with ''
           RELEASE=${PARENT//ubuntu:/}
           echo $RELEASE
+          echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
           echo "release_name=$RELEASE" >> $GITHUB_ENV
 
           DEFAULT_PARENT=${{ toJSON(inputs.default_parent) }}
           echo $DEFAULT_PARENT
           echo "default_parent=$DEFAULT_PARENT" >> $GITHUB_ENV
 
+          # Set architecture
+          PLATFORM='${{ matrix.platform }}'
+          # Replace 'linux/' with '' and '/' with '-'
+          ARCH=${PLATFORM//linux\//}
+          ARCH=${ARCH//\//-}
+          echo $ARCH
+          echo "arch_name=$ARCH" >> $GITHUB_OUTPUT
+          echo "arch_name=$ARCH" >> $GITHUB_ENV
+
           # Set image
           IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
-          echo "boca_img=$IMG" >> $GITHUB_OUTPUT
+          echo "boca_base_img=$IMG" >> $GITHUB_OUTPUT
           echo "image=${{ matrix.image }}" >> $GITHUB_ENV
 
           # Set digests path
@@ -390,7 +395,8 @@ jobs:
         run: |
 
           docker image ls -a
-          curl https://localhost:5000//V2/_catalog
+          crane digest localhost:5000/rlaiola/boca-docker/boca-base
+          curl localhost:5000/V2/_catalog
     
       - 
         name: Create manifest list and push
