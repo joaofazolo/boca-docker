@@ -115,8 +115,9 @@ jobs:
 
           # Set architecture
           PLATFORM='${{ matrix.platform }}'
-          # Replace 'linux/' with ''
-          ARCH=${PLATFORM//linux\//-}
+          # Replace 'linux/' with '' and '/' with '-'
+          ARCH=${PLATFORM//linux\//}
+          ARCH=${ARCH//\//-}
           echo $ARCH
           echo "arch_name=$ARCH" >> $GITHUB_OUTPUT
           echo "arch_name=$ARCH" >> $GITHUB_ENV
