@@ -169,7 +169,7 @@ jobs:
       - 
         name: Start local Docker registry (boca-base)
         run: |
-
+          echo "${{ steps.set-env.outputs.cache_key }}""
           docker run --rm --detach --publish 5000:5000 \
             --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
             --name registry registry:2
