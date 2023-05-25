@@ -166,7 +166,7 @@ jobs:
         run: |
 
           docker run --rm --detach --publish 5000:5000 \
-            --volume ${REGISTRY_PATH}/${image}-${release_name}_${arch_name}:/var/lib/registry \
+            --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
             --name registry registry:2
 
       # Cache storage backends with GitHub Actions
@@ -334,7 +334,7 @@ jobs:
           # Replace 'ubuntu:' with ''
           RELEASE=${PARENT//ubuntu:/}
           echo $RELEASE
-          echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
+          echo "release_name=$RELEASE" >> $GITHUB_ENV
 
           DEFAULT_PARENT=${{ toJSON(inputs.default_parent) }}
           echo $DEFAULT_PARENT
@@ -344,11 +344,20 @@ jobs:
           IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
           echo "boca_img=$IMG" >> $GITHUB_OUTPUT
+          echo "image=${{ matrix.image }}" >> $GITHUB_ENV
 
           # Set digests path
           DIGESTS_PATH="${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
+
+      - 
+        name: Start local Docker registry (boca-base)
+        run: |
+
+          docker run --rm --detach --publish 5000:5000 \
+            --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
+            --name registry registry:2
 
       # Download artifacts that have been uploaded from previous jobs
       # https://github.com/actions/download-artifact
@@ -376,7 +385,7 @@ jobs:
         name: Create manifest list and push
         working-directory: ${{ steps.set-env.outputs.digests_path }}
         run: |
-          docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< ${{ steps.meta.outputs.json }}') \
+          docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< '${{ steps.meta.outputs.json }}') \
             $(printf '${{ steps.set-env.outputs.boca_img }}@sha256:%s ' *)
 
       - 
