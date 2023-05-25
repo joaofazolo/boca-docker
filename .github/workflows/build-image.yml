@@ -290,7 +290,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}-digests
+          name: digests
           path: ${{ steps.set-env.outputs.digests_path }}/*
           if-no-files-found: error
           retention-days: 1
@@ -365,7 +365,7 @@ jobs:
         name: Download digests
         uses: actions/download-artifact@v3
         with:
-          name: ${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}-digests
+          name: digests
           path: ${{ steps.set-env.outputs.digests_path }}
 
       -
@@ -393,3 +393,10 @@ jobs:
         run: |
       
           docker buildx imagetools inspect '${{ steps.set-env.outputs.boca_img }}:${{ steps.meta.outputs.version }}'
+
+      - 
+        name: Stop local Docker registry
+        run: |
+
+          docker stop registry
+    
