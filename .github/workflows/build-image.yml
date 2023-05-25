@@ -51,7 +51,7 @@ env:
   # Use GitHub local cache exporter
   REGISTRY_PATH: ${{ github.workspace }}/registry
   CACHE_BASE_PATH: /tmp/.buildx-cache
-  DIGEST_BASE_PATH: /tmp/digests
+  DIGEST_PATH: /tmp/digests
 
 jobs:
   build:
@@ -142,7 +142,7 @@ jobs:
           echo "folder_name=$DIR" >> $GITHUB_OUTPUT
 
           # Set digests path
-          DIGESTS_PATH="${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-${RELEASE}"
+          DIGESTS_PATH="${{ env.DIGEST_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
@@ -298,7 +298,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v3
         with:
-          name: digests
+          name: digests-${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}
           path: ${{ steps.set-env.outputs.digests_path }}/*
           if-no-files-found: error
           retention-days: 1
@@ -313,11 +313,10 @@ jobs:
       #     name: docker-registry-data
       #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
 
+  # This job creates a manifest list and push it to the REGISTRY_HOST.
   merge:
     runs-on: ubuntu-latest
     strategy:
-      # If is set to true (default), GitHub will cancel all in-progress and
-      # queued jobs in the matrix if any job in the matrix fails.
       fail-fast: false
       matrix:
         image: ${{ fromJSON(inputs.images) }}
@@ -344,7 +343,7 @@ jobs:
           echo "image_name=$IMG" >> $GITHUB_OUTPUT
 
           # Set digests path
-          DIGESTS_PATH="${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-${RELEASE}"
+          DIGESTS_PATH="${{ env.DIGEST_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
@@ -352,7 +351,7 @@ jobs:
         name: Download digests
         uses: actions/download-artifact@v3
         with:
-          name: digests
+          name: digests-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}
           path: ${{ steps.setup.outputs.digests_path }}
 
       -
@@ -383,8 +382,6 @@ jobs:
             # branch event
             type=ref,event=branch,priority=900,suffix=-${{ steps.setup.outputs.release_name }}
             type=ref,event=branch,priority=1000,enable=${{ matrix.parent == inputs.default_parent }}
-          # This identifies which variant will be published as "latest", which
-          # isn't necessarily the newest version of the source code
           flavor: |
             latest=${{ matrix.parent == inputs.default_parent && github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
 
