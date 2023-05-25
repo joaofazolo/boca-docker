@@ -31,7 +31,7 @@ on:
         required: true
         type: string
       tag:
-        description: "Image tags (whitespace-separated)"
+        description: "Image tag (only one)"
         required: true
         type: string
 
@@ -49,11 +49,10 @@ env:
   # Use github.repository_owner (<account>)
   OWNER_NAME: ${{ github.repository_owner }}
   # Use GitHub local cache exporter
-  REGISTRY_PATH: ${{ github.workspace }}/registry
-  CACHE_BASE_PATH: /tmp/.buildx-cache
-  DIGEST_PATH: /tmp/digests
+  DIGESTS_PATH: /tmp/digests
 
 jobs:
+  # Distribute build of each platform across multiple runners and push by digest
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -90,15 +89,13 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        # with:
-        #   driver-opts: network=host
 
       # Set environment variables (NOTE: alternatively could have used an
       # output parameter between steps, see above)
       # https://docs.github.com/en/github-ae@latest/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
       - 
         name: Write variables to GITHUB_ENV
-        id: set-env
+        id: setup
         run: |
 
           # Set OS release
@@ -107,11 +104,6 @@ jobs:
           RELEASE=${PARENT//ubuntu:/}
           echo $RELEASE
           echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
-          echo "release_name=$RELEASE" >> $GITHUB_ENV
-
-          DEFAULT_PARENT=${{ toJSON(inputs.default_parent) }}
-          echo $DEFAULT_PARENT
-          echo "default_parent=$DEFAULT_PARENT" >> $GITHUB_ENV
 
           # Set architecture
           PLATFORM='${{ matrix.platform }}'
@@ -120,18 +112,11 @@ jobs:
           ARCH=${ARCH//\//-}
           echo $ARCH
           echo "arch_name=$ARCH" >> $GITHUB_OUTPUT
-          echo "arch_name=$ARCH" >> $GITHUB_ENV
-
-          # Set cache path
-          CACHE_PATH="${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-$RELEASE-$ARCH"
-          echo $CACHE_PATH
-          echo "cache_path=$CACHE_PATH" >> $GITHUB_OUTPUT
 
           # Set image
-          # IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
-          echo "boca_image=$IMG" >> $GITHUB_OUTPUT
+          echo "image_name=$IMG" >> $GITHUB_OUTPUT
           echo "image=${{ matrix.image }}" >> $GITHUB_ENV
 
           # Set folder
@@ -142,44 +127,31 @@ jobs:
           echo "folder_name=$DIR" >> $GITHUB_OUTPUT
 
           # Set digests path
-          DIGESTS_PATH="${{ env.DIGEST_PATH }}/${{ matrix.image }}-${RELEASE}"
+          DIGESTS_PATH="${{ env.DIGESTS_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
-          # PLATFORM=${{ toJSON(inputs.platforms) }}
-          # # Remove square bracket, white spaces and double quotes
-          # PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
-          # echo $PLATFORM
-          # echo "platforms=$PLATFORM" >> $GITHUB_ENV
+          # Set the cache-to output
+          echo '${{ github.ref_name }}-${{ matrix.platform }}'
+          echo 'cache-to=type=gha,scope=${{ github.ref_name }}-${{ matrix.platform }}' >> "${GITHUB_OUTPUT}"
 
-      # # Download artifacts that have been uploaded from previous jobs
-      # # https://github.com/actions/download-artifact
-      # -
-      #   name: Download Docker registry data from parent image
-      #   if: matrix.parent_build_local == true
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: docker-registry-data
-      #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.parent }}-${{ env.flavor_name }}/
-
-      # - 
-      #   name: Start local Docker registry (boca-base)
-      #   run: |
-
-      #     docker run --rm --detach --publish 5000:5000 \
-      #       --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
-      #       --name registry registry:2
-
-      # Cache storage backends with GitHub Actions
-      # https://github.com/actions/cache
-      # -
-      #   name: Cache Docker layers
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ${{ steps.set-env.outputs.cache_path }}
-      #     key: ${{ runner.os }}-buildx-${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}-${{ steps.set-env.outputs.arch_name }}-${{ github.sha }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-buildx-
+          # Set the cache-from output
+          if [[ '${{ github.event_name }}' == 'push' ]]; then
+            echo '${{ github.ref_name }}-${{ matrix.platform }}'
+            echo 'cache-from=type=gha,scope=${{ github.ref_name }}-${{ matrix.platform }}' >> "${GITHUB_OUTPUT}"
+          else
+            # Use cache from target branch too when building a pull request
+            # In this case, it has to be a multiline string
+            # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
+            EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+            echo "cache-from<<${EOF}" >> "${GITHUB_OUTPUT}"
+            printf '%s\n' \
+              "type=gha,scope=${{ github.ref_name }}-${{ matrix.platform }}" \
+              "type=gha,scope=${{ github.base_ref }}-${{ matrix.platform }}" \
+              >> "${GITHUB_OUTPUT}"
+            echo '${EOF}'
+            echo "${EOF}" >> "${GITHUB_OUTPUT}"
+          fi
 
       # Login to a Docker registry (except on PR)
       # https://github.com/docker/login-action
@@ -194,126 +166,47 @@ jobs:
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - 
-        name: Extract Docker metadata (boca-base)
-        id: meta_base
+        name: Extract Docker metadata (${{ matrix.image }})
+        id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
-          # images: ${{ steps.set-env.outputs.boca_image }}
-
-      # - 
-      #   name: Extract Docker metadata (${{ matrix.image }})
-      #   if: matrix.image != 'boca-base'
-      #   id: meta_image
-      #   uses: docker/metadata-action@v4
-      #   with:
-      #     images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
-      #     tags: |
-      #       # nightly build
-      #       type=schedule,pattern=nightly,suffix=-${{ env.flavor_name }}
-      #       type=schedule,pattern=nightly,enable=${{ matrix.parent == env.default_parent }}
-      #       # new release
-      #       type=semver,pattern={{raw}},priority=900,suffix=-${{ env.flavor_name }}
-      #       type=semver,pattern={{raw}},priority=1000,enable=${{ matrix.parent == env.default_parent }}
-      #       type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-${{ env.flavor_name }}
-      #       type=semver,pattern={{major}}.{{minor}},priority=1000,enable=${{ matrix.parent == env.default_parent }}
-      #       # tag event (same as new release)
-      #       type=ref,event=tag,priority=900,suffix=-${{ env.flavor_name }}
-      #       type=ref,event=tag,priority=1000,enable=${{ matrix.parent == env.default_parent }}
-      #       # workflow_dispatch (debug)
-      #       type=raw,value=${{ inputs.tag }},enable=${{ matrix.parent == env.default_parent && github.event_name == 'workflow_dispatch' }}
-      #       type=raw,value=${{ inputs.tag }},suffix=-${{ env.flavor_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
-      #       # branch event
-      #       type=ref,event=branch,priority=900,suffix=-${{ env.flavor_name }}
-      #       type=ref,event=branch,priority=1000,enable=${{ matrix.parent == env.default_parent }}
-      #     # This identifies which variant will be published as "latest", which
-      #     # isn't necessarily the newest version of the source code
-      #     flavor: |
-      #       latest=${{ matrix.parent == env.default_parent && github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
-
-      # Build and push Docker image with Buildx
-      # https://github.com/docker/build-push-action
-      # - 
-      #   name: Build and push image locally (${{ matrix.image }})
-      #   id: build-base
-      #   if: matrix.image == 'boca-base'
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     file: docker/dev/${{ steps.set-env.outputs.folder_name }}/Dockerfile
-      #     platforms: ${{ matrix.platform }}
-      #     # tags: ${{ steps.meta_base.outputs.tags }}
-      #     # labels: ${{ steps.meta_base.outputs.labels }}
-      #     build-args: |
-      #       BASE_IMAGE=${{ matrix.parent }}
-      #     cache-from: type=local,src=${{ steps.set-env.outputs.cache_path }}
-      #     cache-to: type=local,dest=${{ steps.set-env.outputs.cache_path }}-new,mode=max
-      #     outputs: |
-      #       type=image,name=${{ steps.set-env.outputs.boca_image }},push-by-digest=true,name-canonical=true,push=true
+          images: ${{ steps.setup.outputs.image_name }}
 
       - 
         name: Build and push image remotely (${{ matrix.image }})
-        # if: matrix.image != 'boca-base'
         id: build
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: docker/dev/${{ steps.set-env.outputs.folder_name }}/Dockerfile
+          file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
           platforms: ${{ matrix.platform }}
-          # tags: |
-          #   ${{ steps.meta_remote.outputs.tags }}
-          # labels: ${{ steps.meta_remote.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ matrix.parent }}
           provenance: false
-          outputs: type=image,name=${{ steps.set-env.outputs.boca_image }},push-by-digest=true,name-canonical=true,push=true
-          # cache-from: type=local,src=${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}
-          # cache-to: type=local,dest=${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}-new,mode=max
-
-      # - 
-      #   name: Stop local Docker registry
-      #   run: |
-
-      #     docker stop registry
-
-      # -
-      #   # Temp fix
-      #   # https://github.com/docker/build-push-action/issues/252
-      #   # https://github.com/moby/buildkit/issues/1896
-      #   name: Move cache
-      #   run: |
-
-      #     rm -rf ${{ steps.set-env.outputs.cache_path }}
-      #     mv ${{ steps.set-env.outputs.cache_path }}-new ${{ steps.set-env.outputs.cache_path }}
+          outputs: type=image,name=${{ steps.setup.outputs.image_name }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: |
+            ${{ steps.setup.outputs.cache-from }}
+          cache-to: |
+            ${{ steps.setup.outputs.cache-to }}
     
       - name: Export digest
         run: |
 
-          mkdir -p ${{ steps.set-env.outputs.digests_path }}
+          mkdir -p ${{ steps.setup.outputs.digests_path }}
           digest='${{ steps.build.outputs.digest }}'
-          touch "${{ steps.set-env.outputs.digests_path }}/${digest#sha256:}"
+          touch "${{ steps.setup.outputs.digests_path }}/${digest#sha256:}"
 
       # Upload artifacts from workflow allowing to share data between jobs
       # https://github.com/actions/upload-artifact
       - name: Upload digest
         uses: actions/upload-artifact@v3
         with:
-          name: digests-${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}
-          path: ${{ steps.set-env.outputs.digests_path }}/*
+          name: digests-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}
+          path: ${{ steps.setup.outputs.digests_path }}/*
           if-no-files-found: error
           retention-days: 1
 
-      # Upload artifacts from workflow allowing to share data between jobs
-      # https://github.com/actions/upload-artifact
-      # - 
-      #   name: Upload Docker registry data for child images
-      #   if: matrix.image == 'boca-base'
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: docker-registry-data
-      #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
-
-  # This job creates a manifest list and push it to the REGISTRY_HOST.
+  # This job creates a manifest list and push it to GitHub Container Registry.
   merge:
     runs-on: ubuntu-latest
     strategy:
@@ -343,10 +236,12 @@ jobs:
           echo "image_name=$IMG" >> $GITHUB_OUTPUT
 
           # Set digests path
-          DIGESTS_PATH="${{ env.DIGEST_PATH }}/${{ matrix.image }}-${RELEASE}"
+          DIGESTS_PATH="${{ env.DIGESTS_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
+      # Download artifacts that have been uploaded from previous jobs
+      # https://github.com/actions/download-artifact
       -
         name: Download digests
         uses: actions/download-artifact@v3
