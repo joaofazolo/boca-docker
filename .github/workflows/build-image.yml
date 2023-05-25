@@ -127,6 +127,11 @@ jobs:
           echo $CACHE_PATH
           echo "cache_path=$CACHE_PATH" >> $GITHUB_OUTPUT
 
+          # Set cache key
+          CACHE_KEY="${{ runner.os }}-buildx-${{ matrix.parent }}-$RELEASE-$ARCH-${{ github.sha }}"
+          echo $CACHE_KEY
+          echo "cache_key=$CACHE_key" >> $GITHUB_OUTPUT
+
           # Set image
           IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
@@ -176,7 +181,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.set-env.outputs.cache_path }}
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ steps.set-env.outputs.cache_key }}
           restore-keys: |
             ${{ runner.os }}-buildx-
 
