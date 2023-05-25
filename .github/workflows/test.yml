@@ -26,14 +26,14 @@ jobs:
     needs:
       - setup
 
-  # build-web:
-  #   uses: ./.github/workflows/build-image.yml
-  #   with:
-  #     images: '[ "boca-web" ]'
-  #     parents: ${{ needs.setup.outputs.parent }}
-  #     default_parent: ${{ needs.setup.outputs.default_parent }}
-  #     platforms: ${{ needs.setup.outputs.platform }}
-  #     tag: ${{ inputs.tag }}
-  #   needs:
-  #     - build-base
-  #     - setup
+  build-web:
+    uses: ./.github/workflows/build-image.yml
+    with:
+      images: '[ "boca-web" ]'
+      parents: ${{ needs.setup.outputs.parent }}
+      default_parent: ${{ needs.setup.outputs.default_parent }}
+      platforms: ${{ needs.setup.outputs.platform }}
+      tag: ${{ inputs.tag }}
+    needs:
+      - build-base
+      - setup
