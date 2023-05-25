@@ -139,16 +139,16 @@ jobs:
             --volume ${REGISTRY_PATH}/boca-base-${flavor_name}:/var/lib/registry \
             --name registry registry:2
 
-      # # Cache storage backends with GitHub Actions
-      # # https://github.com/actions/cache
-      # -
-      #   name: Cache Docker layers
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
-      #     key: ${{ runner.os }}-buildx-${{ github.sha }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-buildx-
+      # Cache storage backends with GitHub Actions
+      # https://github.com/actions/cache
+      -
+        name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ matrix.image }}-${{ env.flavor_name }}
 
       # Login to a Docker registry (except on PR)
       # https://github.com/docker/login-action
@@ -212,7 +212,7 @@ jobs:
           file: docker/dev/${{ env.folder_name }}/Dockerfile
           platforms: ${{ matrix.platform }}
           push: true
-          tags: ${{ steps.meta_base.outputs.tags }}
+          # tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ matrix.parent }}
