@@ -243,7 +243,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           # tags: ${{ steps.meta_base.outputs.tags }}
-          labels: ${{ steps.meta_base.outputs.labels }}
+          # labels: ${{ steps.meta_base.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ matrix.parent }}
           cache-from: type=local,src=${{ steps.set-env.outputs.cache_path }}
@@ -343,7 +343,7 @@ jobs:
           # Set image
           IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
-          echo "boca_base_img=$IMG" >> $GITHUB_OUTPUT
+          echo "boca_img=$IMG" >> $GITHUB_OUTPUT
 
           # Set digests path
           DIGESTS_PATH="${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-${RELEASE}"
@@ -367,14 +367,20 @@ jobs:
 
       - 
         name: Extract Docker metadata (boca-base)
-        id: meta_base
+        id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ steps.set-env.outputs.boca_base_img }}
+          images: ${{ steps.set-env.outputs.boca_img }}
 
       - 
         name: Create manifest list and push
         working-directory: ${{ steps.set-env.outputs.digests_path }}
         run: |
-          docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< ${{ steps.meta_base.outputs.tags }}') \
-            $(printf '${{ steps.set-env.outputs.boca_base_img }}@sha256:%s ' *)
+          docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< ${{ steps.meta.outputs.json }}') \
+            $(printf '${{ steps.set-env.outputs.boca_img }}@sha256:%s ' *)
+
+      - 
+        name: Inspect image
+        run: |
+      
+          docker buildx imagetools inspect '${{ steps.set-env.outputs.boca_img }}:${{ steps.meta.outputs.version }}'
