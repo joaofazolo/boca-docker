@@ -133,14 +133,13 @@ jobs:
 
           # Set the cache-to output
           # https://docs.docker.com/build/cache/backends/gha/
-          echo $RELEASE
           echo "${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH"
-          echo 'cache-to=type=gha,scope=${{ github.ref_name }}-${{ matrix.image }}-${{ env.release_name }}-${{ env.arch_name }}' >> "${GITHUB_OUTPUT}"
+          echo "cache-to=type=gha,scope=${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH" >> "${GITHUB_OUTPUT}"
 
           # Set the cache-from output
           if [[ '${{ github.event_name }}' == 'push' ]]; then
-            echo '${{ github.ref_name }}-${{ matrix.image }}-${{ env.release_name }}-${{ env.arch_name }}'
-            echo 'cache-from=type=gha,scope=${{ github.ref_name }}-${{ matrix.image }}-${{ env.release_name }}-${{ env.arch_name }}' >> "${GITHUB_OUTPUT}"
+            echo "${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH"
+            echo "cache-from=type=gha,scope=${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH" >> "${GITHUB_OUTPUT}"
           else
             # Use cache from target branch too when building a pull request
             # In this case, it has to be a multiline string
