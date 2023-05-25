@@ -90,8 +90,8 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        with:
-          driver-opts: network=host
+        # with:
+        #   driver-opts: network=host
 
       # Set environment variables (NOTE: alternatively could have used an
       # output parameter between steps, see above)
@@ -128,9 +128,10 @@ jobs:
           echo "cache_path=$CACHE_PATH" >> $GITHUB_OUTPUT
 
           # Set image
-          IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
+          # IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
+          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
-          echo "boca_base_img=$IMG" >> $GITHUB_OUTPUT
+          echo "boca_image=$IMG" >> $GITHUB_OUTPUT
           echo "image=${{ matrix.image }}" >> $GITHUB_ENV
 
           # Set folder
@@ -161,35 +162,34 @@ jobs:
       #     name: docker-registry-data
       #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.parent }}-${{ env.flavor_name }}/
 
-      - 
-        name: Start local Docker registry (boca-base)
-        run: |
+      # - 
+      #   name: Start local Docker registry (boca-base)
+      #   run: |
 
-          docker run --rm --detach --publish 5000:5000 \
-            --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
-            --name registry registry:2
+      #     docker run --rm --detach --publish 5000:5000 \
+      #       --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
+      #       --name registry registry:2
 
       # Cache storage backends with GitHub Actions
       # https://github.com/actions/cache
-      -
-        name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.set-env.outputs.cache_path }}
-          key: ${{ runner.os }}-buildx-${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}-${{ steps.set-env.outputs.arch_name }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      # # Login to a Docker registry (except on PR)
-      # # https://github.com/docker/login-action
-      # - 
-      #   name: Login to GitHub Container Registry (push remotely)
-      #   if: matrix.image != 'boca-base'
-      #   uses: docker/login-action@v2
+      # -
+      #   name: Cache Docker layers
+      #   uses: actions/cache@v3
       #   with:
-      #     registry: ${{ env.REGISTRY_HOST }}
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
+      #     path: ${{ steps.set-env.outputs.cache_path }}
+      #     key: ${{ runner.os }}-buildx-${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}-${{ steps.set-env.outputs.arch_name }}-${{ github.sha }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-
+
+      # Login to a Docker registry (except on PR)
+      # https://github.com/docker/login-action
+      - 
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_HOST }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -198,7 +198,8 @@ jobs:
         id: meta_base
         uses: docker/metadata-action@v4
         with:
-          images: ${{ steps.set-env.outputs.boca_base_img }}
+          images: ${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          # images: ${{ steps.set-env.outputs.boca_image }}
 
       # - 
       #   name: Extract Docker metadata (${{ matrix.image }})
@@ -232,85 +233,87 @@ jobs:
 
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
+      # - 
+      #   name: Build and push image locally (${{ matrix.image }})
+      #   id: build-base
+      #   if: matrix.image == 'boca-base'
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     file: docker/dev/${{ steps.set-env.outputs.folder_name }}/Dockerfile
+      #     platforms: ${{ matrix.platform }}
+      #     # tags: ${{ steps.meta_base.outputs.tags }}
+      #     # labels: ${{ steps.meta_base.outputs.labels }}
+      #     build-args: |
+      #       BASE_IMAGE=${{ matrix.parent }}
+      #     cache-from: type=local,src=${{ steps.set-env.outputs.cache_path }}
+      #     cache-to: type=local,dest=${{ steps.set-env.outputs.cache_path }}-new,mode=max
+      #     outputs: |
+      #       type=image,name=${{ steps.set-env.outputs.boca_image }},push-by-digest=true,name-canonical=true,push=true
+
       - 
-        name: Build and push image locally (${{ matrix.image }})
-        id: build-base
-        if: matrix.image == 'boca-base'
+        name: Build and push image remotely (${{ matrix.image }})
+        # if: matrix.image != 'boca-base'
+        id: build
         uses: docker/build-push-action@v4
         with:
           context: .
           file: docker/dev/${{ steps.set-env.outputs.folder_name }}/Dockerfile
           platforms: ${{ matrix.platform }}
-          # tags: ${{ steps.meta_base.outputs.tags }}
-          # labels: ${{ steps.meta_base.outputs.labels }}
+          # tags: |
+          #   ${{ steps.meta_remote.outputs.tags }}
+          # labels: ${{ steps.meta_remote.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ matrix.parent }}
-          cache-from: type=local,src=${{ steps.set-env.outputs.cache_path }}
-          cache-to: type=local,dest=${{ steps.set-env.outputs.cache_path }}-new,mode=max
-          outputs: |
-            type=image,name=${{ steps.set-env.outputs.boca_base_img }},push-by-digest=true,name-canonical=true,push=true
+          provenance: false
+          outputs: type=image,name=${{ steps.set-env.outputs.boca_image }},push-by-digest=true,name-canonical=true,push=true
+          # cache-from: type=local,src=${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}
+          # cache-to: type=local,dest=${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}-new,mode=max
 
       # - 
-      #   name: Build and push image remotely (${{ matrix.image }})
-      #   if: matrix.image != 'boca-base'
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     file: docker/dev/${{ env.folder_name }}/Dockerfile
-      #     platforms: ${{ matrix.platform }}
-      #     tags: |
-      #       ${{ steps.meta_remote.outputs.tags }}
-      #     labels: ${{ steps.meta_remote.outputs.labels }}
-      #     build-args: |
-      #       BASE_IMAGE=${{ steps.meta_parent.outputs.tags }}
-      #     provenance: false
-      #     cache-from: type=local,src=${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}
-      #     cache-to: type=local,dest=${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}-new,mode=max
+      #   name: Stop local Docker registry
+      #   run: |
 
-      - 
-        name: Stop local Docker registry
-        run: |
+      #     docker stop registry
 
-          docker stop registry
+      # -
+      #   # Temp fix
+      #   # https://github.com/docker/build-push-action/issues/252
+      #   # https://github.com/moby/buildkit/issues/1896
+      #   name: Move cache
+      #   run: |
 
-      -
-        # Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-        name: Move cache
-        run: |
-
-          rm -rf ${{ steps.set-env.outputs.cache_path }}
-          mv ${{ steps.set-env.outputs.cache_path }}-new ${{ steps.set-env.outputs.cache_path }}
+      #     rm -rf ${{ steps.set-env.outputs.cache_path }}
+      #     mv ${{ steps.set-env.outputs.cache_path }}-new ${{ steps.set-env.outputs.cache_path }}
     
       - name: Export digest
         run: |
 
           mkdir -p ${{ steps.set-env.outputs.digests_path }}
-          digest='${{ steps.build-base.outputs.digest }}'
+          digest='${{ steps.build.outputs.digest }}'
           touch "${{ steps.set-env.outputs.digests_path }}/${digest#sha256:}"
 
       # Upload artifacts from workflow allowing to share data between jobs
       # https://github.com/actions/upload-artifact
-      - name: Upload digest
-        uses: actions/upload-artifact@v3
-        with:
-          name: digests
-          path: ${{ steps.set-env.outputs.digests_path }}/*
-          if-no-files-found: error
-          retention-days: 1
+      # - name: Upload digest
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: digests
+      #     path: ${{ steps.set-env.outputs.digests_path }}/*
+      #     if-no-files-found: error
+      #     retention-days: 1
 
       # Upload artifacts from workflow allowing to share data between jobs
       # https://github.com/actions/upload-artifact
-      - 
-        name: Upload Docker registry data for child images
-        if: matrix.image == 'boca-base'
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-registry-data
-          path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
+      # - 
+      #   name: Upload Docker registry data for child images
+      #   if: matrix.image == 'boca-base'
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: docker-registry-data
+      #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
 
-  push:
+  merge:
     runs-on: ubuntu-latest
     strategy:
       # If is set to true (default), GitHub will cancel all in-progress and
@@ -350,9 +353,10 @@ jobs:
           echo "arch_name=$ARCH" >> $GITHUB_ENV
 
           # Set image
-          IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
+          #IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
+          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
-          echo "boca_img=$IMG" >> $GITHUB_OUTPUT
+          echo "boca_image=$IMG" >> $GITHUB_OUTPUT
           echo "image=${{ matrix.image }}" >> $GITHUB_ENV
 
           # Set digests path
@@ -362,20 +366,20 @@ jobs:
 
       # Download artifacts that have been uploaded from previous jobs
       # https://github.com/actions/download-artifact
-      -
-        name: Download Docker registry data from build-base job
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-registry-data
-          path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
+      # -
+      #   name: Download Docker registry data from build-base job
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: docker-registry-data
+      #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
 
-      - 
-        name: Start local Docker registry (boca-base)
-        run: |
+      # - 
+      #   name: Start local Docker registry (boca-base)
+      #   run: |
 
-          docker run --rm --detach --publish 5000:5000 \
-            --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
-            --name registry registry:2
+      #     docker run --rm --detach --publish 5000:5000 \
+      #       --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
+      #       --name registry registry:2
 
       -
         name: Download digests
@@ -395,20 +399,20 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ steps.set-env.outputs.boca_img }}
+          images: ${{ steps.set-env.outputs.boca_image }}
 
       - 
         name: Create manifest list and push
         working-directory: ${{ steps.set-env.outputs.digests_path }}
         run: |
           docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< '${{ steps.meta.outputs.json }}') \
-            $(printf '${{ steps.set-env.outputs.boca_img }}@sha256:%s ' *)
+            $(printf '${{ steps.set-env.outputs.boca_image }}@sha256:%s ' *)
 
       - 
         name: Inspect image
         run: |
       
-          docker buildx imagetools inspect '${{ steps.set-env.outputs.boca_img }}:${{ steps.meta.outputs.version }}'
+          docker buildx imagetools inspect '${{ steps.set-env.outputs.boca_image }}:${{ steps.meta.outputs.version }}'
 
       - 
         name: Stop local Docker registry
