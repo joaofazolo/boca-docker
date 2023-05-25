@@ -352,7 +352,7 @@ jobs:
           # Set image
           IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
-          echo "boca_base_img=$IMG" >> $GITHUB_OUTPUT
+          echo "boca_img=$IMG" >> $GITHUB_OUTPUT
           echo "image=${{ matrix.image }}" >> $GITHUB_ENV
 
           # Set digests path
