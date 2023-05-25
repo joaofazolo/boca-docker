@@ -300,15 +300,15 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      # # Upload artifacts from workflow allowing to share data between jobs
-      # # https://github.com/actions/upload-artifact
-      # - 
-      #   name: Upload Docker registry data for child images
-      #   if: inputs.image_build_local == true
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: docker-registry-data
-      #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}/
+      # Upload artifacts from workflow allowing to share data between jobs
+      # https://github.com/actions/upload-artifact
+      - 
+        name: Upload Docker registry data for child images
+        if: matrix.image == 'boca-base'
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-registry-data
+          path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.release_name }}/
 
   push:
     runs-on: ubuntu-latest
