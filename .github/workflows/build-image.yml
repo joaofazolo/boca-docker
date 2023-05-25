@@ -145,10 +145,10 @@ jobs:
         name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          path: ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          path: ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ matrix.image }}-${{ env.flavor_name }}
+            ${{ runner.os }}-buildx-${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}
 
       # Login to a Docker registry (except on PR)
       # https://github.com/docker/login-action
@@ -216,8 +216,8 @@ jobs:
           labels: ${{ steps.meta_base.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ matrix.parent }}
-          cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
-          cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new,mode=max
+          cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}
+          cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}-new,mode=max
           outputs: |
             type=image,name=localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base,push-by-digest=true,name-canonical=true,push=true
 
@@ -235,18 +235,18 @@ jobs:
           build-args: |
             BASE_IMAGE=${{ steps.meta_parent.outputs.tags }}
           provenance: false
-          cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
-          cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new,mode=max
+          cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}
+          cache-to: type=local,dest=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-${{ matrix.platform }}-new,mode=max
 
-      # -
-      #   # Temp fix
-      #   # https://github.com/docker/build-push-action/issues/252
-      #   # https://github.com/moby/buildkit/issues/1896
-      #   name: Move cache
-      #   run: |
+      -
+        # Temp fix
+        # https://github.com/docker/build-push-action/issues/252
+        # https://github.com/moby/buildkit/issues/1896
+        name: Move cache
+        run: |
 
-      #     rm -rf ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
-      #     mv ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          rm -rf ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
+          mv ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}-new ${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
 
       - name: Export digest
         run: |
