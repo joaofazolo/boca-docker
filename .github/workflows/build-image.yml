@@ -169,7 +169,7 @@ jobs:
       - 
         name: Start local Docker registry (boca-base)
         run: |
-          echo ${cache_key}
+
           docker run --rm --detach --publish 5000:5000 \
             --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
             --name registry registry:2
@@ -181,7 +181,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.set-env.outputs.cache_path }}
-          key: ${{ runner.os }}-buildx-${{ steps.set-env.outputs.cache_key }}-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ matrix.image }}-${{ steps.set-env.outputs.release_name }}-${{ steps.set-env.outputs.arch_name }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
 
