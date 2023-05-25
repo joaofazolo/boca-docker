@@ -147,8 +147,8 @@ jobs:
             EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
             echo "cache-from<<${EOF}" >> "${GITHUB_OUTPUT}"
             printf '%s\n' \
-              "type=gha,scope=${{ github.ref_name }}-${{ matrix.image }}-${{ env.release_name }}-${{ env.arch_name }}" \
-              "type=gha,scope=${{ github.base_ref }}-${{ matrix.image }}-${{ env.release_name}}-${{ env.arch_name }}" \
+              "type=gha,scope=${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH" \
+              "type=gha,scope=${{ github.base_ref }}-${{ matrix.image }}-$RELEASE-$ARCH" \
               >> "${GITHUB_OUTPUT}"
             echo "${EOF}" >> "${GITHUB_OUTPUT}"
           fi
