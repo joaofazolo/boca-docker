@@ -2,6 +2,11 @@ name: Call a reusable workflow and use its outputs
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag (only one)"
+        required: true
+        type: string
 
 jobs:
   # Calling a reusable workflow
@@ -10,13 +15,25 @@ jobs:
     with:
       matrix-path: docker/build/matrix.json
 
-  build:
+  build-base:
     uses: ./.github/workflows/build-image.yml
     with:
       images: '[ "boca-base" ]'
       parents: ${{ needs.setup.outputs.parent }}
       default_parent: ${{ needs.setup.outputs.default_parent }}
       platforms: ${{ needs.setup.outputs.platform }}
-      tag: 'debug'
+      tag: ${{ inputs.tag }}
     needs:
       - setup
+
+  # build-web:
+  #   uses: ./.github/workflows/build-image.yml
+  #   with:
+  #     images: '[ "boca-web" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     default_parent: ${{ needs.setup.outputs.default_parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - build-base
+  #     - setup
