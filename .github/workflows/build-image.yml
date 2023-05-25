@@ -212,8 +212,8 @@ jobs:
           file: docker/dev/${{ env.folder_name }}/Dockerfile
           platforms: ${{ matrix.platform }}
           push: true
-          tags: ${{ steps.meta_local.outputs.tags }}
-          labels: ${{ steps.meta_local.outputs.labels }}
+          tags: ${{ steps.meta_base.outputs.tags }}
+          labels: ${{ steps.meta_base.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ matrix.parent }}
           cache-from: type=local,src=${{ env.CACHE_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}
@@ -229,7 +229,6 @@ jobs:
           context: .
           file: docker/dev/${{ env.folder_name }}/Dockerfile
           platforms: ${{ matrix.platform }}
-          push: true
           tags: |
             ${{ steps.meta_remote.outputs.tags }}
           labels: ${{ steps.meta_remote.outputs.labels }}
@@ -277,3 +276,45 @@ jobs:
       #   with:
       #     name: docker-registry-data
       #     path: ${{ env.REGISTRY_PATH }}/${{ matrix.image }}-${{ env.flavor_name }}/
+
+  push:
+    runs-on: ubuntu-latest
+    strategy:
+      # If is set to true (default), GitHub will cancel all in-progress and
+      # queued jobs in the matrix if any job in the matrix fails.
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(inputs.images) }}
+        parent: ${{ fromJSON(inputs.parents) }}
+    needs:
+      - build
+
+    steps:
+        # Download artifacts that have been uploaded from previous jobs
+        # https://github.com/actions/download-artifact
+        -
+          name: Download digests
+          uses: actions/download-artifact@v3
+          with:
+            name: digests
+            path: /tmp/digests/${{ matrix.image }}
+
+        -
+          name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v2
+          with:
+            driver-opts: network=host
+
+        - 
+          name: Extract Docker metadata (boca-base)
+          id: meta_base
+          uses: docker/metadata-action@v4
+          with:
+            images: localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base
+
+        - 
+          name: Create manifest list and push
+          working-directory: /tmp/digests/${{ matrix.image }}
+          run: |
+            docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< ${{ steps.meta_base.outputs.tags }}') \
+              $(printf 'localhost:5000/${{ env.REPOSITORY_NAME }}/boca-base@sha256:%s ' *)
