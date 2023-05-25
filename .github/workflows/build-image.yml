@@ -385,6 +385,7 @@ jobs:
         run: |
 
           docker image ls -a
+          curl https://localhost:5000//V2/_catalog
     
       - 
         name: Create manifest list and push
