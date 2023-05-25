@@ -130,7 +130,7 @@ jobs:
           # Set cache key
           CACHE_KEY="${{ matrix.image }}-$RELEASE-$ARCH"
           echo $CACHE_KEY
-          echo "cache_key=$CACHE_key" >> $GITHUB_OUTPUT
+          echo "cache_key=$CACHE_key" >> $GITHUB_ENV
 
           # Set image
           IMG='localhost:5000/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
@@ -169,7 +169,7 @@ jobs:
       - 
         name: Start local Docker registry (boca-base)
         run: |
-          echo ${{ steps.set-env.outputs.cache_key }}
+          echo ${{ env.cache_key }}
           docker run --rm --detach --publish 5000:5000 \
             --volume ${REGISTRY_PATH}/${image}-${release_name}:/var/lib/registry \
             --name registry registry:2
