@@ -10,6 +10,7 @@ on:
 
 jobs:
   # Calling a reusable workflow
+  # https://docs.github.com/en/actions/using-workflows/reusing-workflows
   setup:
     uses: ./.github/workflows/read-build-matrix-from-file.yml
     with:
@@ -30,6 +31,18 @@ jobs:
     uses: ./.github/workflows/build-image.yml
     with:
       images: '[ "boca-web" ]'
+      parents: ${{ needs.setup.outputs.parent }}
+      default_parent: ${{ needs.setup.outputs.default_parent }}
+      platforms: ${{ needs.setup.outputs.platform }}
+      tag: ${{ inputs.tag }}
+    needs:
+      - build-base
+      - setup
+
+  build-jail:
+    uses: ./.github/workflows/build-image.yml
+    with:
+      images: '[ "boca-jail" ]'
       parents: ${{ needs.setup.outputs.parent }}
       default_parent: ${{ needs.setup.outputs.default_parent }}
       platforms: ${{ needs.setup.outputs.platform }}
