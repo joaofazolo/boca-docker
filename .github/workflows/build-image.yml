@@ -346,7 +346,7 @@ jobs:
           echo "boca_base_img=$IMG" >> $GITHUB_OUTPUT
 
           # Set digests path
-          DIGESTS_PATH='${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-$RELEASE }}'
+          DIGESTS_PATH="${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
