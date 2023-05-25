@@ -402,6 +402,14 @@ jobs:
           images: ${{ steps.set-env.outputs.boca_image }}
 
       - 
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_HOST }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - 
         name: Create manifest list and push
         working-directory: ${{ steps.set-env.outputs.digests_path }}
         run: |
@@ -413,10 +421,3 @@ jobs:
         run: |
       
           docker buildx imagetools inspect '${{ steps.set-env.outputs.boca_image }}:${{ steps.meta.outputs.version }}'
-
-      - 
-        name: Stop local Docker registry
-        run: |
-
-          docker stop registry
-    
