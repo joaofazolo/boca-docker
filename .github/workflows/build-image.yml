@@ -122,7 +122,7 @@ jobs:
           echo "arch_name=$ARCH" >> $GITHUB_ENV
 
           # Set cache path
-          CACHE_PATH='${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-${RELEASE}-${ARCH}'
+          CACHE_PATH="${{ env.CACHE_BASE_PATH }}/${{ matrix.image }}-$RELEASE-$ARCH"
           echo $CACHE_PATH
           echo "cache_path=$CACHE_PATH" >> $GITHUB_OUTPUT
 
@@ -140,7 +140,7 @@ jobs:
           echo "folder_name=$DIR" >> $GITHUB_OUTPUT
 
           # Set digests path
-          DIGESTS_PATH='${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-${RELEASE}'
+          DIGESTS_PATH="${{ env.DIGEST_BASE_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
