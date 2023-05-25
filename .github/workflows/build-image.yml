@@ -133,6 +133,7 @@ jobs:
 
           # Set the cache-to output
           # https://docs.docker.com/build/cache/backends/gha/
+          echo $RELEASE
           echo '${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-${{ env.arch_name }}'
           echo '${{ github.ref_name }}-${{ matrix.image }}-${RELEASE}-${{ env.arch_name }}'
           echo '${{ github.ref_name }}-${{ matrix.image }}-$$RELEASE-${{ env.arch_name }}'
