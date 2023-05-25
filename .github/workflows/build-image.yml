@@ -128,7 +128,7 @@ jobs:
           echo "cache_path=$CACHE_PATH" >> $GITHUB_OUTPUT
 
           # Set cache key
-          CACHE_KEY="${{ runner.os }}-buildx-${{ matrix.parent }}-$RELEASE-$ARCH-${{ github.sha }}"
+          CACHE_KEY="${{ runner.os }}-buildx-${{ matrix.image }}-$RELEASE-$ARCH-${{ github.sha }}"
           echo $CACHE_KEY
           echo "cache_key=$CACHE_key" >> $GITHUB_OUTPUT
 
