@@ -113,6 +113,16 @@ jobs:
           echo $ARCH
           echo "arch_name=$ARCH" >> $GITHUB_OUTPUT
 
+          # Set base image (used in build)
+          if [[ '${{ matrix.image }}' == 'boca-base' ]];
+          then
+            BASE_IMAGE="${{ matrix.parent }}"
+          else
+            BASE_IMAGE="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/boca-base:${{ github.ref_name }}"
+          fi
+          echo $BASE_IMAGE
+          echo "base_image=$BASE_IMAGE" >> $GITHUB_OUTPUT
+
           # Set image
           IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}'
           echo $IMG
