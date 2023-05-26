@@ -1,4 +1,4 @@
-name: Call a reusable workflow and use its outputs
+name: CI
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -32,7 +32,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  vars:
+  prepare-tag:
     runs-on: ubuntu-latest
     # Map the workflow outputs to job outputs
     outputs:
@@ -56,7 +56,7 @@ jobs:
 
   # Calling a reusable workflow
   # https://docs.github.com/en/actions/using-workflows/reusing-workflows
-  setup:
+  prepare-matrix:
     uses: ./.github/workflows/read-matrix.yml
     with:
       matrix-path: docker/build/matrix.json
@@ -65,72 +65,72 @@ jobs:
     uses: ./.github/workflows/ghcr-image-build-push.yml
     with:
       images: '[ "boca-base" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ needs.vars.outputs.tag }}
+      parents: ${{ needs.prepare-matrix.outputs.parent }}
+      default_parent: ${{ needs.prepare-matrix.outputs.default_parent }}
+      platforms: ${{ needs.prepare-matrix.outputs.platform }}
+      tag: ${{ needs.prepare-tag.outputs.tag }}
     needs:
-      - vars
-      - setup
+      - prepare-tag
+      - prepare-matrix
 
   build-web:
     uses: ./.github/workflows/ghcr-image-build-push.yml
     with:
       images: '[ "boca-web" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ needs.vars.outputs.tag }}
+      parents: ${{ needs.prepare-matrix.outputs.parent }}
+      default_parent: ${{ needs.prepare-matrix.outputs.default_parent }}
+      platforms: ${{ needs.prepare-matrix.outputs.platform }}
+      tag: ${{ needs.prepare-tag.outputs.tag }}
     needs:
-      - vars
-      - setup
+      - prepare-tag
+      - prepare-matrix
       - build-base
 
   build-jail:
     uses: ./.github/workflows/ghcr-image-build-push.yml
     with:
       images: '[ "boca-jail" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ needs.vars.outputs.tag }}
+      parents: ${{ needs.prepare-matrix.outputs.parent }}
+      default_parent: ${{ needs.prepare-matrix.outputs.default_parent }}
+      platforms: ${{ needs.prepare-matrix.outputs.platform }}
+      tag: ${{ needs.prepare-tag.outputs.tag }}
     needs:
-      - vars
-      - setup
+      - prepare-tag
+      - prepare-matrix
       - build-base
 
   scan-base:
     uses: ./.github/workflows/ghcr-image-scanning.yml
     with:
       images: '[ "boca-base" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ needs.vars.outputs.tag }}
+      parents: ${{ needs.prepare-matrix.outputs.parent }}
+      platforms: ${{ needs.prepare-matrix.outputs.platform }}
+      tag: ${{ needs.prepare-tag.outputs.tag }}
     needs:
-      - vars
-      - setup
+      - prepare-tag
+      - prepare-matrix
       - build-base
 
   scan-web:
     uses: ./.github/workflows/ghcr-image-scanning.yml
     with:
       images: '[ "boca-web" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ needs.vars.outputs.tag }}
+      parents: ${{ needs.prepare-matrix.outputs.parent }}
+      platforms: ${{ needs.prepare-matrix.outputs.platform }}
+      tag: ${{ needs.prepare-tag.outputs.tag }}
     needs:
-      - vars
-      - setup
+      - prepare-tag
+      - prepare-matrix
       - build-web
 
   scan-jail:
     uses: ./.github/workflows/ghcr-image-scanning.yml
     with:
       images: '[ "boca-jail" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ needs.vars.outputs.tag }}
+      parents: ${{ needs.prepare-matrix.outputs.parent }}
+      platforms: ${{ needs.prepare-matrix.outputs.platform }}
+      tag: ${{ needs.prepare-tag.outputs.tag }}
     needs:
-      - vars
-      - setup
+      - prepare-tag
+      - prepare-matrix
       - build-jail
