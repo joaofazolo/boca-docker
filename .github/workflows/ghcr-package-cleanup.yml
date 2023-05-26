@@ -291,11 +291,11 @@ jobs:
 
             # Get digest key(s) of regular image (if not multi-arch)
             DIGESTKEYS="${DIGESTKEYS} \
-              `echo "${MANIFEST}" | \
+              `crane manifest ${IMG}:${version} | \
                 jq 'select (.config != null) | .config.digest'`"
             # or of multi-platform images builds
             DIGESTKEYS="${DIGESTKEYS} \
-              `echo "${MANIFEST}" | \
+              `crane manifest ${IMG}:${version} | \
                 jq 'select (.manifests != null) | .manifests[].digest'`"
           done
 
