@@ -42,7 +42,7 @@ env:
 jobs:
   # Calling a reusable workflow
   setup:
-    uses: ./.github/workflows/read-build-matrix-from-file.yml
+    uses: ./.github/workflows/read-matrix.yml
     with:
       matrix-path: docker/build/matrix.json
 
@@ -63,7 +63,7 @@ jobs:
     needs: setup
 
     steps:
-      # Setting an output parameter between jobs and/or workflows
+      # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
       - 
         name: Write package_name variable to GITHUB_ENV

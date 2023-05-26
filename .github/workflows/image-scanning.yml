@@ -60,9 +60,8 @@ jobs:
         platform: ${{ fromJSON(inputs.platforms) }}
 
     steps:
-      # Set environment variables and output parameters between steps
+      # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
-      # https://docs.github.com/en/actions/learn-github-actions/variables
       - 
         name: Write variables to GITHUB_OUTPUT
         id: setup

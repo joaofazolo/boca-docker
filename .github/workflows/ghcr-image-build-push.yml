@@ -66,7 +66,7 @@ jobs:
     name: build (${{ matrix.image }}, ${{ matrix.parent }})
 
     steps:
-      # Setting output parameters between jobs and/or workflows
+      # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
       - 
         name: Write variables to GITHUB_OUTPUT

@@ -49,7 +49,7 @@ jobs:
         name: Checkout repository
         uses: actions/checkout@v3
 
-      # Setting an output parameter between jobs and/or workflows
+      # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
       - 
         id: set-json
