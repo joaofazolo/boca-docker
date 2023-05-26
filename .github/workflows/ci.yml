@@ -50,29 +50,29 @@ jobs:
     needs:
       - setup
 
-  build-web:
-    uses: ./.github/workflows/ghcr-image-build-push.yml
-    with:
-      images: '[ "boca-web" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ inputs.tag }}
-    needs:
-      - setup
-      - build-base
+  # build-web:
+  #   uses: ./.github/workflows/ghcr-image-build-push.yml
+  #   with:
+  #     images: '[ "boca-web" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     default_parent: ${{ needs.setup.outputs.default_parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - setup
+  #     - build-base
 
-  build-jail:
-    uses: ./.github/workflows/ghcr-image-build-push.yml
-    with:
-      images: '[ "boca-jail" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ inputs.tag }}
-    needs:
-      - setup
-      - build-base
+  # build-jail:
+  #   uses: ./.github/workflows/ghcr-image-build-push.yml
+  #   with:
+  #     images: '[ "boca-jail" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     default_parent: ${{ needs.setup.outputs.default_parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - setup
+  #     - build-base
 
   scan-base:
     uses: ./.github/workflows/image-scanning.yml
