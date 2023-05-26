@@ -272,8 +272,8 @@ jobs:
           fi
           echo "${RELEASES[@]}"
 
-          # Init variable
-          DIGESTKEYS="bla"
+          # Unset variable
+          unset DIGESTKEYS
           # Set image
           IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
 
@@ -291,11 +291,11 @@ jobs:
 
             # Get digest key(s) of regular image (if not multi-arch)
             DIGESTKEYS="${DIGESTKEYS} \
-              `crane manifest ${IMG}:${version} | \
+              `echo $MANIFEST | \
                 jq 'select (.config != null) | .config.digest'`"
             # or of multi-platform images builds
             DIGESTKEYS="${DIGESTKEYS} \
-              `crane manifest ${IMG}:${version} | \
+              `echo $MANIFEST | \
                 jq 'select (.manifests != null) | .manifests[].digest'`"
           done
 
@@ -306,7 +306,7 @@ jobs:
           echo $DIGESTKEYS
 
           # Passing env variable between steps
-          echo "digest_keys=${DIGESTKEYS}" >> $GITHUB_OUTPUTS
+          echo "digest_keys=${DIGESTKEYS}" >> $GITHUB_OUTPUT
 
       - 
         name: Delete untagged Docker images on ghcr.io
