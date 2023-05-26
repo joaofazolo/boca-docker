@@ -70,6 +70,7 @@ jobs:
       platforms: ${{ needs.setup.outputs.platform }}
       tag: ${{ needs.vars.outputs.tag }}
     needs:
+      - vars
       - setup
 
   build-web:
@@ -81,6 +82,7 @@ jobs:
       platforms: ${{ needs.setup.outputs.platform }}
       tag: ${{ needs.vars.outputs.tag }}
     needs:
+      - vars
       - setup
       - build-base
 
@@ -93,6 +95,7 @@ jobs:
       platforms: ${{ needs.setup.outputs.platform }}
       tag: ${{ needs.vars.outputs.tag }}
     needs:
+      - vars
       - setup
       - build-base
 
@@ -104,6 +107,7 @@ jobs:
       platforms: ${{ needs.setup.outputs.platform }}
       tag: ${{ needs.vars.outputs.tag }}
     needs:
+      - vars
       - setup
       - build-base
 
@@ -115,6 +119,7 @@ jobs:
       platforms: ${{ needs.setup.outputs.platform }}
       tag: ${{ needs.vars.outputs.tag }}
     needs:
+      - vars
       - setup
       - build-web
 
@@ -126,5 +131,6 @@ jobs:
       platforms: ${{ needs.setup.outputs.platform }}
       tag: ${{ needs.vars.outputs.tag }}
     needs:
+      - vars
       - setup
       - build-jail
