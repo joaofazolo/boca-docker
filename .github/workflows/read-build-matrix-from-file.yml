@@ -12,6 +12,7 @@ name: Read build matrix from file
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
 on:
+  # Run as reusable workflow
   workflow_call:
     inputs:
       matrix-path:

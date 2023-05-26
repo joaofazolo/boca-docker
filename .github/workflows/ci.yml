@@ -1,6 +1,23 @@
 name: Call a reusable workflow and use its outputs
 
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub Actions Documentation
+# https://docs.github.com/en/github-ae@latest/actions
+
 on:
+  # Run daily at 9:15 AM UTC (nightly builds)
+  schedule:
+    # Publish "nightly" build as release
+    - cron: '15 9 * * *'
+  push:
+    # Publish semver tags as releases (e.g., 1.0.0)
+    tags: [ '*.*.*' ]
+  # or on button click
+  # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
   workflow_dispatch:
     inputs:
       tag:
@@ -23,7 +40,7 @@ jobs:
       matrix-path: docker/build/matrix.json
 
   build-base:
-    uses: ./.github/workflows/build-image.yml
+    uses: ./.github/workflows/ghcr-image-build-push.yml
     with:
       images: '[ "boca-base" ]'
       parents: ${{ needs.setup.outputs.parent }}
@@ -34,7 +51,7 @@ jobs:
       - setup
 
   build-web:
-    uses: ./.github/workflows/build-image.yml
+    uses: ./.github/workflows/ghcr-image-build-push.yml
     with:
       images: '[ "boca-web" ]'
       parents: ${{ needs.setup.outputs.parent }}
@@ -42,11 +59,11 @@ jobs:
       platforms: ${{ needs.setup.outputs.platform }}
       tag: ${{ inputs.tag }}
     needs:
-      - build-base
       - setup
+      - build-base
 
   build-jail:
-    uses: ./.github/workflows/build-image.yml
+    uses: ./.github/workflows/ghcr-image-build-push.yml
     with:
       images: '[ "boca-jail" ]'
       parents: ${{ needs.setup.outputs.parent }}
@@ -54,5 +71,16 @@ jobs:
       platforms: ${{ needs.setup.outputs.platform }}
       tag: ${{ inputs.tag }}
     needs:
-      - build-base
       - setup
+      - build-base
+
+  scan-base:
+    uses: ./.github/workflows/image-scanning.yml
+    with:
+      images: '[ "boca-base" ]'
+      parents: ${{ needs.setup.outputs.parent }}
+      platforms: ${{ needs.setup.outputs.platform }}
+      tag: ${{ inputs.tag }}
+    needs:
+      - setup
+      - build-base

@@ -1,4 +1,4 @@
-name: Build and publish multi-platform Docker images on ghcr.io
+name: Build and publish multi-platform Docker image on ghcr.io
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -12,6 +12,7 @@ name: Build and publish multi-platform Docker images on ghcr.io
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
 on:
+  # Run as reusable workflow
   workflow_call:
     inputs:
       images:
@@ -19,7 +20,7 @@ on:
         required: true
         type: string
       parents:
-        description: 'Matrix of parent/base images used is builds'
+        description: 'Matrix of parent/base images used in builds'
         required: true
         type: string
       default_parent:
@@ -42,9 +43,9 @@ env:
   REPOSITORY_NAME: ${{ github.repository }}
   # Use github.repository_owner (<account>)
   OWNER_NAME: ${{ github.repository_owner }}
-  # Use GitHub local cache exporter
+  # Use GitHub local artifacts
   DIGESTS_PATH: /tmp/digests
-
+     
 jobs:
   # Distribute build of each platform across multiple runners and push by digest
   build:

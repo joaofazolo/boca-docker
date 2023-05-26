@@ -8,11 +8,15 @@ name: Delete untagged and/or unsupported Docker images on ghcr.io
 # GitHub Actions Documentation
 # https://docs.github.com/en/github-ae@latest/actions
 
+# Reusing workflows
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
 on:
   # Run on every 15th day-of-month at 10:15 AM UTC
   schedule:
     - cron: '15 10 */15 * *'
   # on button click
+  # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
   workflow_dispatch:
     inputs:
       tags:
