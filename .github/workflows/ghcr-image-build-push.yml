@@ -175,9 +175,9 @@ jobs:
         with:
           images: ${{ steps.setup.outputs.image_name }}
           labels: |
-            org.opencontainers.image.title="${{ matrix.image }}"
-            org.opencontainers.image.description="A multi-platform/arch Docker component of the BOCA Online Contest Administrator"
-            org.opencontainers.image.url="${{ steps.setup.outputs.image_name }}"
+            org.opencontainers.image.title=${{ matrix.image }}
+            org.opencontainers.image.description=A multi-platform/arch Docker component of the BOCA Online Contest Administrator
+            org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
       - 
         name: Build and push image remotely (${{ matrix.image }})
