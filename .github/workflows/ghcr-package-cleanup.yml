@@ -236,17 +236,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # # Delete package versions
-      # # https://github.com/actions/delete-package-versions
-      # - 
-      #   name: Delete multiple specific Docker images on ghcr.io
-      #   uses: actions/delete-package-versions@v4
-      #   if: ${{ steps.unsupported.outputs.version_ids != '' }}
-      #   with:
-      #     package-version-ids: '${{ steps.unsupported.outputs.version_ids }}'
-      #     package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
-      #     package-type: 'container'
-      #     token: ${{ secrets.GITHUB_TOKEN }}
+      # Delete package versions
+      # https://github.com/actions/delete-package-versions
+      - 
+        name: Delete multiple specific Docker images on ghcr.io
+        uses: actions/delete-package-versions@v4
+        if: ${{ steps.unsupported.outputs.version_ids != '' }}
+        with:
+          package-version-ids: '${{ steps.unsupported.outputs.version_ids }}'
+          package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # - 
       #   name: Compile untagged versions/releases to ignore
