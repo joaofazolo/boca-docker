@@ -102,6 +102,79 @@ jobs:
       #     gh-cli-version: 2.14.2 # optional, see action.yml for current default
 
       - 
+        name: Compile untagged versions/releases to ignore
+        id: untagged
+        run: |
+
+          # Get supported releases
+          RELEASES=${{ toJSON(needs.setup.outputs.release) }}
+          # Remove square brackets and double quotes
+          RELEASES=$(echo $RELEASES | tr -d "[]|\"")
+          # Split string into an array
+          IFS=', ' read -r -a RELEASES <<< "$RELEASES"
+          # Include custom tags provided as argument
+          echo "${{ inputs.tags }}"
+          if [ ! -z "${{ inputs.tags }}" ];
+          then
+            read -a TAGS <<< "${{ inputs.tags }}"
+            for tag in ${TAGS[@]};
+            do
+              echo "${tag}"
+              RELEASES+=("$tag")
+            done
+          fi
+          echo "${RELEASES[@]}"
+
+          # Unset variable
+          unset DIGESTKEYS
+          # Set image
+          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+
+          # Iterate over releases to get digests
+          for version in ${RELEASES[@]};
+          do
+            echo "${version}"
+
+            # If manifest does not exist just skip image
+            MANIFEST=$(crane manifest ${IMG}:${version} || echo "")
+            if [ -z "${MANIFEST}" ];
+            then
+              continue
+            fi
+
+            # Get digest key(s) of regular image (if not multi-arch)
+            DIGESTKEYS="${DIGESTKEYS} \
+              `echo $MANIFEST | \
+                jq 'select (.config != null) | .config.digest'`"
+            # or of multi-platform images builds
+            DIGESTKEYS="${DIGESTKEYS} \
+              `echo $MANIFEST | \
+                jq 'select (.manifests != null) | .manifests[].digest'`"
+          done
+
+          # Remove newlines, tabs, carriage returns and double quotes
+          DIGESTKEYS=$(echo $DIGESTKEYS | tr -d "\n\t\r|\"")
+          # Replace white spaces with '|'
+          DIGESTKEYS="${DIGESTKEYS// /|}"
+          echo $DIGESTKEYS
+
+          # Passing env variable between steps
+          echo "digest_keys=${DIGESTKEYS}" >> $GITHUB_OUTPUT
+
+      # Delete package versions
+      # https://github.com/actions/delete-package-versions
+      - 
+        name: Delete untagged Docker images on ghcr.io
+        uses: actions/delete-package-versions@v4
+        if: ${{ steps.untagged.outputs.digest_keys != '' }}
+        with:
+          package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
+          package-type: 'container'
+          delete-only-untagged-versions: 'true'
+          ignore-versions: '${{ steps.untagged.outputs.digest_keys }}'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - 
         name: Compile unsupported versions/releases to delete
         id: unsupported
         run: |
@@ -237,8 +310,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Delete package versions
-      # https://github.com/actions/delete-package-versions
       - 
         name: Delete multiple specific Docker images on ghcr.io
         uses: actions/delete-package-versions@v4
@@ -247,75 +318,4 @@ jobs:
           package-version-ids: '${{ steps.unsupported.outputs.version_ids }}'
           package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
           package-type: 'container'
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - 
-        name: Compile untagged versions/releases to ignore
-        id: untagged
-        run: |
-
-          # Get supported releases
-          RELEASES=${{ toJSON(needs.setup.outputs.release) }}
-          # Remove square brackets and double quotes
-          RELEASES=$(echo $RELEASES | tr -d "[]|\"")
-          # Split string into an array
-          IFS=', ' read -r -a RELEASES <<< "$RELEASES"
-          # Include custom tags provided as argument
-          echo "${{ inputs.tags }}"
-          if [ ! -z "${{ inputs.tags }}" ];
-          then
-            read -a TAGS <<< "${{ inputs.tags }}"
-            for tag in ${TAGS[@]};
-            do
-              echo "${tag}"
-              RELEASES+=("$tag")
-            done
-          fi
-          echo "${RELEASES[@]}"
-
-          # Unset variable
-          unset DIGESTKEYS
-          # Set image
-          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
-
-          # Iterate over releases to get digests
-          for version in ${RELEASES[@]};
-          do
-            echo "${version}"
-
-            # If manifest does not exist just skip image
-            MANIFEST=$(crane manifest ${IMG}:${version} || echo "")
-            if [ -z "${MANIFEST}" ];
-            then
-              continue
-            fi
-
-            # Get digest key(s) of regular image (if not multi-arch)
-            DIGESTKEYS="${DIGESTKEYS} \
-              `echo $MANIFEST | \
-                jq 'select (.config != null) | .config.digest'`"
-            # or of multi-platform images builds
-            DIGESTKEYS="${DIGESTKEYS} \
-              `echo $MANIFEST | \
-                jq 'select (.manifests != null) | .manifests[].digest'`"
-          done
-
-          # Remove newlines, tabs, carriage returns and double quotes
-          DIGESTKEYS=$(echo $DIGESTKEYS | tr -d "\n\t\r|\"")
-          # Replace white spaces with '|'
-          DIGESTKEYS="${DIGESTKEYS// /|}"
-          echo $DIGESTKEYS
-
-          # Passing env variable between steps
-          echo "digest_keys=${DIGESTKEYS}" >> $GITHUB_OUTPUT
-
-      - 
-        name: Delete untagged Docker images on ghcr.io
-        uses: actions/delete-package-versions@v4
-        if: ${{ steps.untagged.outputs.digest_keys != '' }}
-        with:
-          package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
-          package-type: 'container'
-          delete-only-untagged-versions: 'true'
-          ignore-versions: '${{ steps.untagged.outputs.digest_keys }}'
           token: ${{ secrets.GITHUB_TOKEN }}
