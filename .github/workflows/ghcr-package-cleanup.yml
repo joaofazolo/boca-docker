@@ -13,8 +13,8 @@ name: Delete untagged and/or unsupported Docker images on ghcr.io
 
 on:
   # Run on every 15th day-of-month at 10:15 AM UTC
-  # schedule:
-  #   - cron: '15 10 */15 * *'
+  schedule:
+    - cron: '15 10 */15 * *'
   # on button click
   # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
   workflow_dispatch:
@@ -58,8 +58,8 @@ jobs:
       matrix:
         image:
           - boca-base
-          # - boca-web
-          # - boca-jail
+          - boca-web
+          - boca-jail
     needs: setup
 
     steps:
