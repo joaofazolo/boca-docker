@@ -272,8 +272,8 @@ jobs:
           fi
           echo "${RELEASES[@]}"
 
-          # Unset variable
-          unset DIGESTKEYS
+          # Init variable
+          DIGESTKEYS=""
           # Set image
           IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
 
