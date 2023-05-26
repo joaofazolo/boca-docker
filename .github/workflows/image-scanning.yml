@@ -75,7 +75,6 @@ jobs:
           echo $RELEASE
           echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
 
-          #IMG=:${{github.ref_name}}-$PARENT
           # Set image
           IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{ inputs.tag }}-$RELEASE"
           echo $IMG
