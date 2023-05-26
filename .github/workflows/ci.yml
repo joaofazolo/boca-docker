@@ -48,85 +48,85 @@ jobs:
           echo $TAG
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - 
-        name: Check output
-        env:
-          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
-        run: |
-          echo $RELEASE_VERSION
-          echo ${{ steps.vars.outputs.tag }}
+  #     - 
+  #       name: Check output
+  #       env:
+  #         RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+  #       run: |
+  #         echo $RELEASE_VERSION
+  #         echo ${{ steps.vars.outputs.tag }}
 
-  # Calling a reusable workflow
-  # https://docs.github.com/en/actions/using-workflows/reusing-workflows
-  setup:
-    uses: ./.github/workflows/read-matrix.yml
-    with:
-      matrix-path: docker/build/matrix.json
+  # # Calling a reusable workflow
+  # # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+  # setup:
+  #   uses: ./.github/workflows/read-matrix.yml
+  #   with:
+  #     matrix-path: docker/build/matrix.json
 
-  build-base:
-    uses: ./.github/workflows/ghcr-image-build-push.yml
-    with:
-      images: '[ "boca-base" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ inputs.tag }}
-    needs:
-      - setup
+  # build-base:
+  #   uses: ./.github/workflows/ghcr-image-build-push.yml
+  #   with:
+  #     images: '[ "boca-base" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     default_parent: ${{ needs.setup.outputs.default_parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - setup
 
-  build-web:
-    uses: ./.github/workflows/ghcr-image-build-push.yml
-    with:
-      images: '[ "boca-web" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ inputs.tag }}
-    needs:
-      - setup
-      - build-base
+  # build-web:
+  #   uses: ./.github/workflows/ghcr-image-build-push.yml
+  #   with:
+  #     images: '[ "boca-web" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     default_parent: ${{ needs.setup.outputs.default_parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - setup
+  #     - build-base
 
-  build-jail:
-    uses: ./.github/workflows/ghcr-image-build-push.yml
-    with:
-      images: '[ "boca-jail" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      default_parent: ${{ needs.setup.outputs.default_parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ inputs.tag }}
-    needs:
-      - setup
-      - build-base
+  # build-jail:
+  #   uses: ./.github/workflows/ghcr-image-build-push.yml
+  #   with:
+  #     images: '[ "boca-jail" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     default_parent: ${{ needs.setup.outputs.default_parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - setup
+  #     - build-base
 
-  scan-base:
-    uses: ./.github/workflows/image-scanning.yml
-    with:
-      images: '[ "boca-base" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ inputs.tag }}
-    needs:
-      - setup
-      - build-base
+  # scan-base:
+  #   uses: ./.github/workflows/ghcr-image-scanning.yml
+  #   with:
+  #     images: '[ "boca-base" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - setup
+  #     - build-base
 
-  scan-web:
-    uses: ./.github/workflows/image-scanning.yml
-    with:
-      images: '[ "boca-web" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ inputs.tag }}
-    needs:
-      - setup
-      - build-web
+  # scan-web:
+  #   uses: ./.github/workflows/ghcr-image-scanning.yml
+  #   with:
+  #     images: '[ "boca-web" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - setup
+  #     - build-web
 
-  scan-jail:
-    uses: ./.github/workflows/image-scanning.yml
-    with:
-      images: '[ "boca-jail" ]'
-      parents: ${{ needs.setup.outputs.parent }}
-      platforms: ${{ needs.setup.outputs.platform }}
-      tag: ${{ inputs.tag }}
-    needs:
-      - setup
-      - build-jail
+  # scan-jail:
+  #   uses: ./.github/workflows/ghcr-image-scanning.yml
+  #   with:
+  #     images: '[ "boca-jail" ]'
+  #     parents: ${{ needs.setup.outputs.parent }}
+  #     platforms: ${{ needs.setup.outputs.platform }}
+  #     tag: ${{ inputs.tag }}
+  #   needs:
+  #     - setup
+  #     - build-jail
