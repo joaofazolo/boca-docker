@@ -198,6 +198,7 @@ jobs:
               if [[ " ${RELEASES[*]} " =~ " ${curr} " ]];
               then
                 SHARED=true
+                echo "WoW"
                 break
               fi
             done
