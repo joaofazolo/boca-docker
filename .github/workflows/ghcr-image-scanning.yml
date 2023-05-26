@@ -112,7 +112,7 @@ jobs:
           docker image ls -a
 
       # Run Trivy vulnerability scanner on image
-      # https://github.com/marketplace/actions/aqua-security-trivy
+      # https://github.com/aquasecurity/trivy-action
       - 
         name: Run Trivy vulnerability scanner on image
         uses: aquasecurity/trivy-action@master

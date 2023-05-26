@@ -78,7 +78,7 @@ jobs:
           echo "package_name=${PACKAGE}" >> $GITHUB_OUTPUT
 
       # Set up GitHub Actions workflow with a specific version of Go
-      # https://github.com/marketplace/actions/setup-go-environment
+      # https://github.com/actions/setup-go
       - 
         uses: actions/setup-go@v4
         with:

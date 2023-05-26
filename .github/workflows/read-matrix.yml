@@ -44,7 +44,7 @@ jobs:
 
     steps:
       # Checkout a repository, so the workflow can access it
-      # https://github.com/marketplace/actions/checkout
+      # https://github.com/actions/checkout
       - 
         name: Checkout repository
         uses: actions/checkout@v3
