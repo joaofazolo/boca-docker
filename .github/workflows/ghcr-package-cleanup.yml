@@ -210,7 +210,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Delete package versions
-      # https://github.com/marketplace/actions/delete-package-versions
+      # https://github.com/actions/delete-package-versions
       - 
         name: Delete multiple specific Docker images on ghcr.io
         uses: actions/delete-package-versions@v4
