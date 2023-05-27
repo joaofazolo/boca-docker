@@ -187,7 +187,7 @@ jobs:
           context: .
           file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
           platforms: ${{ matrix.platform }}
-          # labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.setup.outputs.base_image }}
           outputs: type=image,name=${{ steps.setup.outputs.image_name }},push-by-digest=true,name-canonical=true,push=true
@@ -195,7 +195,7 @@ jobs:
             ${{ steps.setup.outputs.cache-from }}
           cache-to: |
             ${{ steps.setup.outputs.cache-to }}
-    
+
       - name: Export digest
         run: |
 
