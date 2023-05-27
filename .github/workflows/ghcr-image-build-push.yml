@@ -255,20 +255,20 @@ jobs:
 
           # Unset variable
           unset EXTRATAGS
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           for tag in ${TAGS[@]};
           do
             echo "${tag}"
 
-            EXTRATAGS=`cat <<EOF
+            EXTRATAGS="
               ${EXTRATAGS} \
               type=raw,value=${tag},enable=${{ matrix.parent == inputs.default_parent }} \
-              type=raw,value=${tag},suffix=-${RELEASE},enable=true`
+              type=raw,value=${tag},suffix=-${RELEASE},enable=true"
           done
-            
+  
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
           printf '%s\n' \
-            ${EXTRATAGS}
+            ${EXTRATAGS} \
             >> "${GITHUB_OUTPUT}"
           echo "${EOF}" >> "${GITHUB_OUTPUT}"
 
