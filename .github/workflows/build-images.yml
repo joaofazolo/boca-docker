@@ -192,7 +192,7 @@ jobs:
             BASE_IMAGE=${{ steps.setup.outputs.base_image }}
           # If true, it provides build attestations describing the image
           # contents and how they were built.
-          provenance: false
+          # provenance: false
           outputs: type=image,name=${{ steps.setup.outputs.image_name }},push-by-digest=true,name-canonical=true,push=true
           cache-from: |
             ${{ steps.setup.outputs.cache-from }}
