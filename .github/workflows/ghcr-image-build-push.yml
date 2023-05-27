@@ -272,7 +272,6 @@ jobs:
             >> "${GITHUB_OUTPUT}"
           echo "${EOF}" >> "${GITHUB_OUTPUT}"
 
-
       # Download artifacts that have been uploaded from previous jobs
       # https://github.com/actions/download-artifact
       -
