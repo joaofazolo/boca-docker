@@ -306,7 +306,7 @@ jobs:
             # branch event
             type=ref,event=branch,priority=900,suffix=-${{ steps.setup.outputs.release_name }}
             type=ref,event=branch,priority=1000,enable=${{ matrix.parent == inputs.default_parent }}
-            # workflow_dispatch (debug)
+            # extra tags
             ${{ steps.setup.outputs.extra_tags }}
           flavor: |
             latest=${{ matrix.parent == inputs.default_parent && github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
