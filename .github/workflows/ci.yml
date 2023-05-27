@@ -46,7 +46,7 @@ jobs:
         id: set-tags
         run: |
 
-          TAGS=${{ inputs.tags }}
+          TAGS="${{ inputs.tags }}"
           if [ -z "${TAGS}" ];
           then
             TAGS="${GITHUB_REF#refs/*/}"
