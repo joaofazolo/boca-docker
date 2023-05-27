@@ -62,7 +62,7 @@ jobs:
       matrix-path: docker/build/matrix.json
 
   build-base:
-    uses: ./.github/workflows/ghcr-image-build-push.yml
+    uses: ./.github/workflows/build-images.yml
     with:
       images: '[ "boca-base" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -74,7 +74,7 @@ jobs:
       - setup-matrix
 
   build-web:
-    uses: ./.github/workflows/ghcr-image-build-push.yml
+    uses: ./.github/workflows/build-images.yml
     with:
       images: '[ "boca-web" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -87,7 +87,7 @@ jobs:
       - build-base
 
   build-jail:
-    uses: ./.github/workflows/ghcr-image-build-push.yml
+    uses: ./.github/workflows/build-images.yml
     with:
       images: '[ "boca-jail" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -100,7 +100,7 @@ jobs:
       - build-base
 
   scan-base:
-    uses: ./.github/workflows/ghcr-image-scanning.yml
+    uses: ./.github/workflows/scan-images.yml
     with:
       images: '[ "boca-base" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -112,7 +112,7 @@ jobs:
       - build-base
 
   scan-web:
-    uses: ./.github/workflows/ghcr-image-scanning.yml
+    uses: ./.github/workflows/scan-images.yml
     with:
       images: '[ "boca-web" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -124,7 +124,7 @@ jobs:
       - build-web
 
   scan-jail:
-    uses: ./.github/workflows/ghcr-image-scanning.yml
+    uses: ./.github/workflows/scan-images.yml
     with:
       images: '[ "boca-jail" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
