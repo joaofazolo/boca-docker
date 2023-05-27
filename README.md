@@ -1,23 +1,19 @@
-[![GitHub release][release_badge]][release_link]
-[![License][license_badge]][license_link]
 [![Build and publish multi-platform_Docker images on ghcr.io workflow][build_publish_workflow_badge]][build_publish_workflow_link]
-[![Delete GitHub Actions caches for repository workflow][cache_cleanup_workflow_badge]][cache_cleanup_workflow_link]
+[![Delete GitHub Actions cache for repository workflow][cache_cleanup_workflow_badge]][cache_cleanup_workflow_link]
 [![Delete_untagged_and/or_unsupported_Docker_images_on_ghcr.io_workflow][packages_cleanup_workflow_badge]][packages_cleanup_workflow_link]
+
 [![Ubuntu JAMMY][ubuntu_jammy_badge]][ubuntu_jammy_link]
 [![Ubuntu FOCAL][ubuntu_focal_badge]][ubuntu_focal_link]
 [![Multi-Architecture][arch_badge]][arch_link]
+
 [![Google_Groups][groups_badge]][groups_link]
 
-[release_badge]: https://img.shields.io/github/release/joaofazolo/boca-docker.svg?color=blue
-[release_link]: https://github.com/joaofazolo/boca-docker/releases/latest "latest release"
-[license_badge]: https://img.shields.io/github/license/joaofazolo/boca-docker?color=blue
-[license_link]: https://github.com/joaofazolo/boca-docker/blob/builds/LICENSE "License"
-[build_publish_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-build-publish.yml?label=build%20and%20publish&logo=github
-[build_publish_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=build "build and publish images"
-[cache_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-cache-cleanup.yml?label=cache%20cleanup&logo=github
-[cache_cleanup_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=delete%20github "delete workflow caches"
-[packages_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ghcr-docker-delete-deprecated.yml?label=packages%20cleanup&logo=github
-[packages_cleanup_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=delete%20untagged "delete deprecated images"
+[build_publish_workflow_badge]: https://img.shields.io/github/actions/workflow/status/rlaiola/boca-docker/ci.yml?label=image%20builds&logo=github
+[build_publish_workflow_link]: https://github.com/rlaiola/boca-docker/actions?workflow=CI "build and publish multi-platform images"
+[cache_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/rlaiola/boca-docker/clean-cache.yml?label=cache%20cleanup&logo=github
+[cache_cleanup_workflow_link]: https://github.com/rlaiola/boca-docker/actions?workflow=delete%20GitHub "delete github actions cache"
+[packages_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/rlaiola/boca-docker/clean-packages.yml?label=packages%20cleanup&logo=github
+[packages_cleanup_workflow_link]: https://github.com/rlaiola/boca-docker/actions?workflow=delete%20untagged "delete untagged/unsupported images"
 [ubuntu_jammy_badge]: https://img.shields.io/badge/ubuntu-jammy-E95420.svg?logo=Ubuntu
 [ubuntu_focal_badge]: https://img.shields.io/badge/ubuntu-focal-E95420.svg?logo=Ubuntu
 [ubuntu_jammy_link]: https://hub.docker.com/_/ubuntu/tags?page=1&name=jammy "ubuntu:jammy image"
