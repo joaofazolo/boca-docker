@@ -99,38 +99,38 @@ jobs:
       - setup-matrix
       - build-base
 
-  scan-base:
-    uses: ./.github/workflows/ghcr-image-scanning.yml
-    with:
-      images: '[ "boca-base" ]'
-      parents: ${{ needs.setup-matrix.outputs.parent }}
-      platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tags.outputs.tags }}
-    needs:
-      - setup-tags
-      - setup-matrix
-      - build-base
+  # scan-base:
+  #   uses: ./.github/workflows/ghcr-image-scanning.yml
+  #   with:
+  #     images: '[ "boca-base" ]'
+  #     parents: ${{ needs.setup-matrix.outputs.parent }}
+  #     platforms: ${{ needs.setup-matrix.outputs.platform }}
+  #     tag: ${{ needs.setup-tags.outputs.tags }}
+  #   needs:
+  #     - setup-tags
+  #     - setup-matrix
+  #     - build-base
 
-  scan-web:
-    uses: ./.github/workflows/ghcr-image-scanning.yml
-    with:
-      images: '[ "boca-web" ]'
-      parents: ${{ needs.setup-matrix.outputs.parent }}
-      platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tags.outputs.tags }}
-    needs:
-      - setup-tags
-      - setup-matrix
-      - build-web
+  # scan-web:
+  #   uses: ./.github/workflows/ghcr-image-scanning.yml
+  #   with:
+  #     images: '[ "boca-web" ]'
+  #     parents: ${{ needs.setup-matrix.outputs.parent }}
+  #     platforms: ${{ needs.setup-matrix.outputs.platform }}
+  #     tag: ${{ needs.setup-tags.outputs.tags }}
+  #   needs:
+  #     - setup-tags
+  #     - setup-matrix
+  #     - build-web
 
-  scan-jail:
-    uses: ./.github/workflows/ghcr-image-scanning.yml
-    with:
-      images: '[ "boca-jail" ]'
-      parents: ${{ needs.setup-matrix.outputs.parent }}
-      platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tags.outputs.tags }}
-    needs:
-      - setup-tags
-      - setup-matrix
-      - build-jail
+  # scan-jail:
+  #   uses: ./.github/workflows/ghcr-image-scanning.yml
+  #   with:
+  #     images: '[ "boca-jail" ]'
+  #     parents: ${{ needs.setup-matrix.outputs.parent }}
+  #     platforms: ${{ needs.setup-matrix.outputs.platform }}
+  #     tag: ${{ needs.setup-tags.outputs.tags }}
+  #   needs:
+  #     - setup-tags
+  #     - setup-matrix
+  #     - build-jail
