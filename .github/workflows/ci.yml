@@ -20,8 +20,8 @@ on:
   # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Image tag (only one)"
+      tags:
+        description: "Image tags (whitespace-separated)"
         required: true
         type: string
 
@@ -32,11 +32,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  setup-tag:
+  setup-tags:
     runs-on: ubuntu-latest
     # Map the workflow outputs to job outputs
     outputs:
-      tag: ${{ steps.set-tag.outputs.tag }}
+      tags: ${{ steps.set-tag.outputs.tags }}
 
     steps:
       # Setting output parameters between steps, jobs and/or workflows
@@ -46,13 +46,13 @@ jobs:
         id: set-tag
         run: |
 
-          TAG=${{ inputs.tag }}
-          if [ -z "${TAG}" ];
+          TAGS=${{ inputs.tags }}
+          if [ -z "${TAGS}" ];
           then
-            TAG="${GITHUB_REF#refs/*/}"
+            TAGS="${GITHUB_REF#refs/*/}"
           fi
-          echo $TAG
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo $TAGS
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
   # Calling a reusable workflow
   # https://docs.github.com/en/actions/using-workflows/reusing-workflows
@@ -68,9 +68,9 @@ jobs:
       parents: ${{ needs.setup-matrix.outputs.parent }}
       default_parent: ${{ needs.setup-matrix.outputs.default_parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tag.outputs.tag }}
+      tags: ${{ needs.setup-tags.outputs.tags }}
     needs:
-      - setup-tag
+      - setup-tags
       - setup-matrix
 
   build-web:
@@ -80,9 +80,9 @@ jobs:
       parents: ${{ needs.setup-matrix.outputs.parent }}
       default_parent: ${{ needs.setup-matrix.outputs.default_parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tag.outputs.tag }}
+      tags: ${{ needs.setup-tags.outputs.tags }}
     needs:
-      - setup-tag
+      - setup-tags
       - setup-matrix
       - build-base
 
@@ -93,9 +93,9 @@ jobs:
       parents: ${{ needs.setup-matrix.outputs.parent }}
       default_parent: ${{ needs.setup-matrix.outputs.default_parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tag.outputs.tag }}
+      tags: ${{ needs.setup-tags.outputs.tags }}
     needs:
-      - setup-tag
+      - setup-tags
       - setup-matrix
       - build-base
 
@@ -105,9 +105,9 @@ jobs:
       images: '[ "boca-base" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tag.outputs.tag }}
+      tag: ${{ needs.setup-tags.outputs.tags }}
     needs:
-      - setup-tag
+      - setup-tags
       - setup-matrix
       - build-base
 
@@ -117,9 +117,9 @@ jobs:
       images: '[ "boca-web" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tag.outputs.tag }}
+      tag: ${{ needs.setup-tags.outputs.tags }}
     needs:
-      - setup-tag
+      - setup-tags
       - setup-matrix
       - build-web
 
@@ -129,8 +129,8 @@ jobs:
       images: '[ "boca-jail" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
-      tag: ${{ needs.setup-tag.outputs.tag }}
+      tag: ${{ needs.setup-tags.outputs.tags }}
     needs:
-      - setup-tag
+      - setup-tags
       - setup-matrix
       - build-jail

@@ -31,8 +31,8 @@ on:
         description: "Matrix of target os/platform-specific (multi-arch)"
         required: true
         type: string
-      tag:
-        description: "Image tag"
+      tags:
+        description: "Image tags"
         required: true
         type: string
 
@@ -247,6 +247,32 @@ jobs:
           echo $DIGESTS_PATH
           echo "digests_path=$DIGESTS_PATH" >> $GITHUB_OUTPUT
 
+          # Set tags
+          TAGS="${{ inputs.tags }}"
+          echo $TAGS
+          # Split string into an array
+          IFS=', ' read -r -a TAGS <<< "$TAGS"
+
+          # Unset variable
+          unset EXTRATAGS
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          for tag in ${TAGS[@]};
+          do
+            echo "${tag}"
+
+            EXTRATAGS=`cat <<EOF
+              ${EXTRATAGS} \
+              type=raw,value=${tag},enable=${{ matrix.parent == inputs.default_parent }} \
+              type=raw,value=${tag},suffix=-${RELEASE},enable=true`
+          done
+            
+          echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
+          printf '%s\n' \
+            ${EXTRATAGS}
+            >> "${GITHUB_OUTPUT}"
+          echo "${EOF}" >> "${GITHUB_OUTPUT}"
+
+
       # Download artifacts that have been uploaded from previous jobs
       # https://github.com/actions/download-artifact
       -
@@ -279,11 +305,12 @@ jobs:
             type=ref,event=tag,priority=900,suffix=-${{ steps.setup.outputs.release_name }}
             type=ref,event=tag,priority=1000,enable=${{ matrix.parent == inputs.default_parent }}
             # workflow_dispatch (debug)
-            type=raw,value=${{ inputs.tag }},enable=${{ matrix.parent == inputs.default_parent && github.event_name == 'workflow_dispatch' }}
-            type=raw,value=${{ inputs.tag }},suffix=-${{ steps.setup.outputs.release_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            # type=raw,value=${{ inputs.tag }},enable=${{ matrix.parent == inputs.default_parent && github.event_name == 'workflow_dispatch' }}
+            # type=raw,value=${{ inputs.tag }},suffix=-${{ steps.setup.outputs.release_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
             # branch event
             type=ref,event=branch,priority=900,suffix=-${{ steps.setup.outputs.release_name }}
             type=ref,event=branch,priority=1000,enable=${{ matrix.parent == inputs.default_parent }}
+            ${{ steps.setup.outputs.extra_tags }}
           flavor: |
             latest=${{ matrix.parent == inputs.default_parent && github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
           labels: |
