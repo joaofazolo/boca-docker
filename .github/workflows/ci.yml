@@ -36,14 +36,14 @@ jobs:
     runs-on: ubuntu-latest
     # Map the workflow outputs to job outputs
     outputs:
-      tags: ${{ steps.set-tag.outputs.tags }}
+      tags: ${{ steps.set-tags.outputs.tags }}
 
     steps:
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
       - 
-        name: Set tag
-        id: set-tag
+        name: Set tags
+        id: set-tags
         run: |
 
           TAGS=${{ inputs.tags }}
