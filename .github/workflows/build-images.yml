@@ -288,7 +288,7 @@ jobs:
           # https://github.com/docker/metadata-action#latest-tag
           EXTRATAGS="
               ${EXTRATAGS} \
-              type=raw,value=latest,priority=1000,enable=${{ matrix.parent == inputs.default_parent && inputs.latest == 'true' }}"
+              type=raw,value=latest,priority=1000,enable=${{ matrix.parent == inputs.default_parent && inputs.latest == true }}"
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
