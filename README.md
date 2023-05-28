@@ -8,11 +8,11 @@
 
 [![Google_Groups][groups_badge]][groups_link]
 
-[build_publish_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ci.yml?label=image%20builds&logo=github
+[build_publish_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/ci.yml?label=build%20images&logo=github
 [build_publish_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=CI "build and publish multi-platform images"
-[cache_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/clean-cache.yml?label=cache%20cleanup&logo=github
+[cache_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/clean-cache.yml?label=clean%20cache&logo=github
 [cache_cleanup_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=delete%20GitHub "delete github actions cache"
-[packages_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/clean-packages.yml?label=packages%20cleanup&logo=github
+[packages_cleanup_workflow_badge]: https://img.shields.io/github/actions/workflow/status/joaofazolo/boca-docker/clean-packages.yml?label=clean%20packages&logo=github
 [packages_cleanup_workflow_link]: https://github.com/joaofazolo/boca-docker/actions?workflow=delete%20untagged "delete untagged/unsupported images"
 [ubuntu_jammy_badge]: https://img.shields.io/badge/ubuntu-jammy-E95420.svg?logo=Ubuntu
 [ubuntu_focal_badge]: https://img.shields.io/badge/ubuntu-focal-E95420.svg?logo=Ubuntu
