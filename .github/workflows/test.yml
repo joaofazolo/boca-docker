@@ -26,12 +26,14 @@ jobs:
         id: set-tag
         run: |
 
-          TAGS="1.2.0"
-          if [ -z "${TAGS}" ];
-          then
-            TAGS="${GITHUB_REF#refs/*/}"
-          fi
-          echo $TAGS
+          # e.g., 1.0.2
+          LATEST_VERSION="1.2.0"
+          echo ${LATEST_VERSION}
+          # e.g., 1.0
+          SHORT_VERSION=${LATEST_VERSION%.*}
+          echo ${SHORT_VERSION}
+          #
+          TAGS="${LATEST_VERSION} ${SHORT_VERSION}"
           echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
   use-tag:
@@ -52,21 +54,22 @@ jobs:
 
           # Unset variable
           unset EXTRATAGS
+          # Set tags dinamically
           for tag in ${TAGS[@]};
           do
             echo "${tag}"
 
             EXTRATAGS="
               ${EXTRATAGS} \
-              type=raw,value=${tag},enable=true \
-              type=raw,value=${tag},suffix=-jammy,enable=true"
+              type=raw,value=${tag},priority=1000,enable=true \
+              type=raw,value=${tag},priority=900,suffix=-jammy,enable=true"
           done
 
           # Latest tag
           # https://github.com/docker/metadata-action#latest-tag
           EXTRATAGS="
               ${EXTRATAGS} \
-              type=raw,value=latest,enable=true"
+              type=raw,value=latest,priority=1000,enable=true"
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
@@ -98,14 +101,6 @@ jobs:
         with:
           images: ghcr.io/rlaiola/boca-docker/boca-base
           tags: |
-            # new release
-            type=semver,pattern={{raw}},priority=900,suffix=-jammy
-            type=semver,pattern={{raw}},priority=1000,enable=true
-            type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-jammy
-            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=true
-            # tag event (same as new release)
-            type=ref,event=tag,priority=900,suffix=-jammy
-            type=ref,event=tag,priority=1000,enable=true
             # branch event
             type=ref,event=branch,priority=900,suffix=-jammy
             type=ref,event=branch,priority=1000,enable=true
