@@ -68,7 +68,7 @@ jobs:
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
       - 
-        name: Set inputs
+        name: Prepare inputs
         id: set-inputs
         run: |
 
