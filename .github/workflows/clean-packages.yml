@@ -16,8 +16,8 @@ on:
   schedule:
     - cron: '15 10 */15 * *'
   # on button click
-  # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
   workflow_dispatch:
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
     inputs:
       tags:
         description: 'Spare unsupported tags (whitespace-separated)'
@@ -25,6 +25,7 @@ on:
         type: string
   # or on calling as reusable workflow
   workflow_call:
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       tags:
         description: 'Spare unsupported tags (whitespace-separated)'

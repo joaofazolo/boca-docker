@@ -14,6 +14,7 @@ name: Read build matrix from file
 on:
   # Run as reusable workflow
   workflow_call:
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       matrix-path:
         required: true

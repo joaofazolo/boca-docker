@@ -20,8 +20,8 @@ on:
     # Publish semver tags as releases (e.g., 1.0.0)
     tags: [ '*.*.*' ]
   # or on button click
-  # https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatch
   workflow_dispatch:
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
     inputs:
       tags:
         description: "Image tags (whitespace-separated)"
@@ -96,7 +96,7 @@ jobs:
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
             echo "${{ inputs.latest }}"
-            echo "latest='${{ inputs.latest }}'" >> "$GITHUB_OUTPUT"
+            echo "latest=${{ inputs.latest == true }}" >> "$GITHUB_OUTPUT"
 
             echo "${{ inputs.ref }}"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
