@@ -32,7 +32,7 @@ on:
         required: true
         type: string
       tags:
-        description: "Image tags"
+        description: "Image tags (whitespace-separated)"
         required: true
         type: string
       latest:
@@ -40,7 +40,7 @@ on:
         # event. Set for conditionally tagging with the latest tag.
         description: "For conditionally tagging with the latest tag"
         required: false
-        type: boolean  
+        type: boolean
       ref:
         # The branch, tag or SHA to checkout in builds. If empty, check out
         # the repository that triggered the workflow.

@@ -24,6 +24,12 @@ on:
         description: "Image tags (whitespace-separated)"
         required: true
         type: string
+      latest:
+        # The latest tag is automatically handled through the new tag/release
+        # event. Set for conditionally tagging with the latest tag.
+        description: "For conditionally tagging with the latest tag"
+        required: false
+        type: boolean
 
 # Save computation power by stopping obsolete jobs for the current workflow
 # https://docs.github.com/en/enterprise-cloud@latest/actions/using-jobs/using-concurrency
