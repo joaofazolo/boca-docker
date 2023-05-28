@@ -24,7 +24,7 @@ on:
         required: true
         type: string
       platforms:
-        description: "Matrix of target os/platform-specific (multi-arch)"
+        description: "Matrix of target os/platforms (multi-arch)"
         required: true
         type: string
       tag:

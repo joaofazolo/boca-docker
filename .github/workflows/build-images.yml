@@ -28,12 +28,24 @@ on:
         required: true
         type: string
       platforms:
-        description: "Matrix of target os/platform-specific (multi-arch)"
+        description: "Matrix of target os/platforms (multi-arch)"
         required: true
         type: string
       tags:
         description: "Image tags"
         required: true
+        type: string
+      latest:
+        # The latest tag is automatically handled through the new tag/release
+        # event. Set for conditionally tagging with the latest tag.
+        description: "For conditionally tagging with the latest tag"
+        required: false
+        type: boolean  
+      ref:
+        # The branch, tag or SHA to checkout in builds. If empty, check out
+        # the repository that triggered the workflow.
+        description: "The branch, tag or SHA to checkout (empty for current branch)"
+        required: false
         type: string
 
 env:
@@ -142,17 +154,19 @@ jobs:
       - 
         name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: "${{ inputs.ref }}"
 
       # Add support for more platforms with QEMU (optional)
       # https://github.com/docker/setup-qemu-action
-      -
+      - 
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
       # Create and boot a builder that can be used in the following steps of
       # the workflow
       # https://github.com/docker/setup-buildx-action
-      -
+      - 
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -258,16 +272,23 @@ jobs:
 
           # Unset variable
           unset EXTRA_TAGS
+          # Set tags dynamically
           for tag in ${TAGS[@]};
           do
             echo "${tag}"
 
             EXTRA_TAGS="
               ${EXTRA_TAGS} \
-              type=raw,value=${tag},enable=${{ matrix.parent == inputs.default_parent }} \
-              type=raw,value=${tag},suffix=-${RELEASE},enable=true"
+              type=raw,value=${tag},priority=1000,enable=${{ matrix.parent == inputs.default_parent }} \
+              type=raw,value=${tag},priority=900,suffix=-${RELEASE},enable=true"
           done
   
+          # Set latest tag
+          # https://github.com/docker/metadata-action#latest-tag
+          EXTRATAGS="
+              ${EXTRATAGS} \
+              type=raw,value=latest,priority=1000,enable=${{ matrix.parent == inputs.default_parent && inputs.latest == true }}"
+
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
           printf '%s\n' \

@@ -114,7 +114,7 @@ jobs:
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
           echo "${{ inputs.tags }}"
-          if [ ! -z "${{ inputs.tags }}" ];
+          if [[ ! -z "${{ inputs.tags }}" ]];
           then
             read -a TAGS <<< "${{ inputs.tags }}"
             for tag in ${TAGS[@]};
@@ -137,7 +137,7 @@ jobs:
 
             # If manifest does not exist just skip image
             MANIFEST=$(crane manifest ${IMG}:${version} || echo "")
-            if [ -z "${MANIFEST}" ];
+            if [[ -z "${MANIFEST}" ]];
             then
               continue
             fi
@@ -190,7 +190,7 @@ jobs:
           IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
           echo "${{ inputs.tags }}"
-          if [ ! -z "${{ inputs.tags }}" ];
+          if [[ ! -z "${{ inputs.tags }}" ]];
           then
             read -a TAGS <<< "${{ inputs.tags }}"
             for tag in ${TAGS[@]};
@@ -204,7 +204,7 @@ jobs:
           # Get all releases/tags
           ALL_RELEASES=$(crane ls ${IMG} || echo "")
           # If list of tags is empty just skip it
-          if [ -z "${ALL_RELEASES}" ];
+          if [[ -z "${ALL_RELEASES}" ]];
           then
             exit 0
           fi
@@ -242,7 +242,7 @@ jobs:
           echo $PACKAGES_JSON
 
           # If list of package versions does not exist just fail
-          if [ -z "${PACKAGES_JSON}" ];
+          if [[ -z "${PACKAGES_JSON}" ]];
           then
             exit 1
           fi
@@ -276,7 +276,7 @@ jobs:
               fi
             done
 
-            if [ ! -z "${SHARED}" ];
+            if [[ ! -z "${SHARED}" ]];
             then
               echo "Skipping ${version} (conflicting)"
               continue
