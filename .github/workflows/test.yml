@@ -32,8 +32,9 @@ jobs:
           # e.g., 1.0
           SHORT_VERSION=${LATEST_VERSION%.*}
           echo ${SHORT_VERSION}
-          #
+          # Tags
           TAGS="${LATEST_VERSION} ${SHORT_VERSION}"
+          echo ${TAGS}
           echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
   use-tag:

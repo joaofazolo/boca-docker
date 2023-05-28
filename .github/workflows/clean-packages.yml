@@ -126,7 +126,7 @@ jobs:
           echo "${RELEASES[@]}"
 
           # Unset variable
-          unset DIGESTKEYS
+          unset DIGEST_KEYS
           # Set image
           IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
 
@@ -143,23 +143,23 @@ jobs:
             fi
 
             # Get digest key(s) of regular image (if not multi-arch)
-            DIGESTKEYS="${DIGESTKEYS} \
+            DIGEST_KEYS="${DIGEST_KEYS} \
               `echo $MANIFEST | \
                 jq 'select (.config != null) | .config.digest'`"
             # or of multi-platform images builds
-            DIGESTKEYS="${DIGESTKEYS} \
+            DIGEST_KEYS="${DIGEST_KEYS} \
               `echo $MANIFEST | \
                 jq 'select (.manifests != null) | .manifests[].digest'`"
           done
 
           # Remove newlines, tabs, carriage returns and double quotes
-          DIGESTKEYS=$(echo $DIGESTKEYS | tr -d "\n\t\r|\"")
+          DIGEST_KEYS=$(echo $DIGEST_KEYS | tr -d "\n\t\r|\"")
           # Replace white spaces with '|'
-          DIGESTKEYS="${DIGESTKEYS// /|}"
-          echo $DIGESTKEYS
+          DIGEST_KEYS="${DIGEST_KEYS// /|}"
+          echo $DIGEST_KEYS
 
           # Passing env variable between steps
-          echo "digest_keys=${DIGESTKEYS}" >> $GITHUB_OUTPUT
+          echo "digest_keys=${DIGEST_KEYS}" >> $GITHUB_OUTPUT
 
       # Delete package versions
       # https://github.com/actions/delete-package-versions
@@ -202,22 +202,22 @@ jobs:
           echo "${RELEASES[@]}"
 
           # Get all releases/tags
-          ALLRELEASES=$(crane ls ${IMG} || echo "")
+          ALL_RELEASES=$(crane ls ${IMG} || echo "")
           # If list of tags is empty just skip it
-          if [ -z "${ALLRELEASES}" ];
+          if [ -z "${ALL_RELEASES}" ];
           then
             exit 0
           fi
 
           # Remove newlines, tabs, carriage returns and double quotes
-          ALLRELEASES=$(echo $ALLRELEASES | tr -d "\n\t\r|\"")
+          ALL_RELEASES=$(echo $ALL_RELEASES | tr -d "\n\t\r|\"")
           # Split string into an array
-          IFS=', ' read -r -a ALLRELEASES <<< "$ALLRELEASES"
-          echo "${ALLRELEASES[@]}"
+          IFS=', ' read -r -a ALL_RELEASES <<< "$ALL_RELEASES"
+          echo "${ALL_RELEASES[@]}"
 
           # Get unsupported releases
           DEPRECATED=()
-          for i in "${ALLRELEASES[@]}";
+          for i in "${ALL_RELEASES[@]}";
           do
             skip=
             for j in "${RELEASES[@]}";
@@ -235,20 +235,20 @@ jobs:
           ENCODED_PACKAGE="${ENCODED_PACKAGE//\//\%2F}"
           echo $ENCODED_PACKAGE
 
-          PACKAGESJSON=$(gh api \
+          PACKAGES_JSON=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /users/${{ env.OWNER_NAME }}/packages/container/${ENCODED_PACKAGE}/versions || echo "")
-          echo $PACKAGESJSON
+          echo $PACKAGES_JSON
 
           # If list of package versions does not exist just fail
-          if [ -z "${PACKAGESJSON}" ];
+          if [ -z "${PACKAGES_JSON}" ];
           then
             exit 1
           fi
 
           # Unset variable
-          unset VERSIONIDS
+          unset VERSION_IDS
 
           # Iterate over releases to get digests
           for version in ${DEPRECATED[@]};
@@ -257,7 +257,7 @@ jobs:
 
             # Only proceed in case an unsupported version does not coexit
             # with a supported one
-            CURR_VERSIONS=`echo $PACKAGESJSON | \
+            CURR_VERSIONS=`echo $PACKAGES_JSON | \
                 jq --arg var $version \
                   '.[] | select(any(.metadata.container.tags[]; . == $var)) | .metadata.container.tags'`
             # Remove newlines, tabs, carriage returns and double quotes
@@ -282,22 +282,22 @@ jobs:
               continue
             fi
 
-            VERSIONIDS="${VERSIONIDS} \
-              `echo $PACKAGESJSON | \
+            VERSION_IDS="${VERSION_IDS} \
+              `echo $PACKAGES_JSON | \
                 jq --arg var $version \
                   '.[] | select(any(.metadata.container.tags[]; . == $var)) | .id'`"
           done
 
           # Remove newlines, tabs, carriage returns and double quotes
-          VERSIONIDS=$(echo ${VERSIONIDS} | tr -d "\n\t\r|\"")
+          VERSION_IDS=$(echo ${VERSION_IDS} | tr -d "\n\t\r|\"")
           # Replace white spaces with ', '
-          VERSIONIDS="${VERSIONIDS// /, }"
+          VERSION_IDS="${VERSION_IDS// /, }"
           # Split string into an array
-          IFS=', ' read -r -a VERSIONIDS <<< "$VERSIONIDS"
-          echo "${VERSIONIDS[@]}"
+          IFS=', ' read -r -a VERSION_IDS <<< "$VERSION_IDS"
+          echo "${VERSION_IDS[@]}"
 
           # Keep unique version ids only
-          UNIQIDS=($(printf "%s\n" "${VERSIONIDS[@]}" | sort -u))
+          UNIQIDS=($(printf "%s\n" "${VERSION_IDS[@]}" | sort -u))
           echo "${UNIQIDS[@]}"
 
           # Convert to string

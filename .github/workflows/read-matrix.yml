@@ -79,17 +79,17 @@ jobs:
           echo $PLATFORMS
 
           # Remove square brackets and double quotes
-          DEFAULTPARENT=$(echo $PARENTS | tr -d "[]|\"")
+          DEFAULT_PARENT=$(echo $PARENTS | tr -d "[]|\"")
           # Split string into an array
-          IFS=', ' read -r -a DEFAULTPARENT <<< "$DEFAULTPARENT"
+          IFS=', ' read -r -a DEFAULT_PARENT <<< "$DEFAULT_PARENT"
           # Set base image (parent) as the first value of the array
-          DEFAULTPARENT=${DEFAULTPARENT[0]}
-          echo $DEFAULTPARENT
+          DEFAULT_PARENT=${DEFAULT_PARENT[0]}
+          echo $DEFAULT_PARENT
 
           # Passing matrix between jobs and/or workflows
           echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
           echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
-          echo "default_parent=${DEFAULTPARENT}" >> "$GITHUB_OUTPUT"
+          echo "default_parent=${DEFAULT_PARENT}" >> "$GITHUB_OUTPUT"
           echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
 
   # check-setup:

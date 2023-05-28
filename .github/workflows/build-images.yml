@@ -257,13 +257,13 @@ jobs:
           IFS=', ' read -r -a TAGS <<< "$TAGS"
 
           # Unset variable
-          unset EXTRATAGS
+          unset EXTRA_TAGS
           for tag in ${TAGS[@]};
           do
             echo "${tag}"
 
-            EXTRATAGS="
-              ${EXTRATAGS} \
+            EXTRA_TAGS="
+              ${EXTRA_TAGS} \
               type=raw,value=${tag},enable=${{ matrix.parent == inputs.default_parent }} \
               type=raw,value=${tag},suffix=-${RELEASE},enable=true"
           done
@@ -271,7 +271,7 @@ jobs:
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
           printf '%s\n' \
-            ${EXTRATAGS} \
+            ${EXTRA_TAGS} \
             >> "${GITHUB_OUTPUT}"
           echo "${EOF}" >> "${GITHUB_OUTPUT}"
 
