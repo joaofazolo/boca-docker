@@ -12,10 +12,13 @@ name: CI
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
 on:
-  # Run daily at 9:15 AM UTC (nightly builds)
   schedule:
+    # Run daily at 9:15 AM UTC (nightly builds)
     # Publish "nightly" build as release
     - cron: '15 9 * * *'
+    # Run once a week on Monday at 6:15 AM UTC (rebuild latest)
+    - cron: '0 * * * *'
+    # - cron: '15 6 * * MON'
   push:
     # Publish semver tags as releases (e.g., 1.0.0)
     tags: [ '*.*.*' ]
@@ -74,7 +77,7 @@ jobs:
 
           # Check whether it is a schedule to rebuild image with latest tag
           CRON_EVENT="${{ github.event.schedule }}"
-          if [[ ${CRON_EVENT} == '30 5 * * 1,3' ]];
+          if [[ ${CRON_EVENT} == '0 * * * *' ]];
           then
             LATEST="${{ needs.setup-matrix.outputs.default_release }}"
             echo "${LATEST}"
