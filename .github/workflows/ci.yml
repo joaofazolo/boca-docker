@@ -73,7 +73,8 @@ jobs:
         run: |
 
           # Check whether it is a schedule to rebuild image with latest tag
-          if [[ ${{ github.event.schedule }} != '30 5 * * 1,3' ]];
+          CRON_EVENT="${{ github.event.schedule }}"
+          if [[ ${CRON_EVENT} == '30 5 * * 1,3' ]];
           then
             LATEST="${{ needs.setup-matrix.outputs.default_release }}"
             echo "${LATEST}"
