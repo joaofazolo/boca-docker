@@ -124,7 +124,7 @@ jobs:
       default_parent: ${{ needs.setup-matrix.outputs.default_parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
       tags: ${{ needs.setup-inputs.outputs.tags }}
-      latest: ${{ needs.setup-inputs.outputs.latest }}
+      latest: ${{ needs.setup-inputs.outputs.latest == 'true' }}
       ref: ${{ needs.setup-inputs.outputs.ref }}
     needs:
       - setup-matrix
@@ -139,7 +139,7 @@ jobs:
       default_parent: ${{ needs.setup-matrix.outputs.default_parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
       tags: ${{ needs.setup-inputs.outputs.tags }}
-      latest: ${{ needs.setup-inputs.outputs.latest }}
+      latest: ${{ needs.setup-inputs.outputs.latest == 'true' }}
       ref: ${{ needs.setup-inputs.outputs.ref }}
     needs:
       - setup-matrix
