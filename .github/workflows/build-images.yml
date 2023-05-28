@@ -283,12 +283,6 @@ jobs:
               type=raw,value=${tag},priority=1000,enable=${{ matrix.parent == inputs.default_parent }} \
               type=raw,value=${tag},priority=900,suffix=-${RELEASE},enable=true"
           done
-  
-          # Set latest tag
-          # https://github.com/docker/metadata-action#latest-tag
-          EXTRATAGS="
-              ${EXTRATAGS} \
-              type=raw,value=latest,priority=1000,enable=${{ matrix.parent == inputs.default_parent && inputs.latest == true }}"
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
@@ -334,7 +328,7 @@ jobs:
             # extra tags
             ${{ steps.setup.outputs.extra_tags }}
           flavor: |
-            latest=${{ matrix.parent == inputs.default_parent && github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
+            latest=${{ matrix.parent == inputs.default_parent && (github.event_name == 'push' && contains(github.ref, 'refs/tags/') || inputs.latest == true ) }}
           labels: |
             org.opencontainers.image.title=${{ matrix.image }}
             org.opencontainers.image.description=A multi-platform/arch image of the boca-docker project
