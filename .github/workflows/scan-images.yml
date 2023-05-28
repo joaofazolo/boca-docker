@@ -75,8 +75,13 @@ jobs:
           echo $RELEASE
           echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
 
-          # Set image
-          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${{ inputs.tag }}-$RELEASE"
+          # Set tags
+          TAGS="${{ inputs.tag }}"
+          echo $TAGS
+          # Split string into an array
+          IFS=', ' read -r -a TAGS <<< "$TAGS"
+
+          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${TAGS[0]}-$RELEASE"
           echo $IMG
           echo "image_name=$IMG" >> $GITHUB_OUTPUT
 
