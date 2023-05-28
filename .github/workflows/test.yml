@@ -111,8 +111,6 @@ jobs:
             type=ref,event=branch,priority=1000,enable=true
             # extra tags
             ${{ steps.get-tags.outputs.extra_tags }}
-          flavor: |
-            latest=true
 
       - 
         name: Print Meta
