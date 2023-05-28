@@ -96,7 +96,7 @@ jobs:
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
             echo "${{ inputs.latest }}"
-            echo "latest=${{ inputs.latest }}" >> "$GITHUB_OUTPUT"
+            echo "latest='${{ inputs.latest }}'" >> "$GITHUB_OUTPUT"
 
             echo "${{ inputs.ref }}"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
