@@ -1,0 +1,115 @@
+name: test
+
+on:
+  workflow_dispatch:
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY_HOST: ghcr.io
+  # Use github.repository (<account>/<repo>)
+  REPOSITORY_NAME: ${{ github.repository }}
+  # Use github.repository_owner (<account>)
+  OWNER_NAME: ${{ github.repository_owner }}
+    
+jobs:
+  setup-tags:
+    runs-on: ubuntu-latest
+    # Map the workflow outputs to job outputs
+    outputs:
+      tags: ${{ steps.set-tag.outputs.tags }}
+
+    steps:
+      # Setting output parameters between steps, jobs and/or workflows
+      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+      - 
+        name: Set tag
+        id: set-tag
+        run: |
+
+          TAGS="1.2.0"
+          if [ -z "${TAGS}" ];
+          then
+            TAGS="${GITHUB_REF#refs/*/}"
+          fi
+          echo $TAGS
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+
+  use-tag:
+    runs-on: ubuntu-latest
+    needs:
+      - setup-tags
+
+    steps:
+      - 
+        name: Get tags
+        id: get-tags
+        run: |
+
+          TAGS="${{ needs.setup-tags.outputs.tags }}"
+          echo $TAGS
+          # Split string into an array
+          IFS=', ' read -r -a TAGS <<< "$TAGS"
+
+          # Unset variable
+          unset EXTRATAGS
+          for tag in ${TAGS[@]};
+          do
+            echo "${tag}"
+
+            EXTRATAGS="
+              ${EXTRATAGS} \
+              type=raw,value=${tag},enable=true \
+              type=raw,value=${tag},suffix=-aqui,enable=true"
+          done
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
+          printf '%s\n' \
+            ${EXTRATAGS} \
+            >> "${GITHUB_OUTPUT}"
+          echo "${EOF}" >> "${GITHUB_OUTPUT}"
+
+      - 
+        name: Print
+        run: |
+
+          echo "AQUI = ${{ steps.get-tags.outputs.extra_tags }}"
+
+      # Login to a Docker registry (except on PR)
+      # https://github.com/docker/login-action
+      - 
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_HOST }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - 
+        name: Extract Docker metadata (boca-base)
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/rlaiola/boca-docker/boca-base
+          tags: |
+            # new release
+            type=semver,pattern={{raw}},priority=900,suffix=-jammy
+            type=semver,pattern={{raw}},priority=1000,enable=true
+            type=semver,pattern={{major}}.{{minor}},priority=900,suffix=-jammy
+            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=true
+            # tag event (same as new release)
+            type=ref,event=tag,priority=900,suffix=-jammy
+            type=ref,event=tag,priority=1000,enable=true
+            # branch event
+            type=ref,event=branch,priority=900,suffix=-jammy
+            type=ref,event=branch,priority=1000,enable=true
+            # extra tags
+            ${{ steps.get-tags.outputs.extra_tags }}
+          flavor: |
+            latest=true
+
+      - 
+        name: Print Meta
+        run: |
+
+          echo "AQUI = ${{ steps.meta.outputs.tags }}"
