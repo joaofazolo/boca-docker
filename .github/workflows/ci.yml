@@ -30,6 +30,12 @@ on:
         description: "For conditionally tagging with the latest tag"
         required: false
         type: boolean
+      ref:
+        # The branch, tag or SHA to checkout in builds. If empty, check out
+        # the repository that triggered the workflow.
+        description: "The branch, tag or SHA to checkout (empty for current branch)"
+        required: false
+        type: string
 
 # Save computation power by stopping obsolete jobs for the current workflow
 # https://docs.github.com/en/enterprise-cloud@latest/actions/using-jobs/using-concurrency
