@@ -81,7 +81,9 @@ jobs:
           then
             LATEST="${{ needs.setup-matrix.outputs.default_release }}"
             echo "${LATEST}"
-            echo "tags=${LATEST}" >> "$GITHUB_OUTPUT"
+            SHORT_VERSION=${LATEST%.*}
+            TAGS="${LATEST} ${SHORT_VERSION}"
+            echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
             echo "true"
             echo "latest=true" >> "$GITHUB_OUTPUT"
