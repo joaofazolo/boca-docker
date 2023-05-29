@@ -1,4 +1,4 @@
-name: Delete GitHub Actions caches for repository
+name: Delete GitHub Actions cache for repository
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -32,7 +32,7 @@ jobs:
 
     steps:
       # Checkout a repository, so the workflow can access it
-      # https://github.com/marketplace/actions/checkout
+      # https://github.com/actions/checkout
       - 
         name: Checkout repository
         uses: actions/checkout@v3
@@ -49,7 +49,7 @@ jobs:
       #     gh-cli-version: 2.14.2 # optional, see action.yml for current default
 
       # Force deletion of caches overriding default cache eviction policy
-      # https://github.com/marketplace/actions/cache
+      # https://github.com/actions/cache
       - 
         name: Delete all cache entries
         run: |
@@ -59,18 +59,18 @@ jobs:
           while true
           do
             echo "Fetching list of cache keys"
-            CACHEKEYS=$(gh actions-cache list --limit 100 \
-                                              --sort size \
-                                              --order desc \
-                                              -R ${{ env.REPOSITORY_NAME }} \
-                                              | cut -f 1)
+            CACHE_KEYS=$(gh actions-cache list --limit 100 \
+                                               --sort size \
+                                               --order desc \
+                                               -R ${{ env.REPOSITORY_NAME }} \
+                                              |  cut -f 1)
 
             # Remove newlines, tabs, carriage returns and double quotes
-            CACHEKEYS=$(echo $CACHEKEYS | tr -d "\n\t\r|\"")
+            CACHE_KEYS=$(echo $CACHE_KEYS | tr -d "\n\t\r|\"")
             # Split string into an array
-            IFS=', ' read -r -a CACHEKEYS <<< "$CACHEKEYS"
-            # Get length of $CACHEKEYS array
-            LEN=${#CACHEKEYS[@]}
+            IFS=', ' read -r -a CACHE_KEYS <<< "$CACHE_KEYS"
+            # Get length of $CACHE_KEYS array
+            LEN=${#CACHE_KEYS[@]}
             echo "Number of cache entries: $LEN"
 
             if [[ $LEN -eq 0 ]];
@@ -82,7 +82,7 @@ jobs:
             # Setting this to not fail the workflow while deleting cache keys. 
             set +e
             echo "Deleting caches..."
-            for cachekey in ${CACHEKEYS[@]}
+            for cachekey in ${CACHE_KEYS[@]}
             do
               gh actions-cache delete ${cachekey} --confirm
             done

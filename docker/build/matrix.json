@@ -1,6 +1,12 @@
 {
-    "//comment1": "List of supported image tags/releases (e.g., boca-web:latest)",
+    "//comment1": "Matrix of supported image tags/releases (latest: first value)",
     "release": [
+        "1.2.0",
+        "1.2.0-jammy",
+        "1.2.0-focal",
+        "1.2",
+        "1.2-jammy",
+        "1.2-focal",
         "latest",
         "nightly",
         "nightly-jammy",
@@ -8,21 +14,15 @@
         "master",
         "master-jammy",
         "master-focal",
-        "1.2",
-        "1.2-jammy",
-        "1.2-focal",
-        "1.2.0",
-        "1.2.0-jammy",
-        "1.2.0-focal",
         "1.1.0",
         "1.0.0"
     ],
-    "//comment2": "List of parent/base images in builds (default: first value)",
+    "//comment2": "Matrix of parent/base images used in builds (default: first value)",
     "parent": [
         "ubuntu:jammy",
         "ubuntu:focal"
     ],
-    "//comment3": "List of os/platform-specific target builds (multi-arch)",
+    "//comment3": "Matrix of target os/platforms (multi-arch)",
     "platform": [
         "linux/amd64",
         "linux/arm/v7",
