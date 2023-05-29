@@ -83,6 +83,7 @@ jobs:
             echo "${LATEST}"
             SHORT_VERSION=${LATEST%.*}
             TAGS="${LATEST} ${SHORT_VERSION}"
+            echo ${TAGS}
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
             echo "true"
