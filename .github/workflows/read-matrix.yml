@@ -26,7 +26,7 @@ on:
         value: ${{ jobs.get-matrix.outputs.release }}
       default_release:
         description: "Default image tag/release"
-        value: ${{ jobs.get-matrix.outputs.default_parent }}
+        value: ${{ jobs.get-matrix.outputs.default_release }}
       parent:
         description: "Matrix of parent/base images used in builds"
         value: ${{ jobs.get-matrix.outputs.parent }}
