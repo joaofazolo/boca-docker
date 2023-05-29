@@ -1,0 +1,9 @@
+- Documentation: Add mapping of env variables from 1.0.0 to 1.1.0;
+- Documentation: Add example of automatic data ingestion with bind mount (for data migration between boca-docker instances);
+- Bug?: Rethink docker/dev/web/init.sh (only create database if non-privileged user cannot connect after user creation?);
+- Bug?: Check Java installation (some issues reported from the Topcom organization);
+- Enhancement: Rethink need of files in the `src/private` folder;
+- Enhancement: Add workflow to close stale issues and PRs;
+    https://github.com/actions/stale
+    https://github.com/runatlantis/atlantis/blob/main/.github/workflows/stale.yml
+- Tests: Propose automatic tests for built images (e.g., run example problems in regular programming languages);
