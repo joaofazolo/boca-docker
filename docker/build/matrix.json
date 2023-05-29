@@ -22,7 +22,7 @@
         "ubuntu:jammy",
         "ubuntu:focal"
     ],
-    "//comment3": "Matrix of os/platform-specific target builds (multi-arch)",
+    "//comment3": "Matrix of target os/platforms (multi-arch)",
     "platform": [
         "linux/amd64",
         "linux/arm/v7",
