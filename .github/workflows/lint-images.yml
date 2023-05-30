@@ -129,19 +129,11 @@ jobs:
         with:
           image: ${{ steps.setup.outputs.image_name }}
           report-format: sarif
-          report-name: 'dockle-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results.sarif'
+          report-name: 'dockle-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results'
           failure-threshold: fatal
           # Change to 1 in order to stop the pipeline on failure
           # exit-code: 1
           timeout: 10m
-
-      - 
-        name: Upload Report
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: SARIF Report
-          path: 'dockle-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results.sarif'
 
       # Upload results to GitHub so they can be displayed in the repository' security tab
       # https://github.com/github/codeql-action
