@@ -1,0 +1,6 @@
+# boca-jail needs to be run as root
+CIS-DI-0001
+# Found in the used Ubuntu release images
+CIS-DI-0009
+# Allow installing security updates
+DKL-DI-0003
