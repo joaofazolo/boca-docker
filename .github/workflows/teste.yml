@@ -15,7 +15,7 @@ jobs:
       - name: Run Dockle
         uses: erzz/dockle-action@v1
         with:
-          image: ghcr.io/rlaiola/boca-docker/boca-web:nightly
+          image: ghcr.io/rlaiola/boca-docker/boca-jail:nightly
           #image: ubuntu:jammy
           failure-threshold: fatal
           # Change to 1 in order to stop the pipeline on failure
