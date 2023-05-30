@@ -4,18 +4,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker:
+  dockle:
+    name: Dockle Container Analysis
     runs-on: ubuntu-latest
     steps:
-      - name: Check if update available
-        id: check
-        uses: lucacome/docker-image-update-checker@v1
-        with:
-          base-image: ubuntu:jammy
-          image: ubuntu:jammy
+      # Makes sure your .dockleignore file is available to the next step
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Check result
-        run: |
-          echo "Needs updating: ${{ steps.check.outputs.needs-updating }}"
-        env:
-          DEBUG: true
+      - name: Run Dockle
+        uses: erzz/dockle-action@v1
+        with:
+          # image: ghcr.io/rlaiola/boca-docker/boca-web:nightly
+          image: ubuntu:jammy
+          failure-threshold: fatal
+          timeout: 10m
