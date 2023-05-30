@@ -1,4 +1,4 @@
-name: Security scan of multi-platform Docker images on ghcr.io
+name: Lint for best practices and CIS benchmarks of multi-platform Docker images on ghcr.io
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -17,7 +17,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       images:
-        description: "Matrix of images to scan (i.e., boca-base, boca-web and boca-jail)"
+        description: "Matrix of images to lint (i.e., boca-base, boca-web and boca-jail)"
         required: true
         type: string
       parents:
@@ -91,6 +91,12 @@ jobs:
           echo $ARCH
           echo "arch_name=$ARCH" >> $GITHUB_OUTPUT
 
+      # Checkout a repository, so the workflow can use the .dockleignore file
+      # https://github.com/actions/checkout
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+          
       # Create and boot a builder that can be used in the following steps of
       # the workflow
       # https://github.com/docker/setup-buildx-action
@@ -115,25 +121,25 @@ jobs:
           docker pull --platform ${{ matrix.platform }} ${{ steps.setup.outputs.image_name }}
           docker image ls -a
 
-      # Run Trivy vulnerability scanner on image
-      # https://github.com/aquasecurity/trivy-action
+      # Run Dockle best practices linter on image
+      # https://github.com/erzz/dockle-action
       - 
-        name: Run Trivy vulnerability scanner on image
-        uses: aquasecurity/trivy-action@master
+        name: Run Dockle best practices linter on image
+        uses: erzz/dockle-action@v1
         with:
-          image-ref: '${{ steps.setup.outputs.image_name }}'
-          format: 'sarif'
-          output: 'trivy-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results.sarif'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          image: ${{ steps.setup.outputs.image_name }}
+          report-format: sarif
+          report-name: 'dockle-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results.sarif'
+          failure-threshold: fatal
+          # Change to 1 in order to stop the pipeline on failure
+          # exit-code: 1
           timeout: 10m
 
       # Upload results to GitHub so they can be displayed in the repository' security tab
       # https://github.com/github/codeql-action
       - 
-        name: Upload Trivy image scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        name: Upload Dockle image lint results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1.2.0
         with:
-          sarif_file: 'trivy-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results.sarif'
+          sarif_file: 'dockle-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results.sarif'
           category: 'image'

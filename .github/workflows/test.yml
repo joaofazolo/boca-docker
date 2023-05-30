@@ -1,0 +1,60 @@
+name: Check docker image
+
+on:
+  # or on button click
+  workflow_dispatch:
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
+    inputs:
+      tags:
+        description: "Image tags (whitespace-separated)"
+        required: true
+        type: string
+
+# Save computation power by stopping obsolete jobs for the current workflow
+# https://docs.github.com/en/enterprise-cloud@latest/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # Calling a reusable workflow
+  # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+  setup-matrix:
+    uses: ./.github/workflows/read-matrix.yml
+    with:
+      matrix-path: docker/build/matrix.json
+
+  setup-inputs:
+    runs-on: ubuntu-latest
+    # Map the workflow outputs to job outputs
+    outputs:
+      tags: ${{ steps.set-inputs.outputs.tags }}
+    needs:
+      - setup-matrix
+
+    steps:
+      # Setting output parameters between steps, jobs and/or workflows
+      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+      - 
+        name: Prepare inputs
+        id: set-inputs
+        run: |
+
+          TAGS="${{ inputs.tags }}"
+          if [[ -z "${TAGS}" ]];
+          then
+            TAGS="${GITHUB_REF#refs/*/}"
+          fi
+          echo $TAGS
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+
+  lint-base:
+    uses: ./.github/workflows/lint-images.yml
+    with:
+      images: '[ "boca-base" ]'
+      parents: ${{ needs.setup-matrix.outputs.parent }}
+      platforms: ${{ needs.setup-matrix.outputs.platform }}
+      tag: ${{ needs.setup-inputs.outputs.tags }}
+    needs:
+      - setup-matrix
+      - setup-inputs
