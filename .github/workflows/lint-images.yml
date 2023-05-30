@@ -142,4 +142,3 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: 'dockle-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results.sarif'
-          category: 'image'
