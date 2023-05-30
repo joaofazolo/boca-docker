@@ -12,8 +12,10 @@ jobs:
         uses: lucacome/docker-image-update-checker@v1
         with:
           base-image: ubuntu:jammy
-          image: docker pull ghcr.io/rlaiola/boca-docker/boca-base:nightly-jammy
+          image: ghcr.io/rlaiola/boca-docker/boca-base:nightly-jammy
 
       - name: Check result
         run: |
             echo "Needs updating: ${{ steps.check.outputs.needs-updating }}"
+        env:
+          DEBUG: true
