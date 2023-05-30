@@ -31,6 +31,10 @@ LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
 ENV UPDATED_AT 2023-04-10
 
+# Redundant but to ensure we are not going to break anything
+# https://github.com/cassiopc/boca/tree/master/tools
+USER root
+
 WORKDIR /var/www/boca
 RUN gcc tools/safeexec.c -o tools/safeexec \
     && install tools/safeexec /usr/bin/safeexec \
@@ -48,5 +52,9 @@ RUN gcc tools/safeexec.c -o tools/safeexec \
 RUN boca-createjail || true
 
 COPY --chmod=755 --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" docker/dev/jail/init.sh /
+
+# Add HEALTHCHECK instruction to the container image
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+    CMD ps ax | grep -v grep | grep php | grep autojudging.php > /dev/null || exit 1
 
 ENTRYPOINT ["/init.sh"]

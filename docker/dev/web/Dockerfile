@@ -31,6 +31,10 @@ LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
 ENV UPDATED_AT 2023-04-10
 
+# Redundant but to ensure we are not going to break anything
+# https://github.com/cassiopc/boca/tree/master/doc
+USER root
+
 # Basic setup
 RUN apt-get -y update \
     && apt-get -y install \
@@ -40,7 +44,12 @@ RUN apt-get -y update \
 
 COPY --chmod=755 --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" docker/dev/web/init.sh /
 
+# Create a non-root user for the container
 USER $APACHE_RUN_USER
+
+# Add HEALTHCHECK instruction to the container image
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:80/boca/ || exit 1
 
 EXPOSE 80
 

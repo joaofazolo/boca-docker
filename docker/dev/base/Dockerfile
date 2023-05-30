@@ -70,6 +70,11 @@ ENV APACHE_RUN_DIR   /var/run/apache2
 ENV APACHE_LOCK_DIR  /var/lock/apache2
 ENV APACHE_LOG_DIR   /var/log/apache2
 
+# Redundant but to ensure we are not going to break anything
+# https://github.com/cassiopc/boca/tree/master/doc
+# https://github.com/cassiopc/boca/tree/master/tools
+USER root
+
 RUN apt-get -y update \
     && apt-get -y dist-upgrade \
     && apt-get -y install \
@@ -107,7 +112,9 @@ WORKDIR /var/www/boca
 COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/src /var/www/boca/src
 COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/tools /var/www/boca/tools
 # Copy modified local source code file(s)
+# Use getenv() function to dynamically set up BOCA
 COPY --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" src/private/conf.php /var/www/boca/src/private
+# The script to create the database can run as a non-root user
 COPY --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" src/private/createdb.php /var/www/boca/src/private
 
 RUN install tools/boca-fixssh /usr/sbin/ \
