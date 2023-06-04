@@ -52,8 +52,8 @@ RUN apt-get -y update \
         # Depends:
         apache2 \
         libapache2-mod-php \
-        php8.1 \
-        php8.1-fpm \
+        php \
+        php-fpm \
         python3-matplotlib \
     && rm -rf /var/lib/apt/lists/*
 
