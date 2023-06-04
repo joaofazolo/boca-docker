@@ -28,7 +28,8 @@ ARG BASE_IMAGE=ubuntu:jammy
 FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE} AS bocarepo
 RUN apt-get -y update \
     && apt-get -y install \
-        git
+        git \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /
 RUN git clone https://github.com/cassiopc/boca.git
 
@@ -43,7 +44,7 @@ ARG TARGETARCH
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2023-04-10
+ENV UPDATED_AT 2023-06-01
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND noninteractive
@@ -63,66 +64,74 @@ ENV LANG ${LANGUAGE}
 # e.g. ENV TZ "US/Pacific"
 ENV TZ America/Sao_Paulo
 
+# Apache settings
 ENV APACHE_RUN_USER  www-data
 ENV APACHE_RUN_GROUP www-data
-ENV APACHE_PID_FILE  /var/run/apache2/apache2.pid
-ENV APACHE_RUN_DIR   /var/run/apache2
-ENV APACHE_LOCK_DIR  /var/lock/apache2
-ENV APACHE_LOG_DIR   /var/log/apache2
 
 # Redundant but to ensure we are not going to break anything
 # https://github.com/cassiopc/boca/tree/master/doc
 # https://github.com/cassiopc/boca/tree/master/tools
 USER root
 
+# Install dependencies
 RUN apt-get -y update \
     && apt-get -y dist-upgrade \
     && apt-get -y install \
-        apache2 \
-        debootstrap \
-        gcc \
-        libapache2-mod-php \
+        # Miscellaneous
         locales \
-        make \
-        php \
-        php-pgsql \
-        php-zip \
-        postgresql-client \
-        quotatool \
-        schroot \
-        software-properties-common \
         tzdata \
+        # Package: boca-common
+        # https://github.com/cassiopc/boca/blob/master/debian/control
+        # Pre-Depends:
+        debconf \
+        makepasswd \
+        sharutils \
+        # Depends:
+        libany-uri-escape-perl \
+        openssl \
+        php8.1-cli \
+        php8.1-gd \
+        php8.1-pgsql \
+        php8.1-xml \
+        php8.1-zip \
+        postgresql-client \
+        wget \
     && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir -p $APACHE_LOCK_DIR && \
-    mkdir -p $APACHE_LOG_DIR && \
-    mkdir -p $APACHE_RUN_DIR
 
 RUN echo "Setting time zone to '${TZ}'" ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone \
     && echo "Etc/UTC" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata
 
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-RUN ln -sf /proc/self/fd/1 ${APACHE_LOG_DIR}/access.log \
-    && ln -sf /proc/self/fd/1 ${APACHE_LOG_DIR}/error.log
-
-WORKDIR /var/www/boca
 # Copy BOCA repository from base image
 COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/src /var/www/boca/src
 COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/tools /var/www/boca/tools
 # Copy modified local source code file(s)
 # Use getenv() function to dynamically set up BOCA
-COPY --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" src/private/conf.php /var/www/boca/src/private
+COPY --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" boca/src/private/conf.php /var/www/boca/src/private
 # The script to create the database can run as a non-root user
-COPY --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" src/private/createdb.php /var/www/boca/src/private
+COPY --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" boca/src/private/createdb.php /var/www/boca/src/private
 
-RUN install tools/boca-fixssh /usr/sbin/ \
-	&& install tools/cron-boca-fixssh /etc/cron.d/ \
-	&& chmod 700 /usr/sbin/boca-fixssh \
-    && cp tools/000-boca.conf /etc/apache2/sites-enabled/000-boca.conf \
-    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" /var/www/boca \
-    && chmod -R go-rwx /var/www/boca/src/private \
-    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOCK_DIR" \
-    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR" \
-    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_RUN_DIR"
+WORKDIR /var/www/boca
+RUN \
+    # install-bocawww
+    # https://github.com/cassiopc/boca/blob/master/Makefile
+    mkdir -p /usr/sbin /etc/cron.d /var/www/boca/ \
+    # Done above
+    # && cp -r src /var/www/boca/ \
+    # Docs not necessary
+	# && cp -r doc /var/www/boca/ \
+    && install tools/boca-fixssh /usr/sbin/ \
+    && install tools/cron-boca-fixssh /etc/cron.d/ \
+    && chmod 700 /usr/sbin/boca-fixssh \
+    # install-bocacommon
+    # https://github.com/cassiopc/boca/blob/master/Makefile
+    && mkdir -p /usr/sbin/ \
+    && mkdir -p /etc/ \
+    && cp tools/boca.conf /etc/ \
+    && install tools/boca-config-dbhost.sh /usr/sbin/boca-config-dbhost \
+    && chmod 700 /usr/sbin/boca-config-dbhost \
+    # boca-common.postinst
+    # https://github.com/cassiopc/boca/blob/master/debian/boca-common.postinst
+    && chmod 600 /var/www/boca/src/private/conf.php
+    # Done above
+    # && chown "$APACHE_RUN_USER:$APACHE_RUN_GROUP" /var/www/boca/src/private/conf.php

@@ -150,6 +150,18 @@ jobs:
       - setup-inputs
       - build-base
 
+  lint-base:
+    uses: ./.github/workflows/lint-images.yml
+    with:
+      images: '[ "boca-base" ]'
+      parents: ${{ needs.setup-matrix.outputs.parent }}
+      platforms: ${{ needs.setup-matrix.outputs.platform }}
+      tag: ${{ needs.setup-inputs.outputs.tags }}
+    needs:
+      - setup-matrix
+      - setup-inputs
+      - build-base
+
   scan-base:
     uses: ./.github/workflows/scan-images.yml
     with:
@@ -162,6 +174,18 @@ jobs:
       - setup-inputs
       - build-base
 
+  lint-web:
+    uses: ./.github/workflows/lint-images.yml
+    with:
+      images: '[ "boca-web" ]'
+      parents: ${{ needs.setup-matrix.outputs.parent }}
+      platforms: ${{ needs.setup-matrix.outputs.platform }}
+      tag: ${{ needs.setup-inputs.outputs.tags }}
+    needs:
+      - setup-matrix
+      - setup-inputs
+      - build-web
+    
   scan-web:
     uses: ./.github/workflows/scan-images.yml
     with:
@@ -174,6 +198,18 @@ jobs:
       - setup-inputs
       - build-web
 
+  lint-jail:
+    uses: ./.github/workflows/lint-images.yml
+    with:
+      images: '[ "boca-jail" ]'
+      parents: ${{ needs.setup-matrix.outputs.parent }}
+      platforms: ${{ needs.setup-matrix.outputs.platform }}
+      tag: ${{ needs.setup-inputs.outputs.tags }}
+    needs:
+      - setup-matrix
+      - setup-inputs
+      - build-jail
+    
   scan-jail:
     uses: ./.github/workflows/scan-images.yml
     with:

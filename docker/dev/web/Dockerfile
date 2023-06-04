@@ -29,18 +29,68 @@ ARG TARGETARCH
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2023-04-10
+ENV UPDATED_AT 2023-06-01
+
+# Apache settings
+ENV APACHE_RUN_USER  www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_PID_FILE  /var/run/apache2/apache2.pid
+ENV APACHE_DIR       /etc/apache2
+ENV APACHE_RUN_DIR   /var/run/apache2
+ENV APACHE_LOCK_DIR  /var/lock/apache2
+ENV APACHE_LOG_DIR   /var/log/apache2
 
 # Redundant but to ensure we are not going to break anything
 # https://github.com/cassiopc/boca/tree/master/doc
 USER root
 
-# Basic setup
+# Install dependencies
 RUN apt-get -y update \
-    && apt-get -y install \
-        # Required to build ballons \
-        php-gd \
+    && echo N | apt-get -y install \
+        # Package: boca-web
+        # https://github.com/cassiopc/boca/blob/master/debian/control
+        # Depends:
+        apache2 \
+        libapache2-mod-php \
+        php8.1 \
+        php8.1-fpm \
+        python3-matplotlib \
     && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p $APACHE_LOCK_DIR \
+    && mkdir -p $APACHE_LOG_DIR \
+    && mkdir -p $APACHE_RUN_DIR \
+    && echo "ServerName localhost" >> $APACHE_DIR/apache2.conf \
+    && ln -sf /proc/self/fd/1 $APACHE_LOG_DIR/access.log \
+    && ln -sf /proc/self/fd/1 $APACHE_LOG_DIR/error.log \
+    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOCK_DIR" \
+    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_LOG_DIR" \
+    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" "$APACHE_RUN_DIR"
+
+WORKDIR /var/www/boca
+RUN \
+    # install-bocaapache
+    # https://github.com/cassiopc/boca/blob/master/Makefile
+    mkdir -p $APACHE_DIR/sites-available/ \
+    && cp tools/000-boca.conf $APACHE_DIR/sites-available/000-boca.conf \
+    # install-scripts
+    # https://github.com/cassiopc/boca/blob/master/Makefile
+    && mkdir -p /usr/sbin/ \
+	&& install tools/dump.sh /usr/sbin/boca-dump \
+	&& chmod 700 /usr/sbin/boca-dump \
+    # boca-web.postinst
+    # https://github.com/cassiopc/boca/blob/master/debian/boca-web.postinst
+    && chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" /var/www/boca \
+    && chmod -R go-rwx /var/www/boca/src/private \
+    && a2enmod ssl \
+    # Necessary SSLCertificateKeyFile
+    # && a2ensite default-ssl \
+    && mkdir -p $APACHE_DIR/sites-enabled \
+    && cp tools/000-boca.conf $APACHE_DIR/sites-enabled/000-boca.conf \
+    && a2enmod socache_shmcb \
+    && a2enmod proxy_fcgi setenvif \
+    # && a2enconf php8.1-fpm \
+    && apache2ctl configtest
 
 COPY --chmod=755 --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" docker/dev/web/init.sh /
 
