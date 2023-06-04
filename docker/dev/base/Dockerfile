@@ -89,11 +89,11 @@ RUN apt-get -y update \
         # Depends:
         libany-uri-escape-perl \
         openssl \
-        php8.1-cli \
-        php8.1-gd \
-        php8.1-pgsql \
-        php8.1-xml \
-        php8.1-zip \
+        php-cli \
+        php-gd \
+        php-pgsql \
+        php-xml \
+        php-zip \
         postgresql-client \
         wget \
     && rm -rf /var/lib/apt/lists/*
