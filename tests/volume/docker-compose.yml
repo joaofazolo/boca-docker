@@ -35,6 +35,7 @@ services:
     # online judge
     boca-jail:
         image: ghcr.io/joaofazolo/boca-docker/boca-jail:latest
+        privileged: true
 
     # database
     boca-db:

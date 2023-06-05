@@ -29,24 +29,59 @@ ARG TARGETARCH
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2023-04-10
+ENV UPDATED_AT 2023-06-01
+
+# Redundant but to ensure we are not going to break anything
+# https://github.com/cassiopc/boca/tree/master/tools
+USER root
+
+# Install dependencies
+RUN apt-get -y update \
+    && apt-get -y install \
+        # Package: boca-autojudge
+        # https://github.com/cassiopc/boca/blob/master/debian/control
+        # Depends:
+        build-essential \
+        debootstrap \
+        makepasswd \
+        quotatool \
+        schroot \
+    && rm -rf /var/lib/apt/lists/*
+
+# https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2019908
+COPY boca/tools/boca-createjail /var/www/boca/tools/
 
 WORKDIR /var/www/boca
-RUN gcc tools/safeexec.c -o tools/safeexec \
+RUN \
+    # install-bocaautojudge
+    # https://github.com/cassiopc/boca/blob/master/Makefile
+    mkdir -p /usr/sbin/ \
+    && mkdir -p /usr/bin/ \
+    && mkdir -p /etc/ \
+    && gcc tools/safeexec.c -o tools/safeexec \
     && install tools/safeexec /usr/bin/safeexec \
     && install tools/boca-createjail /usr/sbin/boca-createjail \
     && install tools/boca-autojudge.sh /usr/sbin/boca-autojudge \
-    && install tools/boca-config-dbhost.sh /usr/sbin/boca-config-dbhost \
-    && chmod 700 /usr/sbin/boca-config-dbhost \
     && chmod 4555 /usr/bin/safeexec \
     && chmod 700 /usr/sbin/boca-createjail \
-    && chmod 700 /usr/sbin/boca-autojudge \
-    && chmod 700 /usr/sbin/boca-config-dbhost \
-    && chmod 700 /usr/sbin/boca-fixssh \
-    && cp tools/boca.conf /etc/
+    && chmod 700 /usr/sbin/boca-autojudge
+    # boca-autojudge.postinst
+    # https://github.com/cassiopc/boca/blob/master/debian/boca-autojudge.postinst
+    # Done before
+    # && chmod 4555 /usr/bin/safeexec \
+    # && chmod 700 /usr/sbin/boca-createjail \
+    # && chmod 700 /usr/sbin/boca-autojudge
 
 RUN boca-createjail || true
 
-COPY --chmod=755 --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" docker/dev/jail/init.sh /
+# Workaround: Java installation with chroot does not work as expected
+RUN cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/bin/* /home/bocajail/usr/bin/ \
+    && cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/lib/* /home/bocajail/usr/lib/
+
+COPY --chmod=755 docker/dev/jail/init.sh /
+
+# Add HEALTHCHECK instruction to the container image
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+    CMD ps ax | grep -v grep | grep php | grep autojudging.php > /dev/null || exit 1
 
 ENTRYPOINT ["/init.sh"]

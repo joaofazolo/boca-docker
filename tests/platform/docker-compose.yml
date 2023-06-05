@@ -20,44 +20,29 @@
 
 version: '3.8'
 
-# example 1: using extension fields to reduce duplication
-x-env: &db-common
-    # database configuration
-    BOCA_DB_HOST: boca-postgres
-    # unprivileged boca user
-    BOCA_DB_USER: myuser
-    BOCA_DB_PASSWORD: mypass
-    BOCA_DB_NAME: mydb
-
 services:
 
     # web app
-    boca-app:
-        image: ghcr.io/joaofazolo/boca-docker/boca-web:latest
+    boca-web:
+        image: ghcr.io/rlaiola/boca-docker/boca-web:1.2-focal
+        platform: linux/ppc64le
         environment:
-            # example 1: continuation...
-            <<: *db-common
-            # example 2: passing env vars directly in docker-compose
-            BOCA_DB_SUPER_USER: superuser
-            BOCA_DB_SUPER_PASSWORD: superpass
-            # example 3: passing specific env vars from file
-            BOCA_PASSWORD: ${BOCA_PASSWORD}
-            BOCA_KEY: ${BOCA_KEY}
+            # database configuration
+            # privileged user password
+            - BOCA_DB_SUPER_PASSWORD=superpass
         ports: 
             - 8000:80
 
     # online judge
     boca-jail:
-        image: ghcr.io/joaofazolo/boca-docker/boca-jail:latest
+        image: ghcr.io/rlaiola/boca-docker/boca-jail:1.2.0-jammy
+        platform: linux/arm/v7
         privileged: true
-        environment:
-            <<: *db-common
-            # web app
-            BOCA_WEB_HOST: boca-app
 
     # database
-    boca-postgres:
+    boca-db:
         image: postgres:14-alpine
-        # example 4: passing all env vars from file
-        env_file:
-            - .env2
+        environment:
+            # database configuration
+            # privileged user password
+            - POSTGRES_PASSWORD=superpass
