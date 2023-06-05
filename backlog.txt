@@ -1,5 +1,6 @@
 - Documentation: Add example of automatic data ingestion with bind mount (for data migration between boca-docker instances);
 - Bug?: Rethink docker/dev/web/init.sh (only create database if non-privileged user cannot connect after user creation?);
+- Linter: Dockerfiles and Shell Scripts
 - Enhancement: Add workflow to close stale issues and PRs;
     https://github.com/actions/stale
     https://github.com/runatlantis/atlantis/blob/main/.github/workflows/stale.yml
