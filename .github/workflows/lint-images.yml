@@ -40,7 +40,7 @@ env:
   REPOSITORY_NAME: ${{ github.repository }}
 
 jobs:
-  scan:
+  lint:
     runs-on: ubuntu-latest
     permissions:
       contents: read
