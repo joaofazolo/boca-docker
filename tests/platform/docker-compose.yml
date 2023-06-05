@@ -24,7 +24,7 @@ services:
 
     # web app
     boca-web:
-        image: ghcr.io/rlaiola/boca-docker/boca-web:1.2-focal
+        image: ghcr.io/joaofazolo/boca-docker/boca-web:1.2-focal
         platform: linux/ppc64le
         environment:
             # database configuration
@@ -35,7 +35,7 @@ services:
 
     # online judge
     boca-jail:
-        image: ghcr.io/rlaiola/boca-docker/boca-jail:1.2.0-jammy
+        image: ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0-jammy
         platform: linux/arm/v7
         privileged: true
 
