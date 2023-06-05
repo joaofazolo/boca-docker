@@ -76,7 +76,7 @@ jobs:
         image: ${{ fromJSON(inputs.images) }}
         parent: ${{ fromJSON(inputs.parents) }}
         platform: ${{ fromJSON(inputs.platforms) }}
-    name: build (${{ matrix.image }}, ${{ matrix.parent }})
+    name: build (${{ matrix.image }}, ${{ matrix.parent }}, ${{ matrix.platform }})
 
     steps:
       # Setting output parameters between steps, jobs and/or workflows
