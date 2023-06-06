@@ -20,5 +20,5 @@ announcement, and may ask for additional information or guidance surrounding the
 ## Comments on this policy
 
 If you have suggestions on how this process could be improved please submit a
-[pull request](https://github.com/joaofazolo/boca-docker/) or
+[pull request](https://github.com/joaofazolo/boca-docker/pulls) or
 [file an issue](https://github.com/joaofazolo/boca-docker/issues/new) to discuss.
