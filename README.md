@@ -123,7 +123,7 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 * **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
 
-* **Platform:** shows the syntax for selecting an image that matches a specific OS and architecture (alternatively, Docker does that automatically). See documentation [here](tests/platform/README.md).
+* **Multiple Platform:** shows the syntax for selecting an image that matches a specific OS and architecture (alternatively, Docker does that automatically). See documentation [here](tests/platform/README.md).
 
 ## How To Run On Different Ubuntu Release Images:
 
