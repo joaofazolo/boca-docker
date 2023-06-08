@@ -18,7 +18,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       images:
-        description: |
+        description: 
           Matrix of images to build (i.e., boca-base, boca-web and boca-jail)
         required: true
         type: string
@@ -47,7 +47,7 @@ on:
       ref:
         # The branch, tag or SHA to checkout in builds. If empty, check out
         # the repository that triggered the workflow.
-        description: |
+        description: 
           The branch, tag or SHA to checkout (empty for current branch)
         required: false
         type: string
@@ -80,7 +80,7 @@ jobs:
         image: ${{ fromJSON(inputs.images) }}
         parent: ${{ fromJSON(inputs.parents) }}
         platform: ${{ fromJSON(inputs.platforms) }}
-    name: |
+    name: 
       build (${{ matrix.image }}, ${{ matrix.parent }}, ${{ matrix.platform }})
 
     steps:
@@ -111,15 +111,15 @@ jobs:
           then
             BASE_IMAGE="${{ matrix.parent }}"
           else
-            BASE_IMAGE="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
-              boca-base:${{ github.ref_name }}"
+            BASE_IMAGE="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/"
+            BASE_IMAGE+="boca-base:${{ github.ref_name }}"
           fi
           echo $BASE_IMAGE
           echo "base_image=$BASE_IMAGE" >> $GITHUB_OUTPUT
 
           # Set image
-          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
-            ${{ matrix.image }}'
+          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/'
+          IMG+='${{ matrix.image }}'
           echo $IMG
           echo "image_name=$IMG" >> $GITHUB_OUTPUT
 
@@ -138,14 +138,16 @@ jobs:
           # Set the cache-to output
           # https://docs.docker.com/build/cache/backends/gha/
           echo "${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH"
-          echo "cache-to=type=gha,scope=${{ github.ref_name }}-\
-            ${{ matrix.image }}-$RELEASE-$ARCH" >> "${GITHUB_OUTPUT}"
+          CACHE_TO="type=gha,scope=${{ github.ref_name }}-"
+          CACHE_TO+="${{ matrix.image }}-$RELEASE-$ARCH"
+          echo "cache-to=$CACHE_TO" >> "${GITHUB_OUTPUT}"
 
           # Set the cache-from output
           if [[ '${{ github.event_name }}' == 'push' ]]; then
             echo "${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH"
-            echo "cache-from=type=gha,scope=${{ github.ref_name }}-\
-              ${{ matrix.image }}-$RELEASE-$ARCH" >> "${GITHUB_OUTPUT}"
+            CACHE_FROM="type=gha,scope=${{ github.ref_name }}-"
+            CACHE_FROM+="${{ matrix.image }}-$RELEASE-$ARCH"
+            echo "cache-from=$CACHE_FROM" >> "${GITHUB_OUTPUT}"
           else
             # Use cache from target branch too when building a pull request
             # In this case, it has to be a multiline string
@@ -202,7 +204,7 @@ jobs:
           images: ${{ steps.setup.outputs.image_name }}
           labels: |
             org.opencontainers.image.title=${{ matrix.image }}
-            org.opencontainers.image.description=\
+            org.opencontainers.image.description=
               A multi-platform/arch image of the boca-docker project
             org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
@@ -220,7 +222,8 @@ jobs:
           # If true, it provides build attestations describing the image
           # contents and how they were built.
           provenance: false
-          outputs: type=image,name=${{ steps.setup.outputs.image_name }},\
+          outputs: 
+            type=image,name=${{ steps.setup.outputs.image_name }},
             push-by-digest=true,name-canonical=true,push=true
           cache-from: |
             ${{ steps.setup.outputs.cache-from }}
@@ -239,7 +242,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v3
         with:
-          name: |
+          name: 
             digests-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}
           path: ${{ steps.setup.outputs.digests_path }}/*
           if-no-files-found: error
@@ -270,8 +273,8 @@ jobs:
           echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
 
           # Set image name
-          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
-            ${{ matrix.image }}'
+          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/'
+          IMG+='${{ matrix.image }}'
           echo $IMG
           echo "image_name=$IMG" >> $GITHUB_OUTPUT
 
@@ -314,7 +317,7 @@ jobs:
         name: Download digests
         uses: actions/download-artifact@v3
         with:
-          name: |
+          name: 
             digests-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}
           path: ${{ steps.setup.outputs.digests_path }}
 
@@ -335,23 +338,23 @@ jobs:
             type=schedule,pattern=nightly,enable=\
               ${{ matrix.parent == inputs.default_parent }}
             # new release
-            type=semver,pattern={{raw}},priority=900,suffix=
+            type=semver,pattern={{raw}},priority=900,suffix=\
               -${{ steps.setup.outputs.release_name }}
-            type=semver,pattern={{raw}},priority=1000,enable=
+            type=semver,pattern={{raw}},priority=1000,enable=\
               ${{ matrix.parent == inputs.default_parent }}
-            type=semver,pattern={{major}}.{{minor}},priority=900,
+            type=semver,pattern={{major}}.{{minor}},priority=900,\
               suffix=-${{ steps.setup.outputs.release_name }}
-            type=semver,pattern={{major}}.{{minor}},priority=1000,
+            type=semver,pattern={{major}}.{{minor}},priority=1000,\
               enable=${{ matrix.parent == inputs.default_parent }}
             # tag event (same as new release)
-            type=ref,event=tag,priority=900,suffix=
+            type=ref,event=tag,priority=900,suffix=\
               -${{ steps.setup.outputs.release_name }}
-            type=ref,event=tag,priority=1000,enable=
+            type=ref,event=tag,priority=1000,enable=\
               ${{ matrix.parent == inputs.default_parent }}
             # branch event
-            type=ref,event=branch,priority=900,suffix=
+            type=ref,event=branch,priority=900,suffix=\
               -${{ steps.setup.outputs.release_name }}
-            type=ref,event=branch,priority=1000,enable=
+            type=ref,event=branch,priority=1000,enable=\
               ${{ matrix.parent == inputs.default_parent }}
             # extra tags
             ${{ steps.setup.outputs.extra_tags }}
@@ -361,7 +364,7 @@ jobs:
               'refs/tags/') || inputs.latest == true ) }}
           labels: |
             org.opencontainers.image.title=${{ matrix.image }}
-            org.opencontainers.image.description=\
+            org.opencontainers.image.description=
               A multi-platform/arch image of the boca-docker project
             org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
