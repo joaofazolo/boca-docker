@@ -173,8 +173,8 @@ jobs:
         uses: actions/delete-package-versions@v4
         if: ${{ steps.untagged.outputs.digest_keys != '' }}
         with:
-          package-name: '${{ steps.setup.outputs.package_name }}/\
-            ${{ matrix.image }}'
+          package-name: |
+            '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
           package-type: 'container'
           delete-only-untagged-versions: 'true'
           ignore-versions: '${{ steps.untagged.outputs.digest_keys }}'
