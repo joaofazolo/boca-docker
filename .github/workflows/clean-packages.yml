@@ -246,6 +246,7 @@ jobs:
 
           PACKAGES_URL="/users/${{ env.OWNER_NAME }}/"
           PACKAGES_URL+="packages/container/${ENCODED_PACKAGE}/versions"
+          echo $PACKAGES_URL
 
           PACKAGES_JSON=$(gh api \
             -H "Accept: application/vnd.github+json" \
