@@ -130,8 +130,9 @@ jobs:
           # Unset variable
           unset DIGEST_KEYS
           # Set image
-          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
-            ${{ matrix.image }}"
+          IMG="${{ env.REGISTRY_HOST }}/"
+          IMG+="${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}"
           echo "$IMG"
 
           # Iterate over releases to get digests
@@ -185,8 +186,9 @@ jobs:
         run: |
 
           # Set image
-          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
-            ${{ matrix.image }}"
+          IMG="${{ env.REGISTRY_HOST }}/"
+          IMG+="${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}"
           echo "$IMG"
 
           # Get supported releases
