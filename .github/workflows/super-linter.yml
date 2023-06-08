@@ -54,7 +54,7 @@ jobs:
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
       - 
-        name: Checkout repository
+        name: Checkout repository (no ref input)
         uses: actions/checkout@v3
         if: ${{ inputs.ref == '' }}
         with:
@@ -63,7 +63,7 @@ jobs:
           fetch-depth: 0
 
       - 
-        name: Checkout repository
+        name: Checkout repository (with ref input)
         uses: actions/checkout@v3
         if: ${{ inputs.ref != '' }}
         with:
