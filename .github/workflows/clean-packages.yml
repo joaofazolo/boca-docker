@@ -130,8 +130,8 @@ jobs:
           # Unset variable
           unset DIGEST_KEYS
           # Set image
-          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
-            ${{ matrix.image }}
+          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
+            ${{ matrix.image }}"
 
           # Iterate over releases to get digests
           for version in ${RELEASES[@]};
