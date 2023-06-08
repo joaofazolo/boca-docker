@@ -272,7 +272,7 @@ jobs:
             CURR_VERSIONS=`echo $PACKAGES_JSON | \
                 jq --arg var $version \
                   '.[] | select(any(.metadata.container.tags[]; . == $var)) | \
-                    .metadata.container.tags'`
+                   .metadata.container.tags'`
             # Remove newlines, tabs, carriage returns and double quotes
             CURR_VERSIONS=$(echo $CURR_VERSIONS | tr -d "\n\t\r|\"")
             # Split string into an array
@@ -299,7 +299,7 @@ jobs:
               `echo $PACKAGES_JSON | \
                 jq --arg var $version \
                   '.[] | select(any(.metadata.container.tags[]; . == $var)) | \
-                    .id'`"
+                   .id'`"
           done
 
           # Remove newlines, tabs, carriage returns and double quotes
@@ -330,7 +330,7 @@ jobs:
         if: ${{ steps.unsupported.outputs.version_ids != '' }}
         with:
           package-version-ids: '${{ steps.unsupported.outputs.version_ids }}'
-          package-name: |
+          package-name:
             '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
