@@ -39,7 +39,7 @@ on:
       ref:
         # The branch, tag or SHA to checkout in builds. If empty, check out
         # the repository that triggered the workflow.
-        description: |
+        description:
           The branch, tag or SHA to checkout (empty for current branch)
         required: false
         type: string
