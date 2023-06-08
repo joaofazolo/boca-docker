@@ -18,7 +18,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       images:
-        description: |
+        description: 
           Matrix of images to scan (i.e., boca-base, boca-web and boca-jail)
         required: true
         type: string
@@ -81,8 +81,8 @@ jobs:
           # Split string into an array
           IFS=', ' read -r -a TAGS <<< "$TAGS"
 
-          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
-            ${{ matrix.image }}:${TAGS[0]}-$RELEASE"
+          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}:${TAGS[0]}-$RELEASE"
           echo $IMG
           echo "image_name=$IMG" >> $GITHUB_OUTPUT
 
@@ -93,6 +93,10 @@ jobs:
           ARCH=${ARCH//\//-}
           echo $ARCH
           echo "arch_name=$ARCH" >> $GITHUB_OUTPUT
+
+          REPORT="trivy-${{ matrix.image }}-$RELEASE-$ARCH-image-results"
+          echo $REPORT
+          echo "report_name=$REPORT" >> $GITHUB_OUTPUT
 
       # Create and boot a builder that can be used in the following steps of
       # the workflow
@@ -127,9 +131,7 @@ jobs:
         with:
           image-ref: '${{ steps.setup.outputs.image_name }}'
           format: 'sarif'
-          output: 'trivy-${{ matrix.image }}-\
-            ${{ steps.setup.outputs.release_name }}-\
-            ${{ steps.setup.outputs.arch_name }}-image-results.sarif'
+          output: '${{ steps.setup.outputs.report_name }}.sarif'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
@@ -142,7 +144,5 @@ jobs:
         name: Upload Trivy image scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'trivy-${{ matrix.image }}-\
-            ${{ steps.setup.outputs.release_name }}-\
-            ${{ steps.setup.outputs.arch_name }}-image-results.sarif'
+          sarif_file: '${{ steps.setup.outputs.report_name }}.sarif'
           category: 'image'
