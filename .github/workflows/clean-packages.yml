@@ -244,11 +244,12 @@ jobs:
           ENCODED_PACKAGE="${ENCODED_PACKAGE//\//\%2F}"
           echo $ENCODED_PACKAGE
 
+          PACKAGES_URL="/users/${{ env.OWNER_NAME }}/"
+          PACKAGES_URL+="packages/container/${ENCODED_PACKAGE}/versions"
+
           PACKAGES_JSON=$(gh api \
             -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /users/${{ env.OWNER_NAME }}/packages/container/\
-            ${ENCODED_PACKAGE}/versions || echo "")
+            -H "X-GitHub-Api-Version: 2022-11-28" ${PACKAGES_URL} || echo "")
           echo $PACKAGES_JSON
 
           # If list of package versions does not exist just fail
