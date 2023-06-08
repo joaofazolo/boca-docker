@@ -20,6 +20,7 @@
 
 # Build on base image
 ARG BASE_IMAGE=boca-base
+# hadolint ignore=DL3006
 FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE}
 
 ARG TARGETPLATFORM
@@ -33,9 +34,11 @@ ENV UPDATED_AT 2023-06-01
 
 # Redundant but to ensure we are not going to break anything
 # https://github.com/cassiopc/boca/tree/master/tools
+# hadolint ignore=DL3002
 USER root
 
 # Install dependencies
+# hadolint ignore=DL3008,DL3015
 RUN apt-get -y update \
     && apt-get -y install \
         # Package: boca-autojudge

@@ -20,6 +20,7 @@
 
 # Build on base image
 ARG BASE_IMAGE=boca-base
+# hadolint ignore=DL3006
 FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE}
 
 ARG TARGETPLATFORM
@@ -45,6 +46,7 @@ ENV APACHE_LOG_DIR   /var/log/apache2
 USER root
 
 # Install dependencies
+# hadolint ignore=DL3008,DL3015,DL4006
 RUN apt-get -y update \
     && echo N | apt-get -y install \
         # Package: boca-web
