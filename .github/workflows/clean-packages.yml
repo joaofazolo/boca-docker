@@ -184,8 +184,8 @@ jobs:
         run: |
 
           # Set image
-          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
-            ${{ matrix.image }}
+          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
+            ${{ matrix.image }}"
 
           # Get supported releases
           RELEASES=${{ toJSON(needs.setup.outputs.release) }}
