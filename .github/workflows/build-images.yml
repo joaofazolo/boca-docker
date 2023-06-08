@@ -156,9 +156,9 @@ jobs:
             echo "cache-from<<${EOF}" >> "${GITHUB_OUTPUT}"
             printf '%s\n' \
               "type=gha,scope=${{ github.ref_name }}-${{ matrix.image }}-\
-                $RELEASE-$ARCH" \
+              $RELEASE-$ARCH" \
               "type=gha,scope=${{ github.base_ref }}-${{ matrix.image }}-\
-                $RELEASE-$ARCH" \
+              $RELEASE-$ARCH" \
               >> "${GITHUB_OUTPUT}"
             echo "${EOF}" >> "${GITHUB_OUTPUT}"
           fi
@@ -202,10 +202,12 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ steps.setup.outputs.image_name }}
-          labels: |
+          labels: >-
             org.opencontainers.image.title=${{ matrix.image }}
+
             org.opencontainers.image.description=
-              A multi-platform/arch image of the boca-docker project
+            A multi-platform/arch image of the boca-docker project
+
             org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
       - 
@@ -222,12 +224,12 @@ jobs:
           # If true, it provides build attestations describing the image
           # contents and how they were built.
           provenance: false
-          outputs: 
+          outputs: >-
             type=image,name=${{ steps.setup.outputs.image_name }},
             push-by-digest=true,name-canonical=true,push=true
-          cache-from: |
+          cache-from: >-
             ${{ steps.setup.outputs.cache-from }}
-          cache-to: |
+          cache-to: >-
             ${{ steps.setup.outputs.cache-to }}
 
       - name: Export digest
@@ -299,9 +301,10 @@ jobs:
             EXTRA_TAGS="
               ${EXTRA_TAGS} \
               type=raw,value=${tag},priority=1000,enable=\
-                ${{ matrix.parent == inputs.default_parent }} \
+              ${{ matrix.parent == inputs.default_parent }} \
+              \
               type=raw,value=${tag},priority=900,suffix=-${RELEASE},\
-                enable=true"
+              enable=true"
           done
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -331,41 +334,58 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ steps.setup.outputs.image_name }}
-          tags: |
+          tags: >-
             # nightly build
-            type=schedule,pattern=nightly,suffix=\
-              -${{ steps.setup.outputs.release_name }}
-            type=schedule,pattern=nightly,enable=\
-              ${{ matrix.parent == inputs.default_parent }}
+
+            type=schedule,pattern=nightly,suffix=
+            -${{ steps.setup.outputs.release_name }}
+
+            type=schedule,pattern=nightly,enable=
+            ${{ matrix.parent == inputs.default_parent }}
+
             # new release
-            type=semver,pattern={{raw}},priority=900,suffix=\
-              -${{ steps.setup.outputs.release_name }}
-            type=semver,pattern={{raw}},priority=1000,enable=\
-              ${{ matrix.parent == inputs.default_parent }}
-            type=semver,pattern={{major}}.{{minor}},priority=900,\
-              suffix=-${{ steps.setup.outputs.release_name }}
-            type=semver,pattern={{major}}.{{minor}},priority=1000,\
-              enable=${{ matrix.parent == inputs.default_parent }}
+
+            type=semver,pattern={{raw}},priority=900,suffix=
+            -${{ steps.setup.outputs.release_name }}
+
+            type=semver,pattern={{raw}},priority=1000,enable=
+            ${{ matrix.parent == inputs.default_parent }}
+
+            type=semver,pattern={{major}}.{{minor}},priority=900,suffix=
+            -${{ steps.setup.outputs.release_name }}
+
+            type=semver,pattern={{major}}.{{minor}},priority=1000,enable=
+            ${{ matrix.parent == inputs.default_parent }}
+
             # tag event (same as new release)
-            type=ref,event=tag,priority=900,suffix=\
-              -${{ steps.setup.outputs.release_name }}
-            type=ref,event=tag,priority=1000,enable=\
-              ${{ matrix.parent == inputs.default_parent }}
+
+            type=ref,event=tag,priority=900,suffix=
+            -${{ steps.setup.outputs.release_name }}
+
+            type=ref,event=tag,priority=1000,enable=
+            ${{ matrix.parent == inputs.default_parent }}
+
             # branch event
-            type=ref,event=branch,priority=900,suffix=\
-              -${{ steps.setup.outputs.release_name }}
-            type=ref,event=branch,priority=1000,enable=\
-              ${{ matrix.parent == inputs.default_parent }}
+
+            type=ref,event=branch,priority=900,suffix=
+            -${{ steps.setup.outputs.release_name }}
+
+            type=ref,event=branch,priority=1000,enable=
+            ${{ matrix.parent == inputs.default_parent }}
+
             # extra tags
+
             ${{ steps.setup.outputs.extra_tags }}
-          flavor: |
+          flavor: >-
             latest=${{ matrix.parent == inputs.default_parent && 
-              (github.event_name == 'push' && contains(github.ref, 
-              'refs/tags/') || inputs.latest == true ) }}
-          labels: |
+            (github.event_name == 'push' && contains(github.ref, 
+            'refs/tags/') || inputs.latest == true ) }}
+          labels: >-
             org.opencontainers.image.title=${{ matrix.image }}
+
             org.opencontainers.image.description=
-              A multi-platform/arch image of the boca-docker project
+            A multi-platform/arch image of the boca-docker project
+
             org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
       - 
@@ -382,7 +402,7 @@ jobs:
         run: |
 
           docker buildx imagetools create \
-            $(jq -r '"-t " + (.tags | join(" -t "))' <<< 
+            $(jq -r '"-t " + (.tags | join(" -t "))' <<< \
               '${{ steps.meta.outputs.json }}') \
               $(printf '${{ steps.setup.outputs.image_name }}@sha256:%s ' *)
 
@@ -392,4 +412,4 @@ jobs:
       
           docker buildx imagetools inspect \
             '${{ steps.setup.outputs.image_name }}:\
-              ${{ steps.meta.outputs.version }}'
+            ${{ steps.meta.outputs.version }}'
