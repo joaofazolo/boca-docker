@@ -132,6 +132,7 @@ jobs:
           # Set image
           IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
             ${{ matrix.image }}"
+          echo "$IMG"
 
           # Iterate over releases to get digests
           for version in ${RELEASES[@]};
@@ -186,6 +187,7 @@ jobs:
           # Set image
           IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
             ${{ matrix.image }}"
+          echo "$IMG"
 
           # Get supported releases
           RELEASES=${{ toJSON(needs.setup.outputs.release) }}
