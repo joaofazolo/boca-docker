@@ -55,8 +55,8 @@ jobs:
       # https://github.com/actions/checkout
       - 
         name: Checkout repository
-        if: ${{ inputs == '' }}
         uses: actions/checkout@v3
+        if: ${{ inputs.ref == '' }}
         with:
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
@@ -64,8 +64,8 @@ jobs:
 
       - 
         name: Checkout repository
-        if: ${{ inputs != '' && inputs.ref != '' }}
         uses: actions/checkout@v3
+        if: ${{ inputs.ref != '' }}
         with:
           ref: "${{ inputs.ref }}"
           # Full git history is needed to get a proper
@@ -76,8 +76,8 @@ jobs:
       # https://github.com/super-linter/super-linter
       - 
         name: Run Super-Linter on code base
-        uses: github/super-linter@v5
-        # uses: super-linter/super-linter/slim@v5
+        #uses: github/super-linter@v5
+        uses: super-linter/super-linter/slim@v5
         env:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_MARKDOWN: true
