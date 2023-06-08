@@ -1,3 +1,4 @@
+---  
 name: Delete GitHub Actions cache for repository
 
 # This workflow uses actions that are not certified by GitHub.
@@ -25,7 +26,8 @@ jobs:
   cleanup:
     permissions:
       # `actions:write` permission is required to delete caches
-      # See also: https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-a-github-actions-cache-for-a-repository-using-a-cache-id
+      # See also: 
+      # https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-a-github-actions-cache-for-a-repository-using-a-cache-id
       actions: write
       contents: read
     runs-on: ubuntu-latest
@@ -46,7 +48,7 @@ jobs:
       #   name: Install GH CLI
       #   uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
       #   with:
-      #     gh-cli-version: 2.14.2 # optional, see action.yml for current default
+      #     gh-cli-version: 2.14.2 # optional
 
       # Force deletion of caches overriding default cache eviction policy
       # https://github.com/actions/cache
@@ -79,7 +81,7 @@ jobs:
               break
             fi
 
-            # Setting this to not fail the workflow while deleting cache keys. 
+            # Setting this to not fail the workflow while deleting cache keys.
             set +e
             echo "Deleting caches..."
             for cachekey in ${CACHE_KEYS[@]}

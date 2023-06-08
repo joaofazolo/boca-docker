@@ -1,3 +1,4 @@
+---
 name: Read build matrix from file
 
 # This workflow uses actions that are not certified by GitHub.
@@ -22,19 +23,19 @@ on:
     # Map the workflow outputs to job outputs
     outputs:
       release:
-        description: "Matrix of supported image tags/releases (e.g., 1.0.0)"
+        description: Matrix of supported image tags/releases (e.g., 1.0.0)
         value: ${{ jobs.get-matrix.outputs.release }}
       default_release:
-        description: "Default image tag/release"
+        description: Default image tag/release
         value: ${{ jobs.get-matrix.outputs.default_release }}
       parent:
-        description: "Matrix of parent/base images used in builds"
+        description: Matrix of parent/base images used in builds
         value: ${{ jobs.get-matrix.outputs.parent }}
       default_parent:
-        description: "Default parent/base image"
+        description: Default parent/base image
         value: ${{ jobs.get-matrix.outputs.default_parent }}
       platform:
-        description: "Matrix of os/platform-specific target builds (multi-arch)"
+        description: Matrix of os/platform-specific target builds (multi-arch)
         value: ${{ jobs.get-matrix.outputs.platform }}
 
 jobs:
@@ -89,7 +90,8 @@ jobs:
           # Split string into an array
           IFS=', ' read -r -a DEFAULT_RELEASE <<< "$DEFAULT_RELEASE"
           IFS=', ' read -r -a DEFAULT_PARENT <<< "$DEFAULT_PARENT"
-          # Set default release and base image (parent) as the first value of the array
+          # Set default release and base image (parent) as the first value of
+          # the array
           DEFAULT_RELEASE=${DEFAULT_RELEASE[0]}
           echo $DEFAULT_RELEASE
           DEFAULT_PARENT=${DEFAULT_PARENT[0]}

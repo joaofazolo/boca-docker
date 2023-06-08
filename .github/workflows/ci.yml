@@ -1,3 +1,4 @@
+---
 name: CI
 
 # This workflow uses actions that are not certified by GitHub.
@@ -20,25 +21,26 @@ on:
     - cron: '15 6 * * MON'
   push:
     # Publish semver tags as releases (e.g., 1.0.0)
-    tags: [ '*.*.*' ]
+    tags: ['*.*.*']
   # or on button click
   workflow_dispatch:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
     inputs:
       tags:
-        description: "Image tags (whitespace-separated)"
+        description: Image tags (whitespace-separated)
         required: true
         type: string
       latest:
         # The latest tag is automatically handled through the new tag/release
         # event. Set for conditionally tagging with the latest tag.
-        description: "For conditionally tagging with the latest tag"
+        description: For conditionally tagging with the latest tag
         required: false
         type: boolean
       ref:
         # The branch, tag or SHA to checkout in builds. If empty, check out
         # the repository that triggered the workflow.
-        description: "The branch, tag or SHA to checkout (empty for current branch)"
+        description: |
+          The branch, tag or SHA to checkout (empty for current branch)
         required: false
         type: string
 

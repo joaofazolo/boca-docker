@@ -1,3 +1,4 @@
+---
 name: Delete untagged and/or unsupported Docker images on ghcr.io
 
 # This workflow uses actions that are not certified by GitHub.
@@ -20,7 +21,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
     inputs:
       tags:
-        description: 'Spare unsupported tags (whitespace-separated)'
+        description: Spare unsupported tags (whitespace-separated)
         required: false
         type: string
   # or on calling as reusable workflow
@@ -28,7 +29,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       tags:
-        description: 'Spare unsupported tags (whitespace-separated)'
+        description: Spare unsupported tags (whitespace-separated)
         required: false
         type: string
 
@@ -100,7 +101,7 @@ jobs:
       #   name: Install GH CLI
       #   uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
       #   with:
-      #     gh-cli-version: 2.14.2 # optional, see action.yml for current default
+      #     gh-cli-version: 2.14.2 # optional
 
       - 
         name: Compile untagged versions/releases to ignore
@@ -129,7 +130,8 @@ jobs:
           # Unset variable
           unset DIGEST_KEYS
           # Set image
-          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
+            ${{ matrix.image }}
 
           # Iterate over releases to get digests
           for version in ${RELEASES[@]};
@@ -169,7 +171,8 @@ jobs:
         uses: actions/delete-package-versions@v4
         if: ${{ steps.untagged.outputs.digest_keys != '' }}
         with:
-          package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
+          package-name: '${{ steps.setup.outputs.package_name }}/\
+            ${{ matrix.image }}'
           package-type: 'container'
           delete-only-untagged-versions: 'true'
           ignore-versions: '${{ steps.untagged.outputs.digest_keys }}'
@@ -181,7 +184,8 @@ jobs:
         run: |
 
           # Set image
-          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
+            ${{ matrix.image }}
 
           # Get supported releases
           RELEASES=${{ toJSON(needs.setup.outputs.release) }}
@@ -239,7 +243,8 @@ jobs:
           PACKAGES_JSON=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /users/${{ env.OWNER_NAME }}/packages/container/${ENCODED_PACKAGE}/versions || echo "")
+            /users/${{ env.OWNER_NAME }}/packages/container/${ENCODED_PACKAGE}/\
+              versions || echo "")
           echo $PACKAGES_JSON
 
           # If list of package versions does not exist just fail
@@ -260,7 +265,8 @@ jobs:
             # with a supported one
             CURR_VERSIONS=`echo $PACKAGES_JSON | \
                 jq --arg var $version \
-                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | .metadata.container.tags'`
+                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | \
+                    .metadata.container.tags'`
             # Remove newlines, tabs, carriage returns and double quotes
             CURR_VERSIONS=$(echo $CURR_VERSIONS | tr -d "\n\t\r|\"")
             # Split string into an array
@@ -286,7 +292,8 @@ jobs:
             VERSION_IDS="${VERSION_IDS} \
               `echo $PACKAGES_JSON | \
                 jq --arg var $version \
-                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | .id'`"
+                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | \
+                    .id'`"
           done
 
           # Remove newlines, tabs, carriage returns and double quotes
@@ -317,6 +324,7 @@ jobs:
         if: ${{ steps.unsupported.outputs.version_ids != '' }}
         with:
           package-version-ids: '${{ steps.unsupported.outputs.version_ids }}'
-          package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
+          package-name: |
+            '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}

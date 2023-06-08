@@ -1,4 +1,6 @@
-name: Lint for best practices and CIS benchmarks of multi-platform Docker images on ghcr.io
+---
+name: Lint for best practices and CIS benchmarks of multi-platform Docker
+  images on ghcr.io
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -17,19 +19,20 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       images:
-        description: "Matrix of images to lint (i.e., boca-base, boca-web and boca-jail)"
+        description: |
+          Matrix of images to lint (i.e., boca-base, boca-web and boca-jail)
         required: true
         type: string
       parents:
-        description: 'Matrix of parent/base images used in builds'
+        description: Matrix of parent/base images used in builds
         required: true
         type: string
       platforms:
-        description: "Matrix of target os/platforms (multi-arch)"
+        description: Matrix of target os/platforms (multi-arch)
         required: true
         type: string
       tag:
-        description: "Image tag"
+        description: Image tag
         required: true
         type: string
 
@@ -46,8 +49,8 @@ jobs:
       contents: read
       # for github/codeql-action/upload-sarif to upload SARIF results
       security-events: write
-      # only required for a private repository by github/codeql-action/upload-sarif 
-      # to get the Action run status
+      # only required for a private repository by
+      # github/codeql-action/upload-sarif to get the Action run status
       actions: read
     strategy:
       # If is set to true (default), GitHub will cancel all in-progress and
@@ -79,7 +82,8 @@ jobs:
           # Split string into an array
           IFS=', ' read -r -a TAGS <<< "$TAGS"
 
-          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}:${TAGS[0]}-$RELEASE"
+          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/\
+            ${{ matrix.image }}:${TAGS[0]}-$RELEASE"
           echo $IMG
           echo "image_name=$IMG" >> $GITHUB_OUTPUT
 
@@ -118,7 +122,8 @@ jobs:
         name: Pull Docker image from ghcr.io
         run: |
         
-          docker pull --platform ${{ matrix.platform }} ${{ steps.setup.outputs.image_name }}
+          docker pull --platform ${{ matrix.platform }} \
+            ${{ steps.setup.outputs.image_name }}
           docker image ls -a
 
       # Run Dockle best practices linter on image
@@ -129,17 +134,22 @@ jobs:
         with:
           image: ${{ steps.setup.outputs.image_name }}
           report-format: sarif
-          report-name: 'dockle-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results'
+          report-name: 'dockle-${{ matrix.image }}-\
+            ${{ steps.setup.outputs.release_name }}-\
+            ${{ steps.setup.outputs.arch_name }}-image-results'
           failure-threshold: fatal
           # Change to 1 in order to stop the pipeline on failure
           # exit-code: 1
           timeout: 10m
 
-      # Upload results to GitHub so they can be displayed in the repository' security tab
+      # Upload results to GitHub so they can be displayed in the repository'
+      # security tab
       # https://github.com/github/codeql-action
       - 
         name: Upload Dockle image lint results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'dockle-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}-${{ steps.setup.outputs.arch_name }}-image-results.sarif'
+          sarif_file: 'dockle-${{ matrix.image }}-\
+            ${{ steps.setup.outputs.release_name }}-\
+            ${{ steps.setup.outputs.arch_name }}-image-results.sarif'
           category: 'image'
