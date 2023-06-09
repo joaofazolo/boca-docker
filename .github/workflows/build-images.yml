@@ -397,6 +397,7 @@ jobs:
         name: Inspect image
         run: |
       
-          docker buildx imagetools inspect \
-            '${{ steps.setup.outputs.image_name }}:\
-            ${{ steps.meta.outputs.version }}'
+          IMG="${{ steps.setup.outputs.image_name }}:"
+          IMG+="${{ steps.meta.outputs.version }}"
+
+          docker buildx imagetools inspect $IMG
