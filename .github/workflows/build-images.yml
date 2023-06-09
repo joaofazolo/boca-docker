@@ -298,33 +298,32 @@ jobs:
           # Set tags dynamically
           # Nightly build
           EXTRA_TAGS="\
-            type=schedule,pattern=nightly,suffix=-${RELEASE} \
+            type=schedule,pattern=nightly,suffix=-${RELEASE}
             type=schedule,pattern=nightly,enable=${ENABLED}"
           # New release
-          EXTRA_TAGS+="\
-            type=semver,pattern={{raw}},priority=900,suffix=-${RELEASE} \
+          EXTRA_TAGS+="
+            type=semver,pattern={{raw}},priority=900,suffix=-${RELEASE}
             type=semver,pattern={{raw}},priority=1000,enable=${ENABLED}"
-          EXTRA_TAGS+="\
+          EXTRA_TAGS+="
             type=semver,pattern={{major}}.{{minor}},priority=900,"
-          EXTRA_TAGS+="suffix=-${RELEASE} \
+          EXTRA_TAGS+="suffix=-${RELEASE}
             type=semver,pattern={{major}}.{{minor}},priority=1000,"
           EXTRA_TAGS+="enable=${ENABLED}"
           # Tag event (same as new release)
-          EXTRA_TAGS+="\
-            type=ref,event=tag,priority=900,suffix=-${RELEASE} \
+          EXTRA_TAGS+="
+            type=ref,event=tag,priority=900,suffix=-${RELEASE}
             type=ref,event=tag,priority=1000,enable=${ENABLED}"
           # Branch event
-          EXTRA_TAGS+="\
-            type=ref,event=branch,priority=900,suffix=-${RELEASE} \
+          EXTRA_TAGS+="
+            type=ref,event=branch,priority=900,suffix=-${RELEASE}
             type=ref,event=branch,priority=1000,enable=${ENABLED}"
 
           for t in ${TAGS[@]};
           do
             echo "${t}"
 
-            EXTRA_TAGS="
-              ${EXTRA_TAGS} \
-              type=raw,value=${t},priority=1000,enable=${ENABLED} \
+            EXTRA_TAGS="${EXTRA_TAGS}
+              type=raw,value=${t},priority=1000,enable=${ENABLED}
               type=raw,value=${t},priority=900,suffix=-${RELEASE},enable=true"
           done
 
