@@ -98,10 +98,10 @@ jobs:
               echo "Tag ${LATEST} does not exist"
 
               # Create tag/release latest if it does not exist
-              $(gh release create ${LATEST} \
+              try=$(gh release create ${LATEST} \
                 --title "${LATEST} (beta)" \
                 --notes "This release has been automatically generated." \
-                --prerelease)
+                --prerelease || echo "")
             else
               echo "Tag ${LATEST} exists"
             fi
