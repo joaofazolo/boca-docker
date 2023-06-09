@@ -121,10 +121,11 @@ jobs:
             echo "$TAGS"
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
+            LATEST=${TAGS}
             # Check for latest tag
             ret_code=$(git show-ref --tags 
-                                     --verify
-                                     --quiet "refs/tags/${LATEST}" || echo 1)
+                                    --verify
+                                    --quiet "refs/tags/${LATEST}" || echo 1)
             echo "${ret_code}"
             if [[ -z "${ret_code}" ]];
             then
@@ -132,10 +133,10 @@ jobs:
             else
               echo "Tag ${LATEST} does not exist"
 
-              # Create latest tag
-              git tag -a ${LATEST} -m \
-                "Release of version ${LATEST} (automatically generated)"
-              git push origin ${LATEST}
+              # # Create latest tag
+              # git tag -a ${LATEST} -m \
+              #   "Release of version ${LATEST} (automatically generated)"
+              # git push origin ${LATEST}
 
               # Create a release
               gh release create ${LATEST} \
