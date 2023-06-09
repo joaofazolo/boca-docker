@@ -89,8 +89,8 @@ jobs:
           if [[ "${LATEST}" == "${{ inputs.tags }}" ]];
           then
             # Check if the tag exists
-            ret_code=$(git show-ref --tags 
-                                    --verify
+            ret_code=$(git show-ref --tags \
+                                    --verify \
                                     --quiet "refs/tags/${LATEST}" || echo 1)
             echo "${ret_code}"
             if [[ -z "${ret_code}" ]];
