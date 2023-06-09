@@ -101,7 +101,7 @@ jobs:
               try=$(gh release create ${LATEST} \
                 --title "${LATEST} (beta)" \
                 --notes "This release has been automatically generated." \
-                --prerelease || echo "")
+                --prerelease || echo "Could not create tag/release.")
             else
               echo "Tag ${LATEST} exists"
             fi
