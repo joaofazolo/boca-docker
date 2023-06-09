@@ -70,7 +70,7 @@ jobs:
             # Remove newlines, tabs, carriage returns and double quotes
             CACHE_KEYS=$(echo $CACHE_KEYS | tr -d "\n\t\r|\"")
             # Split string into an array
-            IFS=', ' read -r -a CACHE_KEYS <<< '$CACHE_KEYS'
+            IFS=', ' read -r -a CACHE_KEYS <<< "$CACHE_KEYS"
             # Get length of $CACHE_KEYS array
             LEN=${#CACHE_KEYS[@]}
             echo 'Number of cache entries: $LEN'
