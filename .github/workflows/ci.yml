@@ -106,8 +106,6 @@ jobs:
                 --title "${LATEST} (beta)" \
                 --notes "This release has been automatically generated." \
                 --prerelease
-
-              exit 1
             fi
 
             # Set alternative tag
@@ -131,13 +129,17 @@ jobs:
             echo "$TAGS"
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
+            LATEST=${TAGS}
+            gh release create ${LATEST} \
+              --title "${LATEST} (beta)" \
+              --notes "This release has been automatically generated." \
+              --prerelease
+
             echo "${{ inputs.latest }}"
             echo "latest=${{ inputs.latest == true }}" >> "$GITHUB_OUTPUT"
 
             echo "${{ inputs.ref }}"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
-
-            exit 1
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
