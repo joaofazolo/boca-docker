@@ -84,13 +84,11 @@ jobs:
         id: set-inputs
         run: |
 
-          # Check whether it is a schedule to rebuild image with latest tag
-          CRON_EVENT="${{ github.event.schedule }}"
-          if [[ "${CRON_EVENT}" == '15 6 * * MON' ]];
+          LATEST="${{ needs.setup-matrix.outputs.default_release }}"
+          # Is it the equivalent to the tag latest?
+          if [[ "${LATEST}" == "${{ inputs.tags }}" ]];
           then
-            LATEST="${{ needs.setup-matrix.outputs.default_release }}"
-
-            # Check for the latest tag equivalent
+            # Check if the tag exists
             ret_code=$(git show-ref --tags 
                                     --verify
                                     --quiet "refs/tags/${LATEST}" || echo 1)
@@ -107,7 +105,12 @@ jobs:
                 --notes "This release has been automatically generated." \
                 --prerelease
             fi
+          fi
 
+          # Check whether it is a schedule to rebuild image with latest tag
+          CRON_EVENT="${{ github.event.schedule }}"
+          if [[ "${CRON_EVENT}" == '15 6 * * MON' ]];
+          then
             # Set alternative tag
             SHORT_VERSION=${LATEST%.*}
             TAGS="${LATEST} ${SHORT_VERSION}"
@@ -122,18 +125,18 @@ jobs:
           # Otherwise, this is the regular path
           else
             TAGS="${{ inputs.tags }}"
+            # Is it empty?
             if [[ -z "${TAGS}" ]];
             then
               TAGS="${GITHUB_REF#refs/*/}"
+            # Is it the latest tag?
+            elsif [[ "${LATEST}" == "${{ inputs.tags }}" ]];
+            then
+              SHORT_VERSION=${LATEST%.*}
+              TAGS="${LATEST} ${SHORT_VERSION}"
             fi
             echo "$TAGS"
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
-
-            LATEST=${TAGS}
-            gh release create ${LATEST} \
-              --title "${LATEST} (beta)" \
-              --notes "This release has been automatically generated." \
-              --prerelease
 
             echo "${{ inputs.latest }}"
             echo "latest=${{ inputs.latest == true }}" >> "$GITHUB_OUTPUT"
