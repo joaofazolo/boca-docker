@@ -69,6 +69,14 @@ jobs:
       - setup-matrix
 
     steps:
+      # Checkout a repository, so the workflow can access it
+      # https://github.com/actions/checkout
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: '${{ inputs.ref }}'
+
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
       - 
@@ -81,6 +89,18 @@ jobs:
           if [[ ${CRON_EVENT} == '15 6 * * MON' ]];
           then
             LATEST="${{ needs.setup-matrix.outputs.default_release }}"
+
+            # Check for latest tag
+            git show-ref --tags --verify --quiet "refs/tags/${LATEST}" 
+            exit_code=$?
+            echo "${exit_code}"
+            if [[ $exit_code -eq 0 ]]; then
+              echo "Tag ${TAG} exists"
+            else
+              echo "Tag ${TAG} does not exist"
+            fi
+
+            # Set alternative tag
             SHORT_VERSION=${LATEST%.*}
             TAGS="${LATEST} ${SHORT_VERSION}"
             echo "${TAGS}"
@@ -100,6 +120,16 @@ jobs:
             fi
             echo "$TAGS"
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+
+            # Check for latest tag
+            git show-ref --tags --verify --quiet "refs/tags/${LATEST}" 
+            exit_code=$?
+            echo "${exit_code}"
+            if [[ $exit_code -eq 0 ]]; then
+              echo "Tag ${TAG} exists"
+            else
+              echo "Tag ${TAG} does not exist"
+            fi
 
             echo "${{ inputs.latest }}"
             echo "latest=${{ inputs.latest == true }}" >> "$GITHUB_OUTPUT"
