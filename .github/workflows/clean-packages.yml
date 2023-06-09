@@ -188,7 +188,7 @@ jobs:
           # Set image
           IMG="${{ env.REGISTRY_HOST }}/"
           IMG+="${{ env.REPOSITORY_NAME }}/"
-          IMG+="${{ matrix.image }}""
+          IMG+="${{ matrix.image }}"
           echo "$IMG"
 
           # Get supported releases
