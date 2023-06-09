@@ -171,7 +171,6 @@ jobs:
       - 
         name: Delete untagged Docker images on ghcr.io
         uses: actions/delete-package-versions@v4
-        if: ${{ steps.untagged.outputs.digest_keys != '' }}
         with:
           package-name: 
             '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
