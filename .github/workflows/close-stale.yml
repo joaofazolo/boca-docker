@@ -40,7 +40,7 @@ jobs:
         uses: actions/stale@v8
         with:
           # Run the stale workflow as dry-run (no actions will be taken)
-          debug-only: true
+          # debug-only: true
           stale-issue-label: stale
           stale-issue-message: ${{ env.ISSUE_WARN_MESSAGE }}
           stale-pr-message: ${{ env.PR_WARN_MESSAGE }}
