@@ -1,4 +1,3 @@
 - Documentation: Add example of automatic data ingestion with bind mount (for data migration between boca-docker instances);
 - Bug?: Rethink docker/dev/web/init.sh (only create database if non-privileged user cannot connect after user creation?);
-- Linter: Dockerfiles and Shell Scripts
 - Tests: Propose automatic tests for build images (e.g., run example problems in regular programming languages);

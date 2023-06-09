@@ -1,3 +1,4 @@
+---
 name: Delete untagged and/or unsupported Docker images on ghcr.io
 
 # This workflow uses actions that are not certified by GitHub.
@@ -20,7 +21,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
     inputs:
       tags:
-        description: 'Spare unsupported tags (whitespace-separated)'
+        description: Spare unsupported tags (whitespace-separated)
         required: false
         type: string
   # or on calling as reusable workflow
@@ -28,7 +29,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       tags:
-        description: 'Spare unsupported tags (whitespace-separated)'
+        description: Spare unsupported tags (whitespace-separated)
         required: false
         type: string
 
@@ -71,12 +72,12 @@ jobs:
         id: setup
         run: |
 
-          OWNER='${{ env.OWNER_NAME }}'
-          REPO='${{ env.REPOSITORY_NAME }}'
+          OWNER="${{ env.OWNER_NAME }}"
+          REPO="${{ env.REPOSITORY_NAME }}"
           # Remove owner from repository name
           PACKAGE=${REPO//$OWNER\//}
-          echo $PACKAGE
-          echo "package_name=${PACKAGE}" >> $GITHUB_OUTPUT
+          echo "$PACKAGE"
+          echo "package_name=${PACKAGE}" >> "$GITHUB_OUTPUT"
 
       # Set up GitHub Actions workflow with a specific version of Go
       # https://github.com/actions/setup-go
@@ -100,7 +101,7 @@ jobs:
       #   name: Install GH CLI
       #   uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
       #   with:
-      #     gh-cli-version: 2.14.2 # optional, see action.yml for current default
+      #     gh-cli-version: 2.14.2 # optional
 
       - 
         name: Compile untagged versions/releases to ignore
@@ -129,7 +130,10 @@ jobs:
           # Unset variable
           unset DIGEST_KEYS
           # Set image
-          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          IMG="${{ env.REGISTRY_HOST }}/"
+          IMG+="${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}"
+          echo "$IMG"
 
           # Iterate over releases to get digests
           for version in ${RELEASES[@]};
@@ -157,10 +161,10 @@ jobs:
           DIGEST_KEYS=$(echo $DIGEST_KEYS | tr -d "\n\t\r|\"")
           # Replace white spaces with '|'
           DIGEST_KEYS="${DIGEST_KEYS// /|}"
-          echo $DIGEST_KEYS
+          echo "$DIGEST_KEYS"
 
           # Passing env variable between steps
-          echo "digest_keys=${DIGEST_KEYS}" >> $GITHUB_OUTPUT
+          echo "digest_keys=${DIGEST_KEYS}" >> "$GITHUB_OUTPUT"
 
       # Delete package versions
       # https://github.com/actions/delete-package-versions
@@ -169,7 +173,8 @@ jobs:
         uses: actions/delete-package-versions@v4
         if: ${{ steps.untagged.outputs.digest_keys != '' }}
         with:
-          package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
+          package-name: 
+            '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
           package-type: 'container'
           delete-only-untagged-versions: 'true'
           ignore-versions: '${{ steps.untagged.outputs.digest_keys }}'
@@ -181,7 +186,10 @@ jobs:
         run: |
 
           # Set image
-          IMG=${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/${{ matrix.image }}
+          IMG="${{ env.REGISTRY_HOST }}/"
+          IMG+="${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}"
+          echo "$IMG"
 
           # Get supported releases
           RELEASES=${{ toJSON(needs.setup.outputs.release) }}
@@ -234,13 +242,16 @@ jobs:
           ENCODED_PACKAGE="${PACKAGE}/${{ matrix.image }}"
           # Replace '/' with '%2F'
           ENCODED_PACKAGE="${ENCODED_PACKAGE//\//\%2F}"
-          echo $ENCODED_PACKAGE
+          echo "$ENCODED_PACKAGE"
+
+          PACKAGES_URL="/users/${{ env.OWNER_NAME }}/"
+          PACKAGES_URL+="packages/container/${ENCODED_PACKAGE}/versions"
+          echo "$PACKAGES_URL"
 
           PACKAGES_JSON=$(gh api \
             -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /users/${{ env.OWNER_NAME }}/packages/container/${ENCODED_PACKAGE}/versions || echo "")
-          echo $PACKAGES_JSON
+            -H "X-GitHub-Api-Version: 2022-11-28" ${PACKAGES_URL} || echo "")
+          echo "$PACKAGES_JSON"
 
           # If list of package versions does not exist just fail
           if [[ -z "${PACKAGES_JSON}" ]];
@@ -260,7 +271,8 @@ jobs:
             # with a supported one
             CURR_VERSIONS=`echo $PACKAGES_JSON | \
                 jq --arg var $version \
-                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | .metadata.container.tags'`
+                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | \
+                   .metadata.container.tags'`
             # Remove newlines, tabs, carriage returns and double quotes
             CURR_VERSIONS=$(echo $CURR_VERSIONS | tr -d "\n\t\r|\"")
             # Split string into an array
@@ -286,7 +298,8 @@ jobs:
             VERSION_IDS="${VERSION_IDS} \
               `echo $PACKAGES_JSON | \
                 jq --arg var $version \
-                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | .id'`"
+                  '.[] | select(any(.metadata.container.tags[]; . == $var)) | \
+                   .id'`"
           done
 
           # Remove newlines, tabs, carriage returns and double quotes
@@ -305,9 +318,9 @@ jobs:
           UNIQSTR=$(echo $(IFS=, ; echo "${UNIQIDS[*]}"))
           # Add white space after ','
           UNIQSTR="${UNIQSTR//,/, }"
-          echo $UNIQSTR
+          echo "$UNIQSTR"
           # Passing env variable between steps
-          echo "version_ids=${UNIQSTR}" >> $GITHUB_OUTPUT
+          echo "version_ids=${UNIQSTR}" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -317,6 +330,7 @@ jobs:
         if: ${{ steps.unsupported.outputs.version_ids != '' }}
         with:
           package-version-ids: '${{ steps.unsupported.outputs.version_ids }}'
-          package-name: '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
+          package-name:
+            '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}

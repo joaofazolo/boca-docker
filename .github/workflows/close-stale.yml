@@ -1,3 +1,4 @@
+---
 name: Close stale issues and PRs
 
 # This workflow uses actions that are not certified by GitHub.
@@ -12,6 +13,8 @@ on:
   schedule:
     # Run daily at 6:30 PM UTC
     - cron: '30 18 * * *'
+  # or on button click
+  workflow_dispatch:
 
 env:
   ISSUE_WARN_MESSAGE: >
@@ -37,7 +40,7 @@ jobs:
         uses: actions/stale@v8
         with:
           # Run the stale workflow as dry-run (no actions will be taken)
-          debug-only: true
+          # debug-only: true
           stale-issue-label: stale
           stale-issue-message: ${{ env.ISSUE_WARN_MESSAGE }}
           stale-pr-message: ${{ env.PR_WARN_MESSAGE }}

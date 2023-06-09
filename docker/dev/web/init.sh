@@ -68,7 +68,7 @@ done
 >&2 echo "PostgreSQL server is up - executing command"
 
 # https://stackoverflow.com/questions/14549270/check-if-database-exists-in-postgresql-using-shell
-if PGPASSWORD=$BOCA_DB_PASSWORD psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_USER" -lqt | cut -d \| -f 1 | grep -qw $BOCA_DB_NAME; then
+if PGPASSWORD=$BOCA_DB_PASSWORD psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_USER" -lqt | cut -d \| -f 1 | grep -qw "$BOCA_DB_NAME"; then
     # $? is 0
     echo "Database already exists"
 else

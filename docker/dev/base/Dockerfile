@@ -25,7 +25,9 @@
 ARG BASE_IMAGE=ubuntu:jammy
 
 # This stage clones BOCA's repository
+# hadolint ignore=DL3006
 FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE} AS bocarepo
+# hadolint ignore=DL3008,DL3015
 RUN apt-get -y update \
     && apt-get -y install \
         git \
@@ -35,6 +37,7 @@ RUN git clone https://github.com/cassiopc/boca.git
 
 # The efficient way to publish multi-arch containers from GitHub Actions
 # https://actuated.dev/blog/multi-arch-docker-github-actions
+# hadolint ignore=DL3006
 FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE}
 
 ARG TARGETPLATFORM
@@ -71,9 +74,11 @@ ENV APACHE_RUN_GROUP www-data
 # Redundant but to ensure we are not going to break anything
 # https://github.com/cassiopc/boca/tree/master/doc
 # https://github.com/cassiopc/boca/tree/master/tools
+# hadolint ignore=DL3002
 USER root
 
 # Install dependencies
+# hadolint ignore=DL3005,DL3008,DL3015
 RUN apt-get -y update \
     && apt-get -y dist-upgrade \
     && apt-get -y install \

@@ -1,3 +1,4 @@
+---
 #========================================================================
 # Copyright Universidade Federal do Espirito Santo (Ufes)
 #
@@ -33,7 +34,8 @@ services:
         build: 
             context: .
             dockerfile: docker/dev/web/Dockerfile
-        # CAUTION: this bind mount will overwrite BOCA website. For future development...
+        # CAUTION: this bind mount will overwrite BOCA website.
+        # For future development...
         # volumes:
         #     - ./src:/var/www/boca/src
 
