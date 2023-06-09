@@ -86,18 +86,28 @@ jobs:
 
           # Check whether it is a schedule to rebuild image with latest tag
           CRON_EVENT="${{ github.event.schedule }}"
-          if [[ ${CRON_EVENT} == '15 6 * * MON' ]];
+          if [[ "${CRON_EVENT}" == '15 6 * * MON' ]];
           then
             LATEST="${{ needs.setup-matrix.outputs.default_release }}"
 
-            # Check for latest tag
-            git show-ref --tags --verify --quiet "refs/tags/${LATEST}" 
-            exit_code=$?
-            echo "${exit_code}"
-            if [[ $exit_code -eq 0 ]]; then
-              echo "Tag ${TAG} exists"
+            # Check for the latest tag equivalent
+            ret_code=$(git show-ref --tags 
+                                    --verify
+                                    --quiet "refs/tags/${LATEST}" || echo 1)
+            echo "${ret_code}"
+            if [[ -z "${ret_code}" ]];
+            then
+              echo "Tag ${LATEST} exists"
             else
-              echo "Tag ${TAG} does not exist"
+              echo "Tag ${LATEST} does not exist"
+
+              # Create latest tag/release if it does not exist
+              gh release create ${LATEST} \
+                --title "${LATEST} (beta)" \
+                --notes "This release has been automatically generated." \
+                --prerelease
+
+              exit 1
             fi
 
             # Set alternative tag
@@ -121,35 +131,13 @@ jobs:
             echo "$TAGS"
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
-            LATEST=${TAGS}
-            # Check for latest tag
-            ret_code=$(git show-ref --tags 
-                                    --verify
-                                    --quiet "refs/tags/${LATEST}" || echo 1)
-            echo "${ret_code}"
-            if [[ -z "${ret_code}" ]];
-            then
-              echo "Tag ${LATEST} exists"
-            else
-              echo "Tag ${LATEST} does not exist"
-
-              # # Create latest tag
-              # git tag -a ${LATEST} -m \
-              #   "Release of version ${LATEST} (automatically generated)"
-              # git push origin ${LATEST}
-
-              # Create a release
-              gh release create ${LATEST} \
-                --title "${LATEST} (beta)" \
-                --notes "this is a beta release" \
-                # --prerelease
-            fi
-
             echo "${{ inputs.latest }}"
             echo "latest=${{ inputs.latest == true }}" >> "$GITHUB_OUTPUT"
 
             echo "${{ inputs.ref }}"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+
+            exit 1
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
