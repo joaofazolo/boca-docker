@@ -354,7 +354,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ steps.setup.outputs.image_name }}
-          tags: |
+          tags: |-
             ${{ steps.setup.outputs.extra_tags }}
           flavor: >- 
             latest=${{ matrix.parent == inputs.default_parent &&
