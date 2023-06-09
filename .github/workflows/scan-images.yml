@@ -69,33 +69,33 @@ jobs:
         run: |
 
           # Set OS release
-          PARENT='${{ matrix.parent }}'
+          PARENT="${{ matrix.parent }}"
           # Replace 'ubuntu:' with ''
           RELEASE=${PARENT//ubuntu:/}
-          echo $RELEASE
+          echo "$RELEASE"
           echo "release_name=$RELEASE" >> "$GITHUB_OUTPUT"
 
           # Set tags
-          TAGS='${{ inputs.tag }}'
-          echo $TAGS
+          TAGS="${{ inputs.tag }}"
+          echo "$TAGS"
           # Split string into an array
-          IFS=', ' read -r -a TAGS <<< '$TAGS'
+          IFS=', ' read -r -a TAGS <<< "$TAGS"
 
-          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/'
-          IMG+='${{ matrix.image }}:${TAGS[0]}-$RELEASE'
-          echo $IMG
+          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}:${TAGS[0]}-$RELEASE"
+          echo "$IMG"
           echo "image_name=$IMG" >> "$GITHUB_OUTPUT"
 
           # Set architecture
-          PLATFORM='${{ matrix.platform }}'
+          PLATFORM="${{ matrix.platform }}"
           # Replace 'linux/' with '' and '/' with '-'
           ARCH=${PLATFORM//linux\//}
           ARCH=${ARCH//\//-}
-          echo $ARCH
+          echo "$ARCH"
           echo "arch_name=$ARCH" >> "$GITHUB_OUTPUT"
 
-          REPORT='trivy-${{ matrix.image }}-$RELEASE-$ARCH-image-results'
-          echo $REPORT
+          REPORT="trivy-${{ matrix.image }}-$RELEASE-$ARCH-image-results"
+          echo "$REPORT"
           echo "report_name=$REPORT" >> "$GITHUB_OUTPUT"
 
       # Create and boot a builder that can be used in the following steps of
@@ -119,7 +119,7 @@ jobs:
         name: Pull Docker image from ghcr.io
         run: |
 
-          IMG='${{ steps.setup.outputs.image_name }}'
+          IMG="${{ steps.setup.outputs.image_name }}"
           docker pull --platform ${{ matrix.platform }} ${IMG}
           docker image ls -a
 

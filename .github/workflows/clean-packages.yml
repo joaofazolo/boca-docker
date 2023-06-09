@@ -161,7 +161,7 @@ jobs:
           DIGEST_KEYS=$(echo $DIGEST_KEYS | tr -d "\n\t\r|\"")
           # Replace white spaces with '|'
           DIGEST_KEYS="${DIGEST_KEYS// /|}"
-          echo $DIGEST_KEYS
+          echo "$DIGEST_KEYS"
 
           # Passing env variable between steps
           echo "digest_keys=${DIGEST_KEYS}" >> "$GITHUB_OUTPUT"
@@ -242,16 +242,16 @@ jobs:
           ENCODED_PACKAGE="${PACKAGE}/${{ matrix.image }}"
           # Replace '/' with '%2F'
           ENCODED_PACKAGE="${ENCODED_PACKAGE//\//\%2F}"
-          echo $ENCODED_PACKAGE
+          echo "$ENCODED_PACKAGE"
 
           PACKAGES_URL="/users/${{ env.OWNER_NAME }}/"
           PACKAGES_URL+="packages/container/${ENCODED_PACKAGE}/versions"
-          echo $PACKAGES_URL
+          echo "$PACKAGES_URL"
 
           PACKAGES_JSON=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" ${PACKAGES_URL} || echo "")
-          echo $PACKAGES_JSON
+          echo "$PACKAGES_JSON"
 
           # If list of package versions does not exist just fail
           if [[ -z "${PACKAGES_JSON}" ]];
@@ -318,7 +318,7 @@ jobs:
           UNIQSTR=$(echo $(IFS=, ; echo "${UNIQIDS[*]}"))
           # Add white space after ','
           UNIQSTR="${UNIQSTR//,/, }"
-          echo $UNIQSTR
+          echo "$UNIQSTR"
           # Passing env variable between steps
           echo "version_ids=${UNIQSTR}" >> "$GITHUB_OUTPUT"
         env:

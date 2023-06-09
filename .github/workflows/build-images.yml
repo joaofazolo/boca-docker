@@ -92,68 +92,68 @@ jobs:
         run: |
 
           # Set OS release
-          PARENT='${{ matrix.parent }}'
+          PARENT="${{ matrix.parent }}"
           # Replace 'ubuntu:' with ''
           RELEASE=${PARENT//ubuntu:/}
-          echo $RELEASE
+          echo "$RELEASE"
           echo "release_name=$RELEASE" >> "$GITHUB_OUTPUT"
 
           # Set architecture
-          PLATFORM='${{ matrix.platform }}'
+          PLATFORM="${{ matrix.platform }}"
           # Replace 'linux/' with '' and '/' with '-'
           ARCH=${PLATFORM//linux\//}
           ARCH=${ARCH//\//-}
-          echo $ARCH
+          echo "$ARCH"
           echo "arch_name=$ARCH" >> "$GITHUB_OUTPUT"
 
           # Set base image (used in build)
-          if [[ '${{ matrix.image }}' == 'boca-base' ]];
+          if [[ "${{ matrix.image }}" == 'boca-base' ]];
           then
-            BASE_IMAGE='${{ matrix.parent }}'
+            BASE_IMAGE="${{ matrix.parent }}"
           else
-            BASE_IMAGE='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/'
-            BASE_IMAGE+='boca-base:${{ github.ref_name }}'
+            BASE_IMAGE="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/"
+            BASE_IMAGE+="boca-base:${{ github.ref_name }}"
           fi
-          echo $BASE_IMAGE
+          echo "$BASE_IMAGE"
           echo "base_image=$BASE_IMAGE" >> "$GITHUB_OUTPUT"
 
           # Set image
-          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/'
-          IMG+='${{ matrix.image }}'
-          echo $IMG
+          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}"
+          echo "$IMG"
           echo "image_name=$IMG" >> "$GITHUB_OUTPUT"
 
           # Set folder
-          DIR='${{ matrix.image }}'
+          DIR="${{ matrix.image }}"
           # Remove 'boca-' from image name
           DIR=${DIR//boca-/}
-          echo $DIR
+          echo "$DIR"
           echo "folder_name=$DIR" >> "$GITHUB_OUTPUT"
 
           # Set digests path
-          DIGESTS_PATH='${{ env.DIGESTS_PATH }}/${{ matrix.image }}-${RELEASE}'
-          echo $DIGESTS_PATH
+          DIGESTS_PATH="${{ env.DIGESTS_PATH }}/${{ matrix.image }}-${RELEASE}"
+          echo "$DIGESTS_PATH"
           echo "digests_path=$DIGESTS_PATH" >> "$GITHUB_OUTPUT"
 
           # Set the cache-to output
           # https://docs.docker.com/build/cache/backends/gha/
-          echo '${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH'
-          CACHE_TO='type=gha,scope=${{ github.ref_name }}-'
-          CACHE_TO+='${{ matrix.image }}-$RELEASE-$ARCH'
+          echo "${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH"
+          CACHE_TO="type=gha,scope=${{ github.ref_name }}-"
+          CACHE_TO+="${{ matrix.image }}-$RELEASE-$ARCH"
           echo "cache-to=$CACHE_TO" >> "${GITHUB_OUTPUT}"
 
           # Set the cache-from output
-          if [[ '${{ github.event_name }}' == 'push' ]]; then
-            echo '${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH'
-            CACHE_FROM='type=gha,scope=${{ github.ref_name }}-'
-            CACHE_FROM+='${{ matrix.image }}-$RELEASE-$ARCH'
+          if [[ "${{ github.event_name }}" == 'push' ]]; then
+            echo "${{ github.ref_name }}-${{ matrix.image }}-$RELEASE-$ARCH"
+            CACHE_FROM="type=gha,scope=${{ github.ref_name }}-"
+            CACHE_FROM+="${{ matrix.image }}-$RELEASE-$ARCH"
             echo "cache-from=$CACHE_FROM" >> "${GITHUB_OUTPUT}"
           else
             # Use cache from target branch too when building a pull request
             # In this case, it has to be a multiline string
             # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
-            SCOPE_REF_NAME='${{ github.ref_name }}-${{ matrix.image }}'
-            SCOPE_BASE_REF='${{ github.base_ref }}-${{ matrix.image }}'
+            SCOPE_REF_NAME="${{ github.ref_name }}-${{ matrix.image }}"
+            SCOPE_BASE_REF="${{ github.base_ref }}-${{ matrix.image }}"
             EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
             echo "cache-from<<${EOF}" >> "${GITHUB_OUTPUT}"
             printf '%s\n' \
@@ -236,8 +236,8 @@ jobs:
         run: |
 
           mkdir -p ${{ steps.setup.outputs.digests_path }}
-          digest='${{ steps.build.outputs.digest }}'
-          touch '${{ steps.setup.outputs.digests_path }}/${digest#sha256:}'
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ steps.setup.outputs.digests_path }}/${digest#sha256:}"
 
       # Upload artifacts from workflow allowing to share data between jobs
       # https://github.com/actions/upload-artifact
@@ -268,28 +268,28 @@ jobs:
         run: |
 
           # Set OS release
-          PARENT='${{ matrix.parent }}'
+          PARENT="${{ matrix.parent }}"
           # Replace 'ubuntu:' with ''
           RELEASE=${PARENT//ubuntu:/}
-          echo $RELEASE
+          echo "$RELEASE"
           echo "release_name=$RELEASE" >> "$GITHUB_OUTPUT"
 
           # Set image name
-          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/'
-          IMG+='${{ matrix.image }}'
-          echo $IMG
+          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}"
+          echo "$IMG"
           echo "image_name=$IMG" >> "$GITHUB_OUTPUT"
 
           # Set digests path
-          DIGESTS_PATH='${{ env.DIGESTS_PATH }}/${{ matrix.image }}-${RELEASE}'
-          echo $DIGESTS_PATH
+          DIGESTS_PATH="${{ env.DIGESTS_PATH }}/${{ matrix.image }}-${RELEASE}"
+          echo "$DIGESTS_PATH"
           echo "digests_path=$DIGESTS_PATH" >> "$GITHUB_OUTPUT"
 
           # Set tags
-          TAGS='${{ inputs.tags }}'
-          echo $TAGS
+          TAGS="${{ inputs.tags }}"
+          echo "$TAGS"
           # Split string into an array
-          IFS=', ' read -r -a TAGS <<< '$TAGS'
+          IFS=', ' read -r -a TAGS <<< "$TAGS"
 
           # Prepare variables
           unset EXTRA_TAGS
@@ -297,47 +297,47 @@ jobs:
 
           # Set tags dynamically
           # Nightly build
-          EXTRA_TAGS='\
+          EXTRA_TAGS="\
             type=schedule,pattern=nightly,suffix=-${RELEASE} \
             \
-            type=schedule,pattern=nightly,enable=${ENABLED}'
+            type=schedule,pattern=nightly,enable=${ENABLED}"
           # New release
-          EXTRA_TAGS+='\
+          EXTRA_TAGS+="\
             type=semver,pattern={{raw}},priority=900,suffix=-${RELEASE} \
             \
-            type=semver,pattern={{raw}},priority=1000,enable=${ENABLED}'
-          EXTRA_TAGS+='\
-            type=semver,pattern={{major}}.{{minor}},priority=900,'
-          EXTRA_TAGS+='suffix=-${RELEASE} \
+            type=semver,pattern={{raw}},priority=1000,enable=${ENABLED}"
+          EXTRA_TAGS+="\
+            type=semver,pattern={{major}}.{{minor}},priority=900,"
+          EXTRA_TAGS+="suffix=-${RELEASE} \
             \
-            type=semver,pattern={{major}}.{{minor}},priority=1000,'
-          EXTRA_TAGS+='enable=${ENABLED}'
+            type=semver,pattern={{major}}.{{minor}},priority=1000,"
+          EXTRA_TAGS+="enable=${ENABLED}"
           # Tag event (same as new release)
-          EXTRA_TAGS+='\
+          EXTRA_TAGS+="\
             type=ref,event=tag,priority=900,suffix=-${RELEASE} \
             \
-            type=ref,event=tag,priority=1000,enable=${ENABLED}'
+            type=ref,event=tag,priority=1000,enable=${ENABLED}"
           # Branch event
-          EXTRA_TAGS+='\
+          EXTRA_TAGS+="\
             type=ref,event=branch,priority=900,suffix=-${RELEASE} \
             \
-            type=ref,event=branch,priority=1000,enable=${ENABLED}'
+            type=ref,event=branch,priority=1000,enable=${ENABLED}"
 
           for t in ${TAGS[@]};
           do
-            echo '${t}'
+            echo "${t}"
 
-            EXTRA_TAGS='
+            EXTRA_TAGS="
               ${EXTRA_TAGS} \
               type=raw,value=${t},priority=1000,enable=${ENABLED} \
               \
-              type=raw,value=${t},priority=900,suffix=-${RELEASE},enable=true'
+              type=raw,value=${t},priority=900,suffix=-${RELEASE},enable=true"
           done
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
           printf '%s\n' \
-            ${EXTRA_TAGS} \
+            "${EXTRA_TAGS}" \
             >> "${GITHUB_OUTPUT}"
           echo "${EOF}" >> "${GITHUB_OUTPUT}"
 
@@ -397,7 +397,6 @@ jobs:
         name: Inspect image
         run: |
       
-          IMG='${{ steps.setup.outputs.image_name }}:'
-          IMG+='${{ steps.meta.outputs.version }}'
-
-          docker buildx imagetools inspect '${IMG}'
+          IMG="${{ steps.setup.outputs.image_name }}:"
+          IMG+="${{ steps.meta.outputs.version }}"
+          docker buildx imagetools inspect "${IMG}"

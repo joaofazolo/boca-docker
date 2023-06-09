@@ -77,34 +77,34 @@ jobs:
         run: |
 
           # Check whether it is a schedule to rebuild image with latest tag
-          CRON_EVENT='${{ github.event.schedule }}'
+          CRON_EVENT="${{ github.event.schedule }}"
           if [[ ${CRON_EVENT} == '15 6 * * MON' ]];
           then
-            LATEST='${{ needs.setup-matrix.outputs.default_release }}'
+            LATEST="${{ needs.setup-matrix.outputs.default_release }}"
             SHORT_VERSION=${LATEST%.*}
-            TAGS='${LATEST} ${SHORT_VERSION}'
-            echo ${TAGS}
+            TAGS="${LATEST} ${SHORT_VERSION}"
+            echo "${TAGS}"
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
             echo 'true'
             echo "latest=true" >> "$GITHUB_OUTPUT"
 
-            echo '${LATEST}'
+            echo "${LATEST}"
             echo "ref=${LATEST}" >> "$GITHUB_OUTPUT"
           # Otherwise, this is the regular path
           else
-            TAGS='${{ inputs.tags }}'
-            if [[ -z '${TAGS}' ]];
+            TAGS="${{ inputs.tags }}"
+            if [[ -z "${TAGS}" ]];
             then
               TAGS="${GITHUB_REF#refs/*/}"
             fi
-            echo $TAGS
+            echo "$TAGS"
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
-            echo '${{ inputs.latest }}'
+            echo "${{ inputs.latest }}"
             echo "latest=${{ inputs.latest == true }}" >> "$GITHUB_OUTPUT"
 
-            echo '${{ inputs.ref }}'
+            echo "${{ inputs.ref }}"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
           fi
 

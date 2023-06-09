@@ -64,7 +64,7 @@ jobs:
 
           # Specify path of matrix file
           JSON=${{ inputs.matrix-path }}
-          echo ${JSON}
+          echo "${JSON}"
 
           # Passing filename between jobs and/or workflows
           echo "json=${JSON}" >> "$GITHUB_OUTPUT"
@@ -76,13 +76,13 @@ jobs:
 
           # Read matrix from file and set variables
           CONTENT=`cat ${{ steps.set-json.outputs.json }}`
-          echo $CONTENT
+          echo "$CONTENT"
           RELEASES=$(echo $CONTENT | jq ".release")
-          echo $RELEASES
+          echo "$RELEASES"
           PARENTS=$(echo $CONTENT | jq ".parent")
-          echo $PARENTS
+          echo "$PARENTS"
           PLATFORMS=$(echo $CONTENT | jq ".platform")
-          echo $PLATFORMS
+          echo "$PLATFORMS"
 
           # Remove square brackets and double quotes
           DEFAULT_RELEASE=$(echo $RELEASES | tr -d "[]|\"")
@@ -93,9 +93,9 @@ jobs:
           # Set default release and base image (parent) as the first value of
           # the array
           DEFAULT_RELEASE=${DEFAULT_RELEASE[0]}
-          echo $DEFAULT_RELEASE
+          echo "$DEFAULT_RELEASE"
           DEFAULT_PARENT=${DEFAULT_PARENT[0]}
-          echo $DEFAULT_PARENT
+          echo "$DEFAULT_PARENT"
 
           # Passing matrix between jobs and/or workflows
           echo "release="${RELEASES} >> "$GITHUB_OUTPUT"
@@ -118,9 +118,9 @@ jobs:
   #       run: |
 
   #         # Print current parent image and platforms
-  #         echo '${{ matrix.parent }}'
+  #         echo "${{ matrix.parent }}"
   #         PLATFORM=${{ toJSON(needs.get-matrix.outputs.platform) }}
-  #         echo $PLATFORM
+  #         echo "$PLATFORM"
   #         # Remove square bracket, white spaces and double quotes
   #         PLATFORM=$(echo $PLATFORM | tr -d "[]| |\"")
-  #         echo $PLATFORM
+  #         echo "$PLATFORM"
