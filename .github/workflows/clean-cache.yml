@@ -72,8 +72,8 @@ jobs:
             # Split string into an array
             IFS=', ' read -r -a CACHE_KEYS <<< "$CACHE_KEYS"
             # Get length of $CACHE_KEYS array
-            LEN="${#CACHE_KEYS[@]}"
-            echo 'Number of cache entries: ${LEN}'
+            LEN=${#CACHE_KEYS[@]}
+            echo "Number of cache entries ${LEN}"
 
             if [[ $LEN -eq 0 ]];
             then
