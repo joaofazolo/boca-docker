@@ -122,13 +122,24 @@ jobs:
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
             # Check for latest tag
-            git show-ref --tags --verify --quiet "refs/tags/${LATEST}" 
-            exit_code=$?
-            echo "${exit_code}"
-            if [[ $exit_code -eq 0 ]]; then
-              echo "Tag ${TAG} exists"
+            ret_code=$(git show-ref --tags 
+                                     --verify
+                                     --quiet "refs/tags/${LATEST}" || echo 1)
+            echo "${ret_code}"
+            if [[ -z "${ret_code}" ]];
+            then
+              echo "Tag ${LATEST} exists"
             else
-              echo "Tag ${TAG} does not exist"
+              echo "Tag ${LATEST} does not exist"
+
+              # Create a release/tag
+              gh release create ${LATEST} \
+                --title "${LATEST} (beta)" \
+                --notes "this is a beta release" \
+                # --prerelease
+              # git tag -a ${LATEST} -m \
+              #   "Release of version ${LATEST} (automatically generated)"
+              # git push origin ${LATEST}
             fi
 
             echo "${{ inputs.latest }}"
