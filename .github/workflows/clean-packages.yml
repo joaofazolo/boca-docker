@@ -72,11 +72,11 @@ jobs:
         id: setup
         run: |
 
-          OWNER='${{ env.OWNER_NAME }}'
-          REPO='${{ env.REPOSITORY_NAME }}'
+          OWNER="${{ env.OWNER_NAME }}"
+          REPO="${{ env.REPOSITORY_NAME }}"
           # Remove owner from repository name
           PACKAGE=${REPO//$OWNER\//}
-          echo $PACKAGE
+          echo "$PACKAGE"
           echo "package_name=${PACKAGE}" >> "$GITHUB_OUTPUT"
 
       # Set up GitHub Actions workflow with a specific version of Go
@@ -113,36 +113,36 @@ jobs:
           # Remove square brackets and double quotes
           RELEASES=$(echo $RELEASES | tr -d "[]|\"")
           # Split string into an array
-          IFS=', ' read -r -a RELEASES <<< '$RELEASES'
+          IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
-          echo '${{ inputs.tags }}'
-          if [[ ! -z '${{ inputs.tags }}' ]];
+          echo "${{ inputs.tags }}"
+          if [[ ! -z "${{ inputs.tags }}" ]];
           then
-            read -a TAGS <<< '${{ inputs.tags }}'
+            read -a TAGS <<< "${{ inputs.tags }}"
             for tag in ${TAGS[@]};
             do
-              echo '${tag}'
-              RELEASES+=('$tag')
+              echo "${tag}"
+              RELEASES+=("$tag")
             done
           fi
-          echo '${RELEASES[@]}'
+          echo "${RELEASES[@]}"
 
           # Unset variable
           unset DIGEST_KEYS
           # Set image
-          IMG='${{ env.REGISTRY_HOST }}/'
-          IMG+='${{ env.REPOSITORY_NAME }}/'
-          IMG+='${{ matrix.image }}'
-          echo '$IMG'
+          IMG="${{ env.REGISTRY_HOST }}/"
+          IMG+="${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}"
+          echo "$IMG"
 
           # Iterate over releases to get digests
           for version in ${RELEASES[@]};
           do
-            echo '${version}'
+            echo "${version}"
 
             # If manifest does not exist just skip image
             MANIFEST=$(crane manifest ${IMG}:${version} || echo "")
-            if [[ -z '${MANIFEST}' ]];
+            if [[ -z "${MANIFEST}" ]];
             then
               continue
             fi
@@ -186,34 +186,34 @@ jobs:
         run: |
 
           # Set image
-          IMG='${{ env.REGISTRY_HOST }}/'
-          IMG+='${{ env.REPOSITORY_NAME }}/'
-          IMG+='${{ matrix.image }}'
-          echo '$IMG'
+          IMG="${{ env.REGISTRY_HOST }}/"
+          IMG+="${{ env.REPOSITORY_NAME }}/"
+          IMG+="${{ matrix.image }}""
+          echo "$IMG"
 
           # Get supported releases
           RELEASES=${{ toJSON(needs.setup.outputs.release) }}
           # Remove square brackets and double quotes
           RELEASES=$(echo $RELEASES | tr -d "[]|\"")
           # Split string into an array
-          IFS=', ' read -r -a RELEASES <<< '$RELEASES'
+          IFS=', ' read -r -a RELEASES <<< "$RELEASES"
           # Include custom tags provided as argument
-          echo '${{ inputs.tags }}'
-          if [[ ! -z '${{ inputs.tags }}' ]];
+          echo "${{ inputs.tags }}"
+          if [[ ! -z "${{ inputs.tags }}" ]];
           then
-            read -a TAGS <<< '${{ inputs.tags }}'
+            read -a TAGS <<< "${{ inputs.tags }}"
             for tag in ${TAGS[@]};
             do
-              echo '${tag}'
-              RELEASES+=('$tag')
+              echo "${tag}"
+              RELEASES+=("$tag")
             done
           fi
-          echo '${RELEASES[@]}'
+          echo "${RELEASES[@]}"
 
           # Get all releases/tags
           ALL_RELEASES=$(crane ls ${IMG} || echo "")
           # If list of tags is empty just skip it
-          if [[ -z '${ALL_RELEASES}' ]];
+          if [[ -z "${ALL_RELEASES}" ]];
           then
             exit 0
           fi
@@ -221,31 +221,31 @@ jobs:
           # Remove newlines, tabs, carriage returns and double quotes
           ALL_RELEASES=$(echo $ALL_RELEASES | tr -d "\n\t\r|\"")
           # Split string into an array
-          IFS=', ' read -r -a ALL_RELEASES <<< '$ALL_RELEASES'
-          echo '${ALL_RELEASES[@]}'
+          IFS=', ' read -r -a ALL_RELEASES <<< "$ALL_RELEASES"
+          echo "${ALL_RELEASES[@]}"
 
           # Get unsupported releases
           DEPRECATED=()
-          for i in '${ALL_RELEASES[@]}';
+          for i in "${ALL_RELEASES[@]}";
           do
             skip=
-            for j in '${RELEASES[@]}';
+            for j in "${RELEASES[@]}";
             do
               [[ $i == $j ]] && { skip=1; break; }
             done
-            [[ -n $skip ]] || DEPRECATED+=('$i')
+            [[ -n $skip ]] || DEPRECATED+=("$i")
           done
           declare -p DEPRECATED
-          echo '${DEPRECATED[@]}'
+          echo "${DEPRECATED[@]}"
 
           PACKAGE=${{ steps.setup.outputs.package_name }}
-          ENCODED_PACKAGE='${PACKAGE}/${{ matrix.image }}'
+          ENCODED_PACKAGE="${PACKAGE}/${{ matrix.image }}"
           # Replace '/' with '%2F'
           ENCODED_PACKAGE="${ENCODED_PACKAGE//\//\%2F}"
           echo $ENCODED_PACKAGE
 
-          PACKAGES_URL='/users/${{ env.OWNER_NAME }}/'
-          PACKAGES_URL+='packages/container/${ENCODED_PACKAGE}/versions'
+          PACKAGES_URL="/users/${{ env.OWNER_NAME }}/"
+          PACKAGES_URL+="packages/container/${ENCODED_PACKAGE}/versions"
           echo $PACKAGES_URL
 
           PACKAGES_JSON=$(gh api \
@@ -254,7 +254,7 @@ jobs:
           echo $PACKAGES_JSON
 
           # If list of package versions does not exist just fail
-          if [[ -z '${PACKAGES_JSON}' ]];
+          if [[ -z "${PACKAGES_JSON}" ]];
           then
             exit 1
           fi
@@ -265,7 +265,7 @@ jobs:
           # Iterate over releases to get digests
           for version in ${DEPRECATED[@]};
           do
-            echo '${version}'
+            echo "${version}"
 
             # Only proceed in case an unsupported version does not coexit
             # with a supported one
@@ -276,8 +276,8 @@ jobs:
             # Remove newlines, tabs, carriage returns and double quotes
             CURR_VERSIONS=$(echo $CURR_VERSIONS | tr -d "\n\t\r|\"")
             # Split string into an array
-            IFS=', ' read -r -a CURR_VERSIONS <<< '$CURR_VERSIONS'
-            echo '${CURR_VERSIONS[@]}'
+            IFS=', ' read -r -a CURR_VERSIONS <<< "$CURR_VERSIONS"
+            echo "${CURR_VERSIONS[@]}"
 
             unset SHARED
             for curr in ${CURR_VERSIONS[@]};
@@ -289,9 +289,9 @@ jobs:
               fi
             done
 
-            if [[ ! -z '${SHARED}' ]];
+            if [[ ! -z "${SHARED}" ]];
             then
-              echo 'Skipping ${version} (conflicting)'
+              echo "Skipping ${version} (conflicting)"
               continue
             fi
 
@@ -307,12 +307,12 @@ jobs:
           # Replace white spaces with ', '
           VERSION_IDS="${VERSION_IDS// /, }"
           # Split string into an array
-          IFS=', ' read -r -a VERSION_IDS <<< '$VERSION_IDS'
-          echo '${VERSION_IDS[@]}'
+          IFS=', ' read -r -a VERSION_IDS <<< "$VERSION_IDS"
+          echo "${VERSION_IDS[@]}"
 
           # Keep unique version ids only
-          UNIQIDS=($(printf "%s\n" '${VERSION_IDS[@]}' | sort -u))
-          echo '${UNIQIDS[@]}'
+          UNIQIDS=($(printf "%s\n" "${VERSION_IDS[@]}" | sort -u))
+          echo "${UNIQIDS[@]}"
 
           # Convert to string
           UNIQSTR=$(echo $(IFS=, ; echo "${UNIQIDS[*]}"))
