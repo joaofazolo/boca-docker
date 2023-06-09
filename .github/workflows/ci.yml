@@ -132,14 +132,16 @@ jobs:
             else
               echo "Tag ${LATEST} does not exist"
 
-              # Create a release/tag
+              # Create latest tag
+              git tag -a ${LATEST} -m \
+                "Release of version ${LATEST} (automatically generated)"
+              git push origin ${LATEST}
+
+              # Create a release
               gh release create ${LATEST} \
                 --title "${LATEST} (beta)" \
                 --notes "this is a beta release" \
                 # --prerelease
-              # git tag -a ${LATEST} -m \
-              #   "Release of version ${LATEST} (automatically generated)"
-              # git push origin ${LATEST}
             fi
 
             echo "${{ inputs.latest }}"
