@@ -330,8 +330,7 @@ jobs:
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "extra_tags<<${EOF}" >> "${GITHUB_OUTPUT}"
           printf '%s\n' \
-            "${EXTRA_TAGS}" \
-            >> "${GITHUB_OUTPUT}"
+            "${EXTRA_TAGS}" >> "${GITHUB_OUTPUT}"
           echo "${EOF}" >> "${GITHUB_OUTPUT}"
 
       # Download artifacts that have been uploaded from previous jobs
@@ -354,7 +353,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ steps.setup.outputs.image_name }}
-          tags: |-
+          tags: |
             ${{ steps.setup.outputs.extra_tags }}
           flavor: >- 
             latest=${{ matrix.parent == inputs.default_parent &&
