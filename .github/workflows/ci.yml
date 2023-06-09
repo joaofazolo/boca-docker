@@ -93,7 +93,7 @@ jobs:
                                     --verify \
                                     --quiet "refs/tags/${LATEST}" || echo 1)
             echo "${ret_code}"
-            if [[ $ret_code == 1 ]];
+            if [[ "${ret_code}" == "1" ]];
             then
               echo "Tag ${LATEST} does not exist"
 
