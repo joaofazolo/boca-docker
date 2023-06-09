@@ -129,7 +129,7 @@ jobs:
 
           IMG='${{ steps.setup.outputs.image_name }}'
 
-          docker pull --platform ${{ matrix.platform }} $IMG
+          docker pull --platform ${{ matrix.platform }} ${IMG}
           docker image ls -a
 
       # Run Dockle best practices linter on image

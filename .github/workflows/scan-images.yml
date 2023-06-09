@@ -73,18 +73,18 @@ jobs:
           # Replace 'ubuntu:' with ''
           RELEASE=${PARENT//ubuntu:/}
           echo $RELEASE
-          echo "release_name=$RELEASE" >> $GITHUB_OUTPUT
+          echo "release_name=$RELEASE" >> "$GITHUB_OUTPUT"
 
           # Set tags
-          TAGS="${{ inputs.tag }}"
+          TAGS='${{ inputs.tag }}'
           echo $TAGS
           # Split string into an array
-          IFS=', ' read -r -a TAGS <<< "$TAGS"
+          IFS=', ' read -r -a TAGS <<< '$TAGS'
 
-          IMG="${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/"
-          IMG+="${{ matrix.image }}:${TAGS[0]}-$RELEASE"
+          IMG='${{ env.REGISTRY_HOST }}/${{ env.REPOSITORY_NAME }}/'
+          IMG+='${{ matrix.image }}:${TAGS[0]}-$RELEASE'
           echo $IMG
-          echo "image_name=$IMG" >> $GITHUB_OUTPUT
+          echo "image_name=$IMG" >> "$GITHUB_OUTPUT"
 
           # Set architecture
           PLATFORM='${{ matrix.platform }}'
@@ -92,11 +92,11 @@ jobs:
           ARCH=${PLATFORM//linux\//}
           ARCH=${ARCH//\//-}
           echo $ARCH
-          echo "arch_name=$ARCH" >> $GITHUB_OUTPUT
+          echo "arch_name=$ARCH" >> "$GITHUB_OUTPUT"
 
-          REPORT="trivy-${{ matrix.image }}-$RELEASE-$ARCH-image-results"
+          REPORT='trivy-${{ matrix.image }}-$RELEASE-$ARCH-image-results'
           echo $REPORT
-          echo "report_name=$REPORT" >> $GITHUB_OUTPUT
+          echo "report_name=$REPORT" >> "$GITHUB_OUTPUT"
 
       # Create and boot a builder that can be used in the following steps of
       # the workflow
@@ -118,9 +118,9 @@ jobs:
       -
         name: Pull Docker image from ghcr.io
         run: |
-        
-          docker pull --platform ${{ matrix.platform }} \
-            ${{ steps.setup.outputs.image_name }}
+
+          IMG='${{ steps.setup.outputs.image_name }}'
+          docker pull --platform ${{ matrix.platform }} ${IMG}
           docker image ls -a
 
       # Run Trivy vulnerability scanner on image

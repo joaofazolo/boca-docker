@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v3
         if: ${{ inputs.ref != '' }}
         with:
-          ref: "${{ inputs.ref }}"
+          ref: '${{ inputs.ref }}'
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
           fetch-depth: 0
