@@ -130,7 +130,7 @@ jobs:
             then
               TAGS="${GITHUB_REF#refs/*/}"
             # Is it the latest tag?
-            elsif [[ "${LATEST}" == "${{ inputs.tags }}" ]];
+            elif [[ "${LATEST}" == "${{ inputs.tags }}" ]];
             then
               SHORT_VERSION=${LATEST%.*}
               TAGS="${LATEST} ${SHORT_VERSION}"
