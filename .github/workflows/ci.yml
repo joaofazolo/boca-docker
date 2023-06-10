@@ -85,8 +85,11 @@ jobs:
         run: |
 
           LATEST="${{ needs.setup-matrix.outputs.default_release }}"
-          # Is it the equivalent to the tag latest?
-          if [[ "${LATEST}" == "${{ inputs.tags }}" ]];
+
+          # Check if the input tag is equivalent to latest
+          # or it is a schedule to rebuild latest
+          if [[ "${LATEST}" == "${{ inputs.tags }}" ]] ||
+             [[ "${CRON_EVENT}" == '15 6 * * MON' ]];
           then
             # Check if tag exists
             ret_code=$(git show-ref --tags \
@@ -105,12 +108,7 @@ jobs:
             else
               echo "Tag ${LATEST} exists"
             fi
-          fi
 
-          # Check whether it is a schedule to rebuild image with tag latest
-          CRON_EVENT="${{ github.event.schedule }}"
-          if [[ "${CRON_EVENT}" == '15 6 * * MON' ]];
-          then
             # Set alternative tag
             SHORT_VERSION=${LATEST%.*}
             TAGS="${LATEST} ${SHORT_VERSION}"
@@ -125,27 +123,17 @@ jobs:
           # Otherwise, this is the regular path
           else
             TAGS="${{ inputs.tags }}"
-            FOUND=false
+
             # Is it empty?
             if [[ -z "${TAGS}" ]];
             then
               TAGS="${GITHUB_REF#refs/*/}"
-            # Is it the tag latest?
-            elif [[ "${LATEST}" == "${{ inputs.tags }}" ]];
-            then
-              SHORT_VERSION=${LATEST%.*}
-              TAGS="${LATEST} ${SHORT_VERSION}"
-              FOUND=true
             fi
             echo "$TAGS"
             echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 
             echo "${{ inputs.latest }}"
-            FOUND=$([[ $FOUND == true ]] || \
-                    [[ ${{ inputs.latest == true }} ]] && \
-                    echo true || echo false)
-            echo "$FOUND"
-            echo "latest=$FOUND" >> "$GITHUB_OUTPUT"
+            echo "latest=${{ inputs.latest == true }}" >> "$GITHUB_OUTPUT"
 
             echo "${{ inputs.ref }}"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
