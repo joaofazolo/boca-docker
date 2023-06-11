@@ -127,11 +127,11 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 * **Networking:** shows how to add network isolation between services in the _boca-docker_ application. See documentation [here](tests/networks/README.md).
 
-* **Volume:** demonstrates how to persist data outside BOCA's database container in order to facilitate backup, restore, and migration. See documentation [here](tests/volume/README.md).
+* **Volumes:** demonstrates how to persist data outside BOCA's database container in order to facilitate backup, restore, and migration. See documentation [here](tests/volumes/README.md).
 
 * **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
 
-* **Multiple Platform:** shows the syntax for selecting an image that matches a specific OS and architecture (alternatively, Docker does that automatically). See documentation [here](tests/platform/README.md).
+* **Multiple Platforms:** shows the syntax for selecting an image that matches a specific OS and architecture (alternatively, Docker does that automatically). See documentation [here](tests/platform/README.md).
 
 ## How To Run On Different Ubuntu Release Images
 

@@ -26,9 +26,9 @@
             "match": "networks"
         },
         {
-            "label": "volume-match",
+            "label": "volumes-match",
             "template": "docker compose ${configurationFile} up",
-            "match": "volume"
+            "match": "volumes"
         },
         {
             "label": "healthcheck-match",
@@ -58,9 +58,9 @@
             "match": "networks"
         },
         {
-            "label": "volume-match",
+            "label": "volumes-match",
             "template": "docker compose ${configurationFile} down",
-            "match": "volume"
+            "match": "volumes"
         },
         {
             "label": "healthcheck-match",
