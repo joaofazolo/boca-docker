@@ -88,6 +88,7 @@ jobs:
 
           # Check if the input tag is equivalent to latest
           # or it is a schedule to rebuild latest
+          CRON_EVENT="${{ github.event.schedule }}"
           if [[ "${LATEST}" == "${{ inputs.tags }}" ]] ||
              [[ "${CRON_EVENT}" == '15 6 * * MON' ]];
           then
