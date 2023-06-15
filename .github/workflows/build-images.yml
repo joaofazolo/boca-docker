@@ -202,13 +202,13 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ steps.setup.outputs.image_name }}
-          labels: >-
-            org.opencontainers.image.title=${{ matrix.image }}
+          labels: >-2
+                  org.opencontainers.image.title=${{ matrix.image }}
 
-            org.opencontainers.image.description=A multi-platform/arch
-            image of the boca-docker project
+                  org.opencontainers.image.description=A multi-platform/arch
+                  image of the boca-docker project
 
-            org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
+                  org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
       # Retry action for Github CI
       # https://github.com/Wandalen/wretry.action
@@ -225,7 +225,8 @@ jobs:
                 context: .
                 file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
                 platforms: ${{ matrix.platform }}
-                labels: |
+                labels: |-2
+
                   ${{ steps.meta.outputs.labels }}
                 build-args: |
                   BASE_IMAGE=${{ steps.setup.outputs.base_image }}
