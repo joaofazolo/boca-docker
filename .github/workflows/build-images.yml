@@ -158,7 +158,7 @@ jobs:
             echo "cache-from<<${EOF}" >> "${GITHUB_OUTPUT}"
             printf '%s\n' \
               "type=gha,scope=$SCOPE_REF_NAME-$RELEASE-$ARCH" \
-              "      type=gha,scope=$SCOPE_BASE_REF-$RELEASE-$ARCH" \
+              "type=gha,scope=$SCOPE_BASE_REF-$RELEASE-$ARCH" \
               >> "${GITHUB_OUTPUT}"
             echo "${EOF}" >> "${GITHUB_OUTPUT}"
           fi
@@ -210,37 +210,27 @@ jobs:
 
             org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
-      # Retry action for Github CI
-      # https://github.com/Wandalen/wretry.action
       - 
-        uses: Wandalen/wretry.action@master
-        id: build
         name: Build and push image remotely (${{ matrix.image }})
+        id: build
+        uses: docker/build-push-action@v4
         with:
-          # Build and push Docker images with Buildx
-          # https://github.com/docker/build-push-action
-          action: docker/build-push-action@v4
-          with: |-2
-
-                context: .
-                file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
-                platforms: ${{ matrix.platform }}
-                labels: |
-                  ${{ steps.meta.outputs.labels }}
-                build-args: |
-                  BASE_IMAGE=${{ steps.setup.outputs.base_image }}
-                # If true, it provides build attestations describing the image
-                # contents and how they were built.
-                provenance: false
-                outputs: >-
-                  type=image,name=${{ steps.setup.outputs.image_name }},
-                  push-by-digest=true,name-canonical=true,push=true
-                cache-from: >-2
-                  ${{ steps.setup.outputs.cache-from }}
-                cache-to: >-2
-                  ${{ steps.setup.outputs.cache-to }}
-          attempt_limit: 3
-          attempt_delay: 60000
+          context: .
+          file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ steps.setup.outputs.base_image }}
+          # If true, it provides build attestations describing the image
+          # contents and how they were built.
+          provenance: false
+          outputs: >-
+            type=image,name=${{ steps.setup.outputs.image_name }},
+            push-by-digest=true,name-canonical=true,push=true
+          cache-from: >-
+            ${{ steps.setup.outputs.cache-from }}
+          cache-to: >-
+            ${{ steps.setup.outputs.cache-to }}
 
       - name: Export digest
         run: |
