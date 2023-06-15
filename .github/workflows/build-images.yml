@@ -158,7 +158,7 @@ jobs:
             echo "cache-from<<${EOF}" >> "${GITHUB_OUTPUT}"
             printf '%s\n' \
               "type=gha,scope=$SCOPE_REF_NAME-$RELEASE-$ARCH" \
-              "type=gha,scope=$SCOPE_BASE_REF-$RELEASE-$ARCH" \
+                    "type=gha,scope=$SCOPE_BASE_REF-$RELEASE-$ARCH" \
               >> "${GITHUB_OUTPUT}"
             echo "${EOF}" >> "${GITHUB_OUTPUT}"
           fi
@@ -202,13 +202,13 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ steps.setup.outputs.image_name }}
-          labels: >-2
-                  org.opencontainers.image.title=${{ matrix.image }}
+          labels: >-
+            org.opencontainers.image.title=${{ matrix.image }}
 
-                  org.opencontainers.image.description=A multi-platform/arch
-                  image of the boca-docker project
+            org.opencontainers.image.description=A multi-platform/arch
+            image of the boca-docker project
 
-                  org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
+            org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
       # Retry action for Github CI
       # https://github.com/Wandalen/wretry.action
@@ -225,8 +225,7 @@ jobs:
                 context: .
                 file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
                 platforms: ${{ matrix.platform }}
-                labels: |-2
-
+                labels: |
                   ${{ steps.meta.outputs.labels }}
                 build-args: |
                   BASE_IMAGE=${{ steps.setup.outputs.base_image }}
