@@ -225,7 +225,8 @@ jobs:
                 context: .
                 file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
                 platforms: ${{ matrix.platform }}
-                labels: ${{ steps.meta.outputs.labels }}
+                labels: |
+                  ${{ steps.meta.outputs.labels }}
                 build-args: |
                   BASE_IMAGE=${{ steps.setup.outputs.base_image }}
                 # If true, it provides build attestations describing the image
@@ -234,9 +235,9 @@ jobs:
                 outputs: >-
                   type=image,name=${{ steps.setup.outputs.image_name }},
                   push-by-digest=true,name-canonical=true,push=true
-                cache-from: >-
+                cache-from: >-2
                   ${{ steps.setup.outputs.cache-from }}
-                cache-to: >-
+                cache-to: >-2
                   ${{ steps.setup.outputs.cache-to }}
           attempt_limit: 3
           attempt_delay: 60000
