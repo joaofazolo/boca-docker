@@ -221,22 +221,23 @@ jobs:
           # https://github.com/docker/build-push-action
           action: docker/build-push-action@v4
           with: |-2
-            context: .
-            file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
-            platforms: ${{ matrix.platform }}
-            labels: ${{ steps.meta.outputs.labels }}
-            build-args: |
-              BASE_IMAGE=${{ steps.setup.outputs.base_image }}
-            # If true, it provides build attestations describing the image
-            # contents and how they were built.
-            provenance: false
-            outputs: >-
-              type=image,name=${{ steps.setup.outputs.image_name }},
-              push-by-digest=true,name-canonical=true,push=true
-            cache-from: >-
-              ${{ steps.setup.outputs.cache-from }}
-            cache-to: >-
-              ${{ steps.setup.outputs.cache-to }}
+          
+              context: .
+              file: docker/dev/${{ steps.setup.outputs.folder_name }}/Dockerfile
+              platforms: ${{ matrix.platform }}
+              labels: ${{ steps.meta.outputs.labels }}
+              build-args: |
+                BASE_IMAGE=${{ steps.setup.outputs.base_image }}
+              # If true, it provides build attestations describing the image
+              # contents and how they were built.
+              provenance: false
+              outputs: >-
+                type=image,name=${{ steps.setup.outputs.image_name }},
+                push-by-digest=true,name-canonical=true,push=true
+              cache-from: >-
+                ${{ steps.setup.outputs.cache-from }}
+              cache-to: >-
+                ${{ steps.setup.outputs.cache-to }}
           attempt_limit: 3
           attempt_delay: 60000
 
