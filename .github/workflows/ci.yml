@@ -260,7 +260,7 @@ jobs:
 
   # Restart the scheduled run when it failed
   # https://www.eliostruyf.com/restart-github-actions-workflow-failed/
-  restart_build-base:
+  retry-builds:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' && failure()
     needs:
