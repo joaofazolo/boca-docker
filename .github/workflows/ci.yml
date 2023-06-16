@@ -270,8 +270,8 @@ jobs:
   # https://www.eliostruyf.com/restart-github-actions-workflow-failed/
   retry-builds:
     runs-on: ubuntu-latest
-    # if: github.event_name == 'schedule' && failure()
-    if: failure() && inputs.attempt_limit > 0
+    if: |
+      github.event_name == 'schedule' && failure() && inputs.attempt_limit > 0
     needs:
       - build-base
       - build-web
