@@ -73,6 +73,8 @@ jobs:
       tags: ${{ steps.set-inputs.outputs.tags }}
       latest: ${{ steps.set-inputs.outputs.latest }}
       ref: ${{ steps.set-inputs.outputs.ref }}
+      retry_countdown: ${{ steps.set-inputs.outputs.retry_countdown }}
+      retry_delay: ${{ steps.set-inputs.outputs.retry_delay }}
     needs:
       - setup-matrix
 
@@ -146,6 +148,17 @@ jobs:
 
             echo "${{ inputs.ref }}"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ ${{ github.event_name }} == 'schedule' ]];
+          then
+            ATTEMPTS=$((${{ inputs.attempt_limit }}))
+            echo $ATTEMPTS
+            echo "retry_countdown=${ATTEMPTS}" >> "$GITHUB_OUTPUT"
+
+            DELAY=$((${{ inputs.attempt_delay }}))
+            echo $DELAY
+            echo "retry_delay=${DELAY}" >> "$GITHUB_OUTPUT"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -271,8 +284,9 @@ jobs:
   retry-builds:
     runs-on: ubuntu-latest
     if: |
-      failure() && inputs.attempt_limit > 0
+      github.event_name == 'schedule' && failure()
     needs:
+      - setup-inputs
       - build-base
       - build-web
       - build-jail
@@ -282,6 +296,19 @@ jobs:
       - 
         name: Retry the workflow
         run: |
+
+          ATTEMPT=$((${{ needs.setup-inputs.outputs.retry_countdown }}))
+          if [[ "$ATTEMPT" -lt "0" ]];
+          then
+            exit 1
+          fi
+          ATTEMPT-=1
+          echo $ATTEMPT
+
+          # Wait before restarting
+          DELAY=$((${{ needs.setup-inputs.outputs.retry_delay }}))
+          echo $DELAY
+          sleep $DELAY
 
           WORKFLOWS_URL="/repos/${{ github.repository }}/"
           WORKFLOWS_URL+="actions/workflows"
@@ -305,15 +332,6 @@ jobs:
             jq --arg var "${{ github.workflow }}" \
               '.workflows[] | select(.name == $var) | .id'`
           echo $WORKFLOW_ID
-
-          # Wait before restarting
-          DELAY=$((${{ inputs.attempt_delay }}))
-          echo $DELAY
-          sleep $DELAY
-
-          ATTEMPT=$((${{ inputs.attempt_limit }}))
-          ATTEMPT-=1
-          echo $ATTEMPT
 
           # Create a workflow dispatch event
           # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
