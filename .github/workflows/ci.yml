@@ -44,11 +44,11 @@ on:
         required: false
         type: string
       attempt_limit:
-        description: Set number of attempts (default is 1)
+        description: Set number of retries if workflow fails (default is 1)
         required: false
         type: number
       attempt_delay:
-        description: Set delay between attempts in seconds (default is 0)
+        description: Set delay between retries in seconds (default is 0)
         required: false
         type: number
 
@@ -308,10 +308,12 @@ jobs:
 
           # Wait before restarting
           DELAY=$((${{ inputs.attempt_delay }}))
+          echo $DELAY
           sleep $DELAY
 
           ATTEMPT=$((${{ inputs.attempt_limit }}))
           ATTEMPT-=1
+          echo $ATTEMPT
 
           # Create a workflow dispatch event
           # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
