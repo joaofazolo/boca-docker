@@ -52,6 +52,12 @@ on:
         required: false
         type: number
 
+env:
+  # Number of retries if workflow fails (default is 1)
+  RETRY_LIMIT: 1
+  # Delay between retries in seconds (default is 30)
+  RETRY_DELAY: 30
+
 # Save computation power by stopping obsolete jobs for the current workflow
 # https://docs.github.com/en/enterprise-cloud@latest/actions/using-jobs/using-concurrency
 concurrency:
@@ -150,13 +156,13 @@ jobs:
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
           fi
 
-          # Prepare retry limit and delay between retries
+          # Prepare retry limit and retry delay
           if [[ ${{ github.event_name }} == 'schedule' ]];
           then
             ATTEMPTS="${{ inputs.attempt_limit }}"
             if [[ -z "$ATTEMPTS" ]];
             then
-              ATTEMPTS=1
+              ATTEMPTS=${{ env.RETRY_LIMIT }}
             else
               ATTEMPTS=$(($ATTEMPTS))
             fi
@@ -166,7 +172,7 @@ jobs:
             DELAY="${{ inputs.attempt_delay }}"
             if [[ -z "$DELAY" ]];
             then
-              DELAY=30
+              DELAY=${{ env.RETRY_DELAY }}
             else
               DELAY=$(($DELAY))
             fi
