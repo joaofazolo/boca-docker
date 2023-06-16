@@ -48,7 +48,7 @@ on:
         required: false
         type: number
       attempt_delay:
-        description: Set delay between retries in seconds (default is 0)
+        description: Set delay between retries in seconds (default is 30)
         required: false
         type: number
 
@@ -150,13 +150,26 @@ jobs:
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
           fi
 
+          # Prepare retry limit and delay between retries
           if [[ ${{ github.event_name }} == 'schedule' ]];
           then
-            ATTEMPTS=$((${{ inputs.attempt_limit }}))
+            ATTEMPTS="${{ inputs.attempt_limit }}"
+            if [[ -z "$ATTEMPTS" ]];
+            then
+              ATTEMPTS=1
+            else
+              ATTEMPTS=$(($ATTEMPTS))
+            fi
             echo $ATTEMPTS
             echo "retry_countdown=${ATTEMPTS}" >> "$GITHUB_OUTPUT"
 
-            DELAY=$((${{ inputs.attempt_delay }}))
+            DELAY="${{ inputs.attempt_delay }}"
+            if [[ -z "$DELAY" ]];
+            then
+              DELAY=30
+            else
+              DELAY=$(($DELAY))
+            fi
             echo $DELAY
             echo "retry_delay=${DELAY}" >> "$GITHUB_OUTPUT"
           fi
@@ -279,7 +292,7 @@ jobs:
       - setup-inputs
       - build-jail
 
-  # Restart the scheduled run when it failed
+  # Restart the scheduled workflow when it failed
   # https://www.eliostruyf.com/restart-github-actions-workflow-failed/
   retry-builds:
     runs-on: ubuntu-latest
@@ -298,7 +311,7 @@ jobs:
         run: |
 
           ATTEMPT=$((${{ needs.setup-inputs.outputs.retry_countdown }}))
-          if [[ "$ATTEMPT" -lt "0" ]];
+          if [[ "$ATTEMPT" -le "0" ]];
           then
             exit 1
           fi
