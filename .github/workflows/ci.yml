@@ -321,8 +321,7 @@ jobs:
           then
             exit 1
           fi
-          echo $ATTEMPT
-          ATTEMPT=$ATTEMPT-1
+          ((ATTEMPT=ATTEMPT-1))
           echo $ATTEMPT
 
           # Wait before restarting
@@ -333,7 +332,7 @@ jobs:
           WORKFLOWS_URL="/repos/${{ github.repository }}/"
           WORKFLOWS_URL+="actions/workflows"
           echo "$WORKFLOWS_URL"
-  
+
           # List repository workflows
           # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#list-repository-workflows
           WORKFLOWS_JSON=$(gh api \
