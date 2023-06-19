@@ -321,7 +321,8 @@ jobs:
           then
             exit 1
           fi
-          $((ATTEMPT--))
+          echo $ATTEMPT
+          ATTEMPT=$ATTEMPT-1
           echo $ATTEMPT
 
           # Wait before restarting
