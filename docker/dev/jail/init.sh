@@ -25,34 +25,37 @@
 #  "$XYZ_DB_PASSWORD" from a file, especially for Docker's secrets feature)
 # Ref: https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh
 file_env() {
-    local var="$1"
-    local fileVar="${var}_FILE"
-    local def="${2:-}"
-    if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
-        echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
-        exit 1
-    fi
-    local val="$def"
-    if [ "${!var:-}" ]; then
-        val="${!var}"
-    elif [ "${!fileVar:-}" ]; then
-        val="$(< "${!fileVar}")"
-    fi
-    export "$var"="$val"
-    unset "$fileVar"
+  local var="$1"
+  local fileVar="${var}_FILE"
+  local def="${2:-}"
+  if [ "${!var:-}" ] && [ "${!fileVar:-}" ];
+  then
+    echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
+    exit 1
+  fi
+  local val="$def"
+  if [ "${!var:-}" ];
+  then
+    val="${!var}"
+  elif [ "${!fileVar:-}" ];
+  then
+    val="$(< "${!fileVar}")"
+  fi
+  export "$var"="$val"
+  unset "$fileVar"
 }
 
 # Loads various settings that are used elsewhere in the script
 # This should be called before any other functions
 # Ref: https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh
 docker_setup_env() {
-    # If variables are not set or null, use default values.
-    export BOCA_DB_HOST="${BOCA_DB_HOST:-boca-db}"
-    export BOCA_WEB_HOST="${BOCA_WEB_HOST:-boca-web}"
-    
-    file_env 'BOCA_DB_USER' 'bocauser'
-    file_env 'BOCA_DB_PASSWORD' 'dAm0HAiC'
-    file_env 'BOCA_DB_NAME' 'bocadb'
+  # If variables are not set or null, use default values.
+  export BOCA_DB_HOST="${BOCA_DB_HOST:-boca-db}"
+  export BOCA_WEB_HOST="${BOCA_WEB_HOST:-boca-web}"
+
+  file_env 'BOCA_DB_USER' 'bocauser'
+  file_env 'BOCA_DB_PASSWORD' 'dAm0HAiC'
+  file_env 'BOCA_DB_NAME' 'bocadb'
 }
 
 docker_setup_env
@@ -64,11 +67,12 @@ echo "bdcreated=y" >> /etc/boca.conf
 printf "#!/bin/sh\n\
 BOCAIP=%s" "$BOCA_WEB_HOST" > /etc/bocaip
 
-until PGPASSWORD=$BOCA_DB_PASSWORD psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_USER" -d "$BOCA_DB_NAME" -c '\q'; do
-    >&2 echo "PostgreSQL server is unavailable - sleeping"
-    sleep 1
+until PGPASSWORD=$BOCA_DB_PASSWORD \
+  psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_USER" -d "$BOCA_DB_NAME" -c '\q'; do
+  >&2 echo "PostgreSQL server is unavailable - sleeping"
+  sleep 1
 done
-  
+
 >&2 echo "PostgreSQL server is up - executing command"
 
 boca-autojudge
