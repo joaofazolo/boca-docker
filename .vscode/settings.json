@@ -36,9 +36,9 @@
             "match": "healthcheck"
         },
         {
-            "label": "platform-match",
+            "label": "platforms-match",
             "template": "docker compose ${configurationFile} up",
-            "match": "platform"
+            "match": "platforms"
         }
     ],
     "docker.commands.composeDown": [
@@ -68,9 +68,9 @@
             "match": "healthcheck"
         },
         {
-            "label": "platform-match",
+            "label": "platforms-match",
             "template": "docker compose ${configurationFile} down",
-            "match": "platform"
+            "match": "platforms"
         },
         {
             "template": "docker compose -f docker-compose.yml ${configurationFile} down"
