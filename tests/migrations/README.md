@@ -4,7 +4,7 @@ This demo illustrates how to migrate database data from one PostgreSQL instance 
 Concomitantly, we illustrate the use of `psql` and `pg_restore` commands to reconstruct BOCA's database to the state it was in at the time the data was saved. On the one hand, `psql` makes use of plain-text files containing SQL commands to rebuild the database during initialization[^1].
 On the other hand, `pg_restore` provides a more flexible restore mechanism to examine the archive and/or select which parts of the database are to be restored (for instance, it allows for selection and reordering of all archived items, support parallel restoration, and compression). For more information, refer to the [documentation](https://www.postgresql.org/docs/current/app-pgdump.html).
 
-[^1] **NOTE:** Scripts in the initialization folder only run if starting the database container with a data directory that is empty; otherwise, any pre-existing database will be left untouched on container startup.
+[^1]: Scripts in the initialization folder only run if starting the database container with a data directory that is empty; otherwise, any pre-existing database will be left untouched on container startup.
 
 > **NOTE:** This example uses [profiles](https://docs.docker.com/compose/profiles/) with Compose which does not work with `docker stack deploy`.
 
