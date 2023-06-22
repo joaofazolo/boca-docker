@@ -15,6 +15,17 @@ on:
         type: number
 
 jobs:
+  fake-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - 
+        name: Fake step
+        id: set-inputs
+        run: |
+
+          echo "about to fail"
+          exit 1
 
   # Restart the scheduled workflow when it failed
   # https://www.eliostruyf.com/restart-github-actions-workflow-failed/
@@ -22,20 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       failure()
-    # needs:
-    #   - setup-inputs
-    #   - build-base
-    #   - build-web
-    #   - build-jail
+    needs:
+      - fake-job
 
     steps:
-      - 
-        name: Fake stop
-        id: set-inputs
-        run: |
-
-          echo "about to fail"
-          exit 1
 
       - 
         name: Retry the workflow
