@@ -129,7 +129,7 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 * **Volumes:** demonstrates how to store data outside the database container, so that the state of the application persists even after the container stops. See documentation [here](tests/volumes/README.md).
 
-* **Migrations:** illustrates how to backup and restore BOCA's database to facilitate migration from one PostgreSQL container to another. See documentation [here](tests/migrations/README.md).
+* **Migrations:** illustrates how to backup and restore BOCA's database to facilitate migration from one _boca-docker_ instance to another. See documentation [here](tests/migrations/README.md).
 
 * **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
 
