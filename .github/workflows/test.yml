@@ -79,10 +79,12 @@ jobs:
               '.workflows[] | select(.name == $var) | .id'`
           echo $WORKFLOW_ID
 
+          # Prepare api endpoint
           URL="https://api.github.com/repos/${{ github.repository }}/\
           actions/workflows/$WORKFLOW_ID/dispatches"
           echo $URL
 
+          # Prepare api payload
           JSON_STRING=$( jq -n \
             --arg limit $ATTEMPT \
             --arg delay $DELAY \
