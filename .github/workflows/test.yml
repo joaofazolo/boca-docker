@@ -87,13 +87,10 @@ jobs:
           echo $URL
 
           JSON_STRING=$( jq -n \
-            --arg ref "${{ github.ref }}" \
+            # --arg ref "${{ github.ref }}" \
             --arg limit "$ATTEMPT" \
             --arg delay "$DELAY" \
-            '{ref: $ref,\
-              inputs:{\
-                attempt_limit: $limit,
-                attempt_delay: $delay}}' )
+            '{ref:${{ github.ref }},inputs:{attempt_limit:$limit,attempt_delay $delay}}' )
           echo JSON_STRING
 
           # Create a workflow dispatch event
