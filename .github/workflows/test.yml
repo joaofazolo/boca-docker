@@ -79,6 +79,9 @@ jobs:
               '.workflows[] | select(.name == $var) | .id'`
           echo $WORKFLOW_ID
 
+          BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          echo $BRANCH
+
           # Create a workflow dispatch event
           # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
           curl -L \
@@ -87,7 +90,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/$WORKFLOW_ID/dispatches \
-            -d '{"ref":"${{ github.ref }}",\
+            -d '{"ref":"$BRANCH",\
               "inputs":{\
                 "attempt_limit":"$ATTEMPT",\
                 "attempt_delay":"$DELAY"}}'
