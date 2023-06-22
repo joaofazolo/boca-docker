@@ -49,6 +49,7 @@ jobs:
             echo "about to exit"
             exit 1
           fi
+          echo "is it here?"
           ((ATTEMPT=ATTEMPT-1))
           echo $ATTEMPT
 
