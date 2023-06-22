@@ -46,6 +46,7 @@ jobs:
           echo $ATTEMPT
           if [[ "$ATTEMPT" -le "0" ]];
           then
+            echo "about to exit"
             exit 1
           fi
           ((ATTEMPT=ATTEMPT-1))
