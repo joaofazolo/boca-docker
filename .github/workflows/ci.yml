@@ -295,7 +295,7 @@ jobs:
       - setup-inputs
       - build-jail
 
-  # Restart the scheduled workflow when it failed
+  # Restart the scheduled workflow when it failed (on schedule only)
   # https://www.eliostruyf.com/restart-github-actions-workflow-failed/
   retry-builds:
     runs-on: ubuntu-latest
