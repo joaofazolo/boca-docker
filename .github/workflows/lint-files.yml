@@ -72,6 +72,11 @@ jobs:
           # list of changed files within `super-linter`
           fetch-depth: 0
 
+      # Load environment variables before running the GitHub Actions job
+      # https://github.com/super-linter/super-linter/blob/main/docs/run-linter-locally.md
+      - 
+        run: cat .github/super-linter.env >> "$GITHUB_ENV"
+
       # Run Linter against code base
       # https://github.com/super-linter/super-linter
       - 
@@ -79,12 +84,5 @@ jobs:
         #uses: github/super-linter@v5
         uses: super-linter/super-linter/slim@v5
         env:
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_MARKDOWN: true
-          VALIDATE_YAML: true
-          VALIDATE_DOCKERFILE_HADOLINT: true
-          VALIDATE_PHP_BUILTIN: true
-          VALIDATE_BASH: true
-          BASH_SEVERITY: error
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
