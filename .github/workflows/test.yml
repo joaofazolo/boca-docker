@@ -86,9 +86,12 @@ jobs:
           JSON_STRING=$( jq -n \
             --arg limit $ATTEMPT \
             --arg delay $DELAY \
-            '{ref:"${{ github.ref }}",\
-              inputs:{attempt_limit:$limit,\
-                      attempt_delay:$delay}}' )
+            '{ref: "${{ github.ref }}",
+              inputs: {
+                attempt_limit: $limit,
+                attempt_delay: $delay
+              }
+             }' )
           # Remove white spaces
           JSON_STRING="${JSON_STRING// /}"
           JSON_STRING=$(echo $JSON_STRING | tr -d " ")
