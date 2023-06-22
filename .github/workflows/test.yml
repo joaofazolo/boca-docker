@@ -79,9 +79,6 @@ jobs:
               '.workflows[] | select(.name == $var) | .id'`
           echo $WORKFLOW_ID
 
-          BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-          echo $BRANCH
-
           URL="https://api.github.com/repos/${{ github.repository }}/\
           actions/workflows/$WORKFLOW_ID/dispatches"
           echo $URL
@@ -89,7 +86,9 @@ jobs:
           JSON_STRING=$( jq -n \
             --arg limit $ATTEMPT \
             --arg delay $DELAY \
-            '{ref:"${{ github.ref }}",inputs:{attempt_limit:$limit,attempt_delay:$delay}}' )
+            '{ref:"${{ github.ref }}",\
+              inputs:{attempt_limit:$limit,\
+                      attempt_delay:$delay}}' )
           # Remove white spaces
           JSON_STRING="${JSON_STRING// /}"
           JSON_STRING=$(echo $JSON_STRING | tr -d " ")
