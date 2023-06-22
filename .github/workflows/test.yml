@@ -46,24 +46,10 @@ jobs:
           echo $ATTEMPT
           if [[ "$ATTEMPT" -le "0" ]];
           then
-            echo "about to exit"
             exit 1
           fi
-          echo "is it here 1?"
           ATTEMPT=$((ATTEMPT-1))
           echo $ATTEMPT
-          echo "is it here 2?"
-          ((ATTEMPT=ATTEMPT-1))
-          echo $ATTEMPT
-          echo "is it here 3?"
-          ((ATTEMPT-=1))
-          echo $ATTEMPT
-          echo "is it here 4?"
-          ((ATTEMPT++))
-          echo $ATTEMPT
-
-          # ((ATTEMPT=ATTEMPT-1))
-          # echo $ATTEMPT
 
           # Wait before restarting
           DELAY=$((${{ inputs.attempt_delay }}))
