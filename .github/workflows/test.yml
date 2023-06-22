@@ -43,6 +43,7 @@ jobs:
         run: |
 
           ATTEMPT=$((${{ inputs.attempt_limit }}))
+          echo $ATTEMPT
           if [[ "$ATTEMPT" -le "0" ]];
           then
             exit 1
