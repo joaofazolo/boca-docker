@@ -83,13 +83,18 @@ jobs:
           echo $BRANCH
 
           URL="https://api.github.com/repos/${{ github.repository }}/\
-            actions/workflows/$WORKFLOW_ID/dispatches"
+          actions/workflows/$WORKFLOW_ID/dispatches"
           echo $URL
-          JSON='{"ref":"$BRANCH",\
-            "inputs":{\
-            "attempt_limit":"$ATTEMPT",\
-            "attempt_delay":"$DELAY"}}'
-          echo $JSON
+
+          JSON_STRING=$( jq -n \
+            --arg ref "${{ github.ref }}" \
+            --arg limit "$ATTEMPT" \
+            --arg delay "$DELAY" \
+            '{ref: $ref,\
+              inputs:{\
+                attempt_limit: $limit,
+                attempt_delay: $delay}' )
+          echo JSON_STRING
 
           # Create a workflow dispatch event
           # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
@@ -99,6 +104,6 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             $URL \
-            -d $JSON
+            -d $JSON_STRING
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
