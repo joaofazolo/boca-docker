@@ -93,7 +93,7 @@ jobs:
             '{ref: $ref,\
               inputs:{\
                 attempt_limit: $limit,
-                attempt_delay: $delay}' )
+                attempt_delay: $delay}}' )
           echo JSON_STRING
 
           # Create a workflow dispatch event
