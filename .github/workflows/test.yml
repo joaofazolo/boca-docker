@@ -54,7 +54,7 @@ jobs:
           # Wait before restarting
           DELAY=$((${{ inputs.attempt_delay }}))
           echo $DELAY
-          sleep $DELAY
+          # sleep $DELAY
 
           WORKFLOWS_URL="/repos/${{ github.repository }}/"
           WORKFLOWS_URL+="actions/workflows"
@@ -87,7 +87,6 @@ jobs:
           echo $URL
 
           JSON_STRING=$( jq -n \
-            # --arg ref "${{ github.ref }}" \
             --arg limit "$ATTEMPT" \
             --arg delay "$DELAY" \
             '{ref:${{ github.ref }},inputs:{attempt_limit:$limit,attempt_delay $delay}}' )
