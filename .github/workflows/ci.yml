@@ -157,28 +157,25 @@ jobs:
           fi
 
           # Prepare retry limit and retry delay
-          if [[ ${{ github.event_name }} == 'schedule' ]];
+          ATTEMPTS="${{ inputs.attempt_limit }}"
+          if [[ -z "$ATTEMPTS" ]];
           then
-            ATTEMPTS="${{ inputs.attempt_limit }}"
-            if [[ -z "$ATTEMPTS" ]];
-            then
-              ATTEMPTS=${{ env.RETRY_LIMIT }}
-            else
-              ATTEMPTS=$(($ATTEMPTS))
-            fi
-            echo $ATTEMPTS
-            echo "retry_countdown=${ATTEMPTS}" >> "$GITHUB_OUTPUT"
-
-            DELAY="${{ inputs.attempt_delay }}"
-            if [[ -z "$DELAY" ]];
-            then
-              DELAY=${{ env.RETRY_DELAY }}
-            else
-              DELAY=$(($DELAY))
-            fi
-            echo $DELAY
-            echo "retry_delay=${DELAY}" >> "$GITHUB_OUTPUT"
+            ATTEMPTS=${{ env.RETRY_LIMIT }}
+          else
+            ATTEMPTS=$(($ATTEMPTS))
           fi
+          echo $ATTEMPTS
+          echo "retry_countdown=${ATTEMPTS}" >> "$GITHUB_OUTPUT"
+
+          DELAY="${{ inputs.attempt_delay }}"
+          if [[ -z "$DELAY" ]];
+          then
+            DELAY=${{ env.RETRY_DELAY }}
+          else
+            DELAY=$(($DELAY))
+          fi
+          echo $DELAY
+          echo "retry_delay=${DELAY}" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -317,6 +314,7 @@ jobs:
         run: |
 
           ATTEMPT=$((${{ needs.setup-inputs.outputs.retry_countdown }}))
+          echo $ATTEMPT
           if [[ "$ATTEMPT" -le "0" ]];
           then
             exit 1
@@ -363,9 +361,9 @@ jobs:
             --arg delay $DELAY \
             '{ref: "${{ github.ref }}",
               inputs: {
-                tags: "${{ inputs.tags }}",
-                latest: "${{ inputs.latest }}",
-                ref: "${{ inputs.ref }}",
+                tags: "${{ needs.setup-inputs.outputs.tags }}",
+                latest: "${{ needs.setup-inputs.outputs.latest == 'true' }}",
+                ref: "${{ needs.setup-inputs.outputs.ref }}",
                 attempt_limit: $limit,
                 attempt_delay: $delay
               }
