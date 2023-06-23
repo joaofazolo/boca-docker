@@ -31,6 +31,11 @@
             "match": "volumes"
         },
         {
+            "label": "migrations-match",
+            "template": "docker compose ${configurationFile} up",
+            "match": "migrations"
+        },
+        {
             "label": "healthcheck-match",
             "template": "docker compose ${configurationFile} up",
             "match": "healthcheck"
@@ -61,6 +66,11 @@
             "label": "volumes-match",
             "template": "docker compose ${configurationFile} down",
             "match": "volumes"
+        },
+        {
+            "label": "migrations-match",
+            "template": "docker compose --profile backup --profile restore ${configurationFile} down",
+            "match": "migrations"
         },
         {
             "label": "healthcheck-match",
