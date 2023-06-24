@@ -44,19 +44,19 @@ on:
         required: false
         type: string
       attempt_limit:
-        description: Set number of retries if workflow fails (default is 1)
+        description: Set number of retries if workflow fails (default is 3)
         required: false
         type: number
       attempt_delay:
-        description: Set delay between retries in seconds (default is 30)
+        description: Set delay between retries in seconds (default is 60)
         required: false
         type: number
 
 env:
-  # Number of retries if workflow fails (default is 1)
-  RETRY_LIMIT: 1
-  # Delay between retries in seconds (default is 30)
-  RETRY_DELAY: 30
+  # Number of retries if workflow fails (default is 3)
+  RETRY_LIMIT: 3
+  # Delay between retries in seconds (default is 60)
+  RETRY_DELAY: 60
 
 # Save computation power by stopping obsolete jobs for the current workflow
 # https://docs.github.com/en/enterprise-cloud@latest/actions/using-jobs/using-concurrency
@@ -293,6 +293,18 @@ jobs:
     needs:
       - setup-matrix
       - setup-inputs
+      - build-jail
+
+  e2e-test:
+    uses: ./.github/workflows/e2e-tests.yml
+    with:
+      parents: ${{ needs.setup-matrix.outputs.parent }}
+      platforms: ${{ needs.setup-matrix.outputs.platform }}
+      tag: ${{ needs.setup-inputs.outputs.tags }}
+    needs:
+      - setup-matrix
+      - setup-inputs
+      - build-web
       - build-jail
 
   # Restart the scheduled workflow when it failed (on schedule only)
