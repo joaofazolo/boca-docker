@@ -31,14 +31,19 @@
             "match": "volumes"
         },
         {
+            "label": "migrations-match",
+            "template": "docker compose ${configurationFile} up",
+            "match": "migrations"
+        },
+        {
             "label": "healthcheck-match",
             "template": "docker compose ${configurationFile} up",
             "match": "healthcheck"
         },
         {
-            "label": "platform-match",
+            "label": "platforms-match",
             "template": "docker compose ${configurationFile} up",
-            "match": "platform"
+            "match": "platforms"
         }
     ],
     "docker.commands.composeDown": [
@@ -63,14 +68,19 @@
             "match": "volumes"
         },
         {
+            "label": "migrations-match",
+            "template": "docker compose --profile backup --profile restore ${configurationFile} down",
+            "match": "migrations"
+        },
+        {
             "label": "healthcheck-match",
             "template": "docker compose ${configurationFile} down",
             "match": "healthcheck"
         },
         {
-            "label": "platform-match",
+            "label": "platforms-match",
             "template": "docker compose ${configurationFile} down",
-            "match": "platform"
+            "match": "platforms"
         },
         {
             "template": "docker compose -f docker-compose.yml ${configurationFile} down"

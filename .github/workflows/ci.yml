@@ -43,6 +43,20 @@ on:
           The branch, tag or SHA to checkout (empty for current branch)
         required: false
         type: string
+      attempt_limit:
+        description: Set number of retries if workflow fails (default is 3)
+        required: false
+        type: number
+      attempt_delay:
+        description: Set delay between retries in seconds (default is 60)
+        required: false
+        type: number
+
+env:
+  # Number of retries if workflow fails (default is 3)
+  RETRY_LIMIT: 3
+  # Delay between retries in seconds (default is 60)
+  RETRY_DELAY: 60
 
 # Save computation power by stopping obsolete jobs for the current workflow
 # https://docs.github.com/en/enterprise-cloud@latest/actions/using-jobs/using-concurrency
@@ -65,6 +79,8 @@ jobs:
       tags: ${{ steps.set-inputs.outputs.tags }}
       latest: ${{ steps.set-inputs.outputs.latest }}
       ref: ${{ steps.set-inputs.outputs.ref }}
+      retry_countdown: ${{ steps.set-inputs.outputs.retry_countdown }}
+      retry_delay: ${{ steps.set-inputs.outputs.retry_delay }}
     needs:
       - setup-matrix
 
@@ -139,6 +155,27 @@ jobs:
             echo "${{ inputs.ref }}"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
           fi
+
+          # Prepare retry limit and retry delay
+          ATTEMPTS="${{ inputs.attempt_limit }}"
+          if [[ -z "$ATTEMPTS" ]];
+          then
+            ATTEMPTS=${{ env.RETRY_LIMIT }}
+          else
+            ATTEMPTS=$(($ATTEMPTS))
+          fi
+          echo $ATTEMPTS
+          echo "retry_countdown=${ATTEMPTS}" >> "$GITHUB_OUTPUT"
+
+          DELAY="${{ inputs.attempt_delay }}"
+          if [[ -z "$DELAY" ]];
+          then
+            DELAY=${{ env.RETRY_DELAY }}
+          else
+            DELAY=$(($DELAY))
+          fi
+          echo $DELAY
+          echo "retry_delay=${DELAY}" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -269,3 +306,93 @@ jobs:
       - setup-inputs
       - build-web
       - build-jail
+
+  # Restart the scheduled workflow when it failed (on schedule only)
+  # https://www.eliostruyf.com/restart-github-actions-workflow-failed/
+  retry-builds:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'schedule' && failure()
+    needs:
+      - setup-inputs
+      - build-base
+      - build-web
+      - build-jail
+
+    steps:
+
+      - 
+        name: Retry the workflow
+        run: |
+
+          ATTEMPT=$((${{ needs.setup-inputs.outputs.retry_countdown }}))
+          echo $ATTEMPT
+          if [[ "$ATTEMPT" -le "0" ]];
+          then
+            exit 1
+          fi
+          ATTEMPT=$((ATTEMPT-1))
+          echo $ATTEMPT
+
+          # Wait before restarting
+          DELAY=$((${{ needs.setup-inputs.outputs.retry_delay }}))
+          echo $DELAY
+          sleep $DELAY
+
+          WORKFLOWS_URL="/repos/${{ github.repository }}/"
+          WORKFLOWS_URL+="actions/workflows"
+          echo "$WORKFLOWS_URL"
+
+          # List repository workflows
+          # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#list-repository-workflows
+          WORKFLOWS_JSON=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" ${WORKFLOWS_URL} || echo "")
+          echo "$WORKFLOWS_JSON"
+
+          # If list of workflows does not exist just fail
+          if [[ -z "${WORKFLOWS_JSON}" ]];
+          then
+            exit 1
+          fi
+
+          # Get id of current workflow
+          WORKFLOW_ID=`echo $WORKFLOWS_JSON | \
+            jq --arg var "${{ github.workflow }}" \
+              '.workflows[] | select(.name == $var) | .id'`
+          echo $WORKFLOW_ID
+
+          # Prepare api endpoint
+          URL="https://api.github.com/repos/${{ github.repository }}/\
+          actions/workflows/$WORKFLOW_ID/dispatches"
+          echo $URL
+
+          # Prepare api payload
+          JSON_STRING=$( jq -n \
+            --arg limit $ATTEMPT \
+            --arg delay $DELAY \
+            '{ref: "${{ github.ref }}",
+              inputs: {
+                tags: "${{ needs.setup-inputs.outputs.tags }}",
+                latest: "${{ needs.setup-inputs.outputs.latest == 'true' }}",
+                ref: "${{ needs.setup-inputs.outputs.ref }}",
+                attempt_limit: $limit,
+                attempt_delay: $delay
+              }
+             }' )
+          # Remove white spaces
+          JSON_STRING="${JSON_STRING// /}"
+          JSON_STRING=$(echo $JSON_STRING | tr -d " ")
+          echo $JSON_STRING
+
+          # Create a workflow dispatch event
+          # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            $URL \
+            -d $JSON_STRING
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -21,7 +21,7 @@ Architectures currently supported:
 **... via docker compose**
 
 ```sh
-docker compose -f tests/platform/docker-compose.yml up -d
+docker compose -f tests/platforms/docker-compose.yml up -d
 ```
 
 * Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). To login use the default credentials (Name: _system_ | Password: _boca_).
@@ -31,5 +31,5 @@ docker compose -f tests/platform/docker-compose.yml up -d
 **... via docker-compose**
 
 ```sh
-docker compose -f tests/platform/docker-compose.yml down
+docker compose -f tests/platforms/docker-compose.yml down
 ```
