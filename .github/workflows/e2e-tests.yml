@@ -114,7 +114,14 @@ jobs:
           IMG_JAIL+="boca-jail:${{ steps.setup.outputs.image_tag }}"
           docker pull --platform ${{ matrix.platform }} ${IMG_JAIL}
 
+          # List available images
+          docker images
+
+          # Launch application
           docker compose up -d
+
+          # List running containers
+          docker container ls -a
 
         working-directory: ./tests/e2e_tests
 
@@ -164,6 +171,10 @@ jobs:
         name: Bring the application down
         run: |
 
+          # Stop containers
           docker compose down
+
+          # Remove old images/containers
+          docker system prune
 
         working-directory: ./tests/e2e_tests
