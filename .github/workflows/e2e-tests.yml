@@ -1,5 +1,5 @@
 ---
-name: Playwright end-to-end automated testing of multi-platform Docker images
+name: End-to-end automated testing of multi-platform Docker images
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -43,12 +43,9 @@ jobs:
       # If is set to true (default), GitHub will cancel all in-progress and
       # queued jobs in the matrix if any job in the matrix fails.
       fail-fast: false
-      # max-parallel: 1
       matrix:
-        # parent: ${{ fromJSON(inputs.parents) }}
-        parent: ${{ inputs.parents }}
-        # platform: ${{ fromJSON(inputs.platforms) }}
-        platform: ${{ inputs.platforms }}
+        parent: ${{ fromJSON(inputs.parents) }}
+        platform: ${{ fromJSON(inputs.platforms) }}
 
     steps:
       - 
