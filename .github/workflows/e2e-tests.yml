@@ -163,7 +163,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: playwright-report
+          name: ${{ steps.setup.outputs.report_name }}
           path: ./tests/e2e_tests/playwright-report/
           retention-days: 30
 
