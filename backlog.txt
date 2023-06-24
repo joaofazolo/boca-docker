@@ -1,1 +1,0 @@
-- Tests: Propose automatic tests for build images (e.g., run example problems in regular programming languages);
