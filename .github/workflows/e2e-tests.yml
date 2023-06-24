@@ -1,5 +1,5 @@
 ---
-name: End-to-end testing of multi-platform Docker images
+name: End-to-end test of multi-platform Docker images
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -13,8 +13,9 @@ name: End-to-end testing of multi-platform Docker images
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
 on:
-  workflow_dispatch:
-    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
+  # Run as reusable workflow
+  workflow_call:
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       parents:
         description: Matrix of parent/base images used in builds

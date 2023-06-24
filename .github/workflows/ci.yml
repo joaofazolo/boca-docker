@@ -257,3 +257,15 @@ jobs:
       - setup-matrix
       - setup-inputs
       - build-jail
+
+  e2e-test:
+    uses: ./.github/workflows/e2e-tests.yml
+    with:
+      parents: ${{ needs.setup-matrix.outputs.parent }}
+      platforms: ${{ needs.setup-matrix.outputs.platform }}
+      tag: ${{ needs.setup-inputs.outputs.tags }}
+    needs:
+      - setup-matrix
+      - setup-inputs
+      - build-web
+      - build-jail
