@@ -124,7 +124,7 @@ jobs:
           # List running containers
           docker container ls -a
 
-        working-directory: ./tests/e2e_tests
+        working-directory: ./tests/e2e
 
       # Set up GitHub Actions workflow with a specific version of node.js
       # https://github.com/actions/setup-node
@@ -139,12 +139,12 @@ jobs:
       - 
         name: Install dependencies
         run: npm ci
-        working-directory: ./tests/e2e_tests
+        working-directory: ./tests/e2e
 
       - 
         name: Install Playwright Browsers
         run: npx playwright install --with-deps
-        working-directory: ./tests/e2e_tests
+        working-directory: ./tests/e2e
 
       - 
         name: Prepare for running tests
@@ -153,19 +153,19 @@ jobs:
           mkdir -p ./playwright/.auth
           echo "{}" > ./playwright/.auth/anonymous.json
           echo "{}" > ./playwright/.auth/system.json
-        working-directory: ./tests/e2e_tests
+        working-directory: ./tests/e2e
 
       - 
         name: Run Playwright tests
         run: npx playwright test
-        working-directory: ./tests/e2e_tests
+        working-directory: ./tests/e2e
 
       - 
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: ${{ steps.setup.outputs.report_name }}
-          path: ./tests/e2e_tests/playwright-report/
+          path: ./tests/e2e/playwright-report/
           retention-days: 30
 
       - 
@@ -178,4 +178,4 @@ jobs:
           # Remove old images/containers
           docker system prune
 
-        working-directory: ./tests/e2e_tests
+        working-directory: ./tests/e2e
