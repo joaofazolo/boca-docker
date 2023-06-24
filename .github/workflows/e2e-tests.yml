@@ -1,5 +1,5 @@
 ---
-name: End-to-end automated testing of multi-platform Docker images
+name: End-to-end testing of multi-platform Docker images
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
