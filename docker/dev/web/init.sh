@@ -107,13 +107,7 @@ then
     echo "Grant privileges to unprivileged user"
     PGPASSWORD=$BOCA_DB_SUPER_PASSWORD \
       psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_SUPER_USER" -t -c \
-        "GRANT ALL PRIVILEGES ON DATABASE $BOCA_DB_NAME TO $BOCA_DB_USER; \
-         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public \
-          TO $BOCA_DB_USER; \
-         GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public \
-          TO $BOCA_DB_USER; \
-         ALTER DATABASE $BOCA_DB_NAME SET lo_compat_privileges=on; \
-         GRANT USAGE ON SCHEMA public TO $BOCA_DB_USER;"
+        "GRANT ALL PRIVILEGES ON DATABASE $BOCA_DB_NAME TO $BOCA_DB_USER;"
   else
     echo "Database already exists"
   fi
