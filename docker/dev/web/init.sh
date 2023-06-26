@@ -28,14 +28,17 @@ file_env() {
   local var="$1"
   local fileVar="${var}_FILE"
   local def="${2:-}"
-  if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
+  if [ "${!var:-}" ] && [ "${!fileVar:-}" ];
+  then
     echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
     exit 1
   fi
   local val="$def"
-  if [ "${!var:-}" ]; then
+  if [ "${!var:-}" ];
+  then
     val="${!var}"
-  elif [ "${!fileVar:-}" ]; then
+  elif [ "${!fileVar:-}" ];
+  then
     val="$(< "${!fileVar}")"
   fi
   export "$var"="$val"
@@ -61,7 +64,8 @@ docker_setup_env() {
 docker_setup_env
 
 until PGPASSWORD=$BOCA_DB_SUPER_PASSWORD \
-  psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_SUPER_USER" -c '\q'; do
+  psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_SUPER_USER" -c '\q';
+do
   >&2 echo "PostgreSQL server is unavailable - sleeping"
   sleep 1
 done
@@ -69,23 +73,33 @@ done
 >&2 echo "PostgreSQL server is up - executing command"
 
 # https://stackoverflow.com/questions/14549270/check-if-database-exists-in-postgresql-using-shell
-if PGPASSWORD=$BOCA_DB_PASSWORD \
+if ! PGPASSWORD=$BOCA_DB_PASSWORD \
   psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_USER" -lqt | \
-  cut -d \| -f 1 | grep -qw "$BOCA_DB_NAME"; then
-  # $? is 0
-  echo "Database and unprivileged user already exist"
-else
+  cut -d \| -f 1 | grep -qw "$BOCA_DB_NAME";
+then
   echo "Create unprivileged user"
   PGPASSWORD=$BOCA_DB_SUPER_PASSWORD \
     psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_SUPER_USER" -t -c \
-      "CREATE USER $BOCA_DB_USER WITH PASSWORD '$BOCA_DB_PASSWORD';"
-  # ruh-roh
-  # $? is 1
+      "DROP USER IF EXISTS $BOCA_DB_USER;\
+       CREATE USER $BOCA_DB_USER WITH PASSWORD '$BOCA_DB_PASSWORD';"
+
+    echo "Grant privileges to unprivileged user"
+    PGPASSWORD=$BOCA_DB_SUPER_PASSWORD \
+      psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_SUPER_USER" -d "$BOCA_DB_NAME" \
+        -t -c \
+        "GRANT ALL PRIVILEGES ON DATABASE $BOCA_DB_NAME TO $BOCA_DB_USER; \
+         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public \
+          TO $BOCA_DB_USER; \
+         GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public \
+          TO $BOCA_DB_USER; \
+         ALTER DATABASE $BOCA_DB_NAME SET lo_compat_privileges=on; \
+         GRANT USAGE ON SCHEMA public TO $BOCA_DB_USER;"
 
   # Create database only if it does not exist
   if ! PGPASSWORD=$BOCA_DB_PASSWORD \
     psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_USER" -lqt | \
-    cut -d \| -f 1 | grep -qw "$BOCA_DB_NAME"; then
+    cut -d \| -f 1 | grep -qw "$BOCA_DB_NAME";
+  then
     echo "Create database"
     # https://stackoverflow.com/questions/5891888/piping-data-into-command-line-php
     cd /var/www/boca/src && echo "YES" | php private/createdb.php
@@ -93,10 +107,18 @@ else
     echo "Grant privileges to unprivileged user"
     PGPASSWORD=$BOCA_DB_SUPER_PASSWORD \
       psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_SUPER_USER" -t -c \
-        "GRANT ALL ON DATABASE $BOCA_DB_NAME TO $BOCA_DB_USER;"
+        "GRANT ALL PRIVILEGES ON DATABASE $BOCA_DB_NAME TO $BOCA_DB_USER; \
+         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public \
+          TO $BOCA_DB_USER; \
+         GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public \
+          TO $BOCA_DB_USER; \
+         ALTER DATABASE $BOCA_DB_NAME SET lo_compat_privileges=on; \
+         GRANT USAGE ON SCHEMA public TO $BOCA_DB_USER;"
   else
     echo "Database already exists"
   fi
+else
+  echo "Database and unprivileged user already exist"
 fi
 
 apache2 -DFOREGROUND

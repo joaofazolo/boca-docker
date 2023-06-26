@@ -68,7 +68,7 @@ services:
             # 2. custom backup (compressed by default and most likely the best
             # option to use for creating the backup)
             # - BOCA_DB_DUMP_FORMAT=c
-            # 3. sirectory backup (compressed by default)
+            # 3. directory backup (compressed by default)
             # - BOCA_DB_DUMP_FORMAT=d
             # 4. tar backup (does not support compression)
             - BOCA_DB_DUMP_FORMAT=t
