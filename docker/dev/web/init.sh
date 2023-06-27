@@ -83,17 +83,17 @@ then
       "DROP USER IF EXISTS $BOCA_DB_USER;\
        CREATE USER $BOCA_DB_USER WITH PASSWORD '$BOCA_DB_PASSWORD';"
 
-    echo "Grant privileges to unprivileged user"
-    PGPASSWORD=$BOCA_DB_SUPER_PASSWORD \
-      psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_SUPER_USER" -d "$BOCA_DB_NAME" \
-        -t -c \
-        "GRANT ALL PRIVILEGES ON DATABASE $BOCA_DB_NAME TO $BOCA_DB_USER; \
-         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public \
-          TO $BOCA_DB_USER; \
-         GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public \
-          TO $BOCA_DB_USER; \
-         ALTER DATABASE $BOCA_DB_NAME SET lo_compat_privileges=on; \
-         GRANT USAGE ON SCHEMA public TO $BOCA_DB_USER;"
+  echo "Grant privileges to unprivileged user"
+  PGPASSWORD=$BOCA_DB_SUPER_PASSWORD \
+    psql -h "$BOCA_DB_HOST" -U "$BOCA_DB_SUPER_USER" -d "$BOCA_DB_NAME" \
+      -t -c \
+      "GRANT ALL PRIVILEGES ON DATABASE $BOCA_DB_NAME TO $BOCA_DB_USER; \
+        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public \
+        TO $BOCA_DB_USER; \
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public \
+        TO $BOCA_DB_USER; \
+        ALTER DATABASE $BOCA_DB_NAME SET lo_compat_privileges=on; \
+        GRANT USAGE ON SCHEMA public TO $BOCA_DB_USER;"
 
   # Create database only if it does not exist
   if ! PGPASSWORD=$BOCA_DB_PASSWORD \
