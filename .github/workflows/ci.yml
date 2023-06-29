@@ -141,17 +141,17 @@ jobs:
           else
             TAGS="${{ inputs.tags }}"
 
-            # Is it empty?
-            if [[ -z "${TAGS}" ]];
-            then
-              TAGS="${GITHUB_REF#refs/*/}"
-            fi
-
             # Is it a nightly build?
             if [[ "${CRON_EVENT}" == '15 9 * * *' ]];
             then
               # If so, include tag (fallback for retry workflow)
-              TAGS="${TAGS} nightly"
+              TAGS="nightly"
+            fi
+
+            # Is tag empty?
+            if [[ -z "${TAGS}" ]];
+            then
+              TAGS="${GITHUB_REF#refs/*/}"
             fi
 
             echo "$TAGS"
@@ -375,13 +375,23 @@ jobs:
           actions/workflows/$WORKFLOW_ID/dispatches"
           echo $URL
 
+          # Set tags
+          # API throws error if JSON has a whitespace-separated string
+          # Thus, sending the most relevant tag only
+          TAGS="${{ needs.setup-inputs.outputs.tags }}"
+          echo "$TAGS"
+          # Split string into an array
+          IFS=', ' read -r -a TAGS <<< "$TAGS"
+          echo "${TAGS[0]}"
+
           # Prepare api payload
           JSON_STRING=$( jq -c -n \
+            --arg tag ${TAGS[0]}
             --arg limit $ATTEMPT \
             --arg delay $DELAY \
             '{ref: "${{ github.ref }}",
               inputs: {
-                tags: "${{ needs.setup-inputs.outputs.tags }}",
+                tags: "$tag",
                 latest: "${{ needs.setup-inputs.outputs.latest == 'true' }}",
                 ref: "${{ needs.setup-inputs.outputs.ref }}",
                 attempt_limit: $limit,
