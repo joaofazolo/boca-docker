@@ -386,7 +386,7 @@ jobs:
 
           # Prepare api payload
           JSON_STRING=$( jq -c -n \
-            --arg tag ${TAGS[0]}
+            --arg tag ${TAGS[0]} \
             --arg limit $ATTEMPT \
             --arg delay $DELAY \
             '{ref: "${{ github.ref }}",
