@@ -391,7 +391,7 @@ jobs:
             --arg delay $DELAY \
             '{ref: "${{ github.ref }}",
               inputs: {
-                tags: "$tag",
+                tags: $tag,
                 latest: "${{ needs.setup-inputs.outputs.latest == 'true' }}",
                 ref: "${{ needs.setup-inputs.outputs.ref }}",
                 attempt_limit: $limit,
