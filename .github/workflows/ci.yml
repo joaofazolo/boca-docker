@@ -320,7 +320,7 @@ jobs:
   retry-builds:
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'schedule' && failure()
+      failure()
     needs:
       - setup-inputs
       - build-base
