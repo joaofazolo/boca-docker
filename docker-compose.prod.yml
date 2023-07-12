@@ -1,3 +1,4 @@
+---
 #========================================================================
 # Copyright Universidade Federal do Espirito Santo (Ufes)
 #
@@ -48,7 +49,7 @@ services:
             - boca-db
         deploy:
             mode: replicated
-            replicas: 2
+            replicas: 1
             placement:
                 max_replicas_per_node: 8
             resources:

@@ -25,24 +25,20 @@ services:
 
     # web app
     boca-web:
-        image: ghcr.io/joaofazolo/boca-docker/boca-web:latest
+        image: ghcr.io/joaofazolo/boca-docker/boca-web:1.2-focal
+        platform: linux/ppc64le
         environment:
             # database configuration
             # privileged user password
             - BOCA_DB_SUPER_PASSWORD=superpass
         ports: 
             - 8000:80
-        depends_on:
-            boca-db:
-                condition: service_healthy
 
     # online judge
     boca-jail:
-        image: ghcr.io/joaofazolo/boca-docker/boca-jail:latest
+        image: ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0-jammy
+        platform: linux/arm/v7
         privileged: true
-        depends_on:
-            boca-db:
-                condition: service_healthy
 
     # database
     boca-db:
@@ -51,10 +47,3 @@ services:
             # database configuration
             # privileged user password
             - POSTGRES_PASSWORD=superpass
-        healthcheck:
-            # determine whether or not it is healthy
-            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-            interval: 10s       # interval between health checks
-            timeout: 5s         # timeout for each health checking
-            retries: 20         # how many times retries
-            start_period: 10s   # estimated time to boot

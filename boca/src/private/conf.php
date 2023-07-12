@@ -18,13 +18,13 @@
 // Last modified 05/aug/2012 by cassio@ime.usp.br
 
 function globalconf() {
-  $conf["dbencoding"]="UTF8";
-  $conf["dbclientenc"]="UTF8";
-  $conf['doenc']=false;
+  $conf["dbencoding"]= getenv('BOCA_DB_ENCODING') ? getenv('BOCA_DB_ENCODING') : "UTF8";
+  $conf["dbclientenc"]= getenv('BOCA_DB_CLIENT_ENCODING') ? getenv('BOCA_DB_CLIENT_ENCODING') : "UTF8";
+  $conf['doenc']= getenv('BOCA_DO_ENCRYPTION') ? getenv('BOCA_DO_ENCRYPTION') : false;
 
-  $conf["dblocal"]="false"; // use unix socket to connect?
+  $conf["dblocal"]= getenv('BOCA_IS_DB_LOCAL') ? getenv('BOCA_IS_DB_LOCAL') : "false"; // use unix socket to connect?
   $conf["dbhost"]= getenv('BOCA_DB_HOST') ? getenv('BOCA_DB_HOST') : "localhost";
-  $conf["dbport"]="5432";
+  $conf["dbport"]= getenv('BOCA_DB_PORT') ? getenv('BOCA_DB_PORT') : "5432";
 
   $conf["dbname"]= getenv('BOCA_DB_NAME') ? getenv('BOCA_DB_NAME') : "bocadb"; // name of the boca database
 
@@ -53,7 +53,7 @@ function globalconf() {
   // set it with the ip of the computer running the script
   // The real purpose of it is only to differentiate between
   // autojudges when multiple computers are used as autojudges
-  $conf["ip"]='local';
+  $conf["ip"]= getenv('BOCA_JAIL_HOST') ? getenv('BOCA_JAIL_HOST') : 'local';
 
   return $conf;
 }

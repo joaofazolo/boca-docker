@@ -19,57 +19,72 @@
 #========================================================================
 
 # Build on base image
-FROM boca-base
+ARG BASE_IMAGE=boca-base
+# hadolint ignore=DL3006
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE}
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 LABEL authors="Joao Vitor Alves Fazolo, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2020-06-26
-ENV UPDATED_AT 2022-07-03
+ENV UPDATED_AT 2023-06-01
 
-# Basic setup to establish connection with database server
-RUN apt-get -y update && \
-    apt-get -y dist-upgrade && \
-    apt-get -y install \
-        git \
-        postgresql-client && \
-    apt-get clean
+# Redundant but to ensure we are not going to break anything
+# https://github.com/cassiopc/boca/tree/master/tools
+# hadolint ignore=DL3002
+USER root
 
-COPY LICENSE /
-COPY docker/dev/jail/init.sh /
-RUN chmod 777 /init.sh
+# Install dependencies
+# hadolint ignore=DL3008,DL3015
+RUN apt-get -y update \
+    && apt-get -y install \
+        # Package: boca-autojudge
+        # https://github.com/cassiopc/boca/blob/master/debian/control
+        # Depends:
+        build-essential \
+        debootstrap \
+        makepasswd \
+        quotatool \
+        schroot \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN cd /var/www
-# Clone BOCA repository
-# Although Jail does not depend on the web application, it requires
-# src/db.php and includes a bunch of other php files in this folder.
-RUN git clone https://github.com/cassiopc/boca.git
+# https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2019908
+COPY boca/tools/boca-createjail /var/www/boca/tools/
 
-COPY LICENSE /var/www/boca/src/private
-# Copy modified source code files
-COPY src/private/conf.php /var/www/boca/src/private
-
-RUN cd /var/www/boca && install tools/boca-fixssh /usr/sbin/ && \
-    install tools/cron-boca-fixssh /etc/cron.d/ && \
-    chmod 700 /usr/sbin/boca-fixssh && \
-    cp tools/000-boca.conf /etc/apache2/sites-enabled/000-boca.conf && \
-    chown -R www-data.www-data /var/www/boca && \
-    chmod -R go-rwx /var/www/boca/src/private
-
-RUN cd /var/www/boca && \
-    gcc tools/safeexec.c -o tools/safeexec && \
-    install tools/safeexec /usr/bin/safeexec && \
-    install tools/boca-createjail /usr/sbin/boca-createjail && \
-    install tools/boca-autojudge.sh /usr/sbin/boca-autojudge && \
-    install tools/boca-config-dbhost.sh /usr/sbin/boca-config-dbhost && \
-    chmod 700 /usr/sbin/boca-config-dbhost && \
-    chmod 4555 /usr/bin/safeexec && \
-    chmod 700 /usr/sbin/boca-createjail && \
-    chmod 700 /usr/sbin/boca-autojudge && \
-    chmod 700 /usr/sbin/boca-config-dbhost && \
-    chmod 700 /usr/sbin/boca-fixssh && \
-    cp tools/boca.conf /etc/
+WORKDIR /var/www/boca
+RUN \
+    # install-bocaautojudge
+    # https://github.com/cassiopc/boca/blob/master/Makefile
+    mkdir -p /usr/sbin/ \
+    && mkdir -p /usr/bin/ \
+    && mkdir -p /etc/ \
+    && gcc tools/safeexec.c -o tools/safeexec \
+    && install tools/safeexec /usr/bin/safeexec \
+    && install tools/boca-createjail /usr/sbin/boca-createjail \
+    && install tools/boca-autojudge.sh /usr/sbin/boca-autojudge \
+    && chmod 4555 /usr/bin/safeexec \
+    && chmod 700 /usr/sbin/boca-createjail \
+    && chmod 700 /usr/sbin/boca-autojudge
+    # boca-autojudge.postinst
+    # https://github.com/cassiopc/boca/blob/master/debian/boca-autojudge.postinst
+    # Done before
+    # && chmod 4555 /usr/bin/safeexec \
+    # && chmod 700 /usr/sbin/boca-createjail \
+    # && chmod 700 /usr/sbin/boca-autojudge
 
 RUN boca-createjail || true
- 
-WORKDIR /var/www/boca
+
+# Workaround: Java installation with chroot does not work as expected
+RUN cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/bin/* /home/bocajail/usr/bin/ \
+    && cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/lib/* /home/bocajail/usr/lib/
+
+COPY --chmod=755 docker/dev/jail/init.sh /
+
+# Add HEALTHCHECK instruction to the container image
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+    CMD ps ax | grep -v grep | grep php | grep autojudging.php > /dev/null || exit 1
 
 ENTRYPOINT ["/init.sh"]
