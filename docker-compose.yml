@@ -1,3 +1,4 @@
+---
 #========================================================================
 # Copyright Universidade Federal do Espirito Santo (Ufes)
 #
@@ -32,7 +33,8 @@ services:
             - 8000:80
 
     # online judge
-    # boca-jail:
+    boca-jail:
+        privileged: true
         
     # database
     boca-db:

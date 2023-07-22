@@ -6,3 +6,8 @@ src/private/runslog
 src/private/runtmp
 src/private/scoretmp
 .DS_Store
+node_modules/
+**/test-results/
+**/playwright-report/
+**/playwright/.auth/
+**/playwright/.cache/

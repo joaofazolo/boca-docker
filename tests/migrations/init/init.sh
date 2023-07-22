@@ -1,4 +1,4 @@
----
+#!/bin/bash
 #========================================================================
 # Copyright Universidade Federal do Espirito Santo (Ufes)
 #
@@ -19,43 +19,15 @@
 #
 #========================================================================
 
-version: '3.8'
+set -e
 
-services:
-
-    boca-base:
-        image: boca-base:latest
-        build: 
-            context: .
-            dockerfile: docker/dev/base/Dockerfile
-
-    boca-web:
-        image: boca-web:latest
-        build: 
-            context: .
-            dockerfile: docker/dev/web/Dockerfile
-        # CAUTION: this bind mount will overwrite BOCA website.
-        # For future development...
-        # volumes:
-        #     - ./src:/var/www/boca/src
-
-    boca-jail:
-        image: boca-jail:latest
-        build: 
-            context: .
-            dockerfile: docker/dev/jail/Dockerfile
-
-    # boca-db:
-    #     volumes: 
-    #         - db-data:/var/lib/postgresql/data
-
-    boca-adminer:
-        image: adminer:latest
-        environment:
-            - ADMINER_DEFAULT_SERVER=boca-db
-        ports:
-            - 8080:8080
-
-# volumes:
-#
-#     db-data:
+# With psql
+# Supports: plain text SQL restore only
+if [[ -f "$BOCA_DB_DUMP_FILENAME" ]];
+then
+  # Set ON_ERROR_STOP=OFF, otherwise restore does not work as expected
+  psql \
+    -f "$BOCA_DB_DUMP_FILENAME" \
+    -v ON_ERROR_STOP=OFF \
+    postgres
+fi
