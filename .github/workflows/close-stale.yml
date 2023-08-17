@@ -32,6 +32,10 @@ env:
 jobs:
   stale:
     runs-on: ubuntu-latest
+    permissions:
+      # https://github.com/actions/stale#recommended-permissions
+      issues: write
+      pull-requests: write
 
     steps:
       # Close Stale Issues and PRs

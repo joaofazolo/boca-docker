@@ -142,6 +142,7 @@ jobs:
           report-format: sarif
           report-name: '${{ steps.setup.outputs.report_name }}'
           failure-threshold: fatal
+          accept-filenames: settings.py
           # Change to 1 in order to stop the pipeline on failure
           # exit-code: 1
           timeout: 10m
