@@ -199,7 +199,7 @@ jobs:
       - 
         name: Extract Docker metadata (${{ matrix.image }})
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ steps.setup.outputs.image_name }}
           labels: >-
@@ -350,7 +350,7 @@ jobs:
       - 
         name: Extract Docker metadata (${{ matrix.image }})
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ steps.setup.outputs.image_name }}
           tags: |
