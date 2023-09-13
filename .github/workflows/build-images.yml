@@ -188,7 +188,7 @@ jobs:
       # https://github.com/docker/login-action
       - 
         name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY_HOST }}
           username: ${{ github.actor }}
@@ -369,7 +369,7 @@ jobs:
 
       - 
         name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY_HOST }}
           username: ${{ github.actor }}
