@@ -29,5 +29,9 @@
         "linux/arm64/v8",
         "linux/ppc64le",
         "linux/s390x"
-    ]
+    ],
+    "//comment4": "Git URL of the BOCA repository to clone from",
+    "repository": "https://github.com/rlaiola/boca.git",
+    "//comment5": "The branch, tag or SHA to point to in the cloned BOCA repository",
+    "ref": "classroom"
 }
