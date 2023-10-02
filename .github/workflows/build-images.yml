@@ -54,7 +54,7 @@ on:
       boca_repository:
         # Git URL of the BOCA repository to clone from.
         description: 
-          Git URL of the BOCA repository to clone from (empty for cassiopc/boca)
+          Git URL of the BOCA repository to clone from (empty for https://github.com/cassiopc/boca.git)
         required: false
         type: string
       boca_ref:

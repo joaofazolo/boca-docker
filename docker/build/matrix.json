@@ -30,7 +30,7 @@
         "linux/ppc64le",
         "linux/s390x"
     ],
-    "//comment4": "Git URL of the BOCA repository to clone from",
+    "//comment4": "Git URL of the BOCA repository to clone from (empty for https://github.com/cassiopc/boca.git)",
     "repository": "https://github.com/rlaiola/boca.git",
     "//comment5": "The branch, tag or SHA to point to in the cloned BOCA repository",
     "ref": "classroom"

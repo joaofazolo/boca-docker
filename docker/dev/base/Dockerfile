@@ -24,7 +24,7 @@
 # https://groups.google.com/g/boca-users/c/QrgnJl-KAKw/m/uSuRO64_CQAJ
 ARG BASE_IMAGE=ubuntu:jammy
 
-# Git URL of the BOCA repository to clone from
+# Git URL of the BOCA repository to clone from (default: cassiopc/boca)
 ARG REPOSITORY=https://github.com/cassiopc/boca.git
 # The branch, tag or SHA to point to in the cloned BOCA repository
 ARG REF=master
@@ -38,8 +38,9 @@ RUN apt-get -y update \
         git \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /
-RUN git clone "${REPOSITORY}" \
-    && git checkout "${REF}"
+RUN git clone "${REPOSITORY}"
+WORKDIR /boca
+RUN git checkout "${REF}"
 
 # The efficient way to publish multi-arch containers from GitHub Actions
 # https://actuated.dev/blog/multi-arch-docker-github-actions

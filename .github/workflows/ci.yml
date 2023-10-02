@@ -45,14 +45,16 @@ on:
         type: string
       boca_repository:
         # Git URL of the BOCA repository to clone from.
-        description: 
-          Git URL of the BOCA repository to clone from (empty for cassiopc/boca)
+        description: >-
+          Git URL of the BOCA repository to clone from (empty for the one 
+          specified docker/build/matrix.json)
         required: false
         type: string
       boca_ref:
         # The branch, tag or SHA to point to in the cloned BOCA repository.
-        description: 
-          The branch, tag or SHA to checkout (empty for BOCA repository's HEAD)
+        description: >-
+          The branch, tag or SHA to point to in the cloned BOCA repository 
+          (empty for repository's HEAD)
         required: false
         type: string
       attempt_limit:
