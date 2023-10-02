@@ -24,15 +24,13 @@
 # https://groups.google.com/g/boca-users/c/QrgnJl-KAKw/m/uSuRO64_CQAJ
 ARG BASE_IMAGE=ubuntu:jammy
 
+# This stage clones BOCA's repository
+# hadolint ignore=DL3006
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE} AS bocarepo
 # Git URL of the BOCA repository to clone from (default: cassiopc/boca)
 ARG REPOSITORY=https://github.com/cassiopc/boca.git
 # The branch, tag or SHA to point to in the cloned BOCA repository
 ARG REF=master
-
-# This stage clones BOCA's repository
-# hadolint ignore=DL3006
-FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE} AS bocarepo
-
 # Using ARG to set ENV
 ENV ENV_REPOSITORY=$REPOSITORY
 ENV ENV_REF=$REF
