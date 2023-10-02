@@ -41,9 +41,9 @@ RUN apt-get -y update \
         git \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /
-RUN echo "$ENV_REPOSITORY" && git clone ${ENV_REPOSITORY}
+RUN git clone "${ENV_REPOSITORY}"
 WORKDIR /boca
-RUN echo "$ENV_REF" && git checkout ${ENV_REF}
+RUN git checkout "${ENV_REF}"
 
 # The efficient way to publish multi-arch containers from GitHub Actions
 # https://actuated.dev/blog/multi-arch-docker-github-actions
