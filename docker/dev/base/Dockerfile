@@ -34,8 +34,8 @@ ARG REF=master
 FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE} AS bocarepo
 
 # Using ARG to set ENV
-ENV REPOSITORY=$REPOSITORY
-ENV REF=$REF
+ENV ENV_REPOSITORY=$REPOSITORY
+ENV ENV_REF=$REF
 
 # hadolint ignore=DL3008,DL3015
 RUN apt-get -y update \
@@ -43,9 +43,9 @@ RUN apt-get -y update \
         git \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /
-RUN git clone ${REPOSITORY}
+RUN echo "$ENV_REPOSITORY" && git clone ${ENV_REPOSITORY}
 WORKDIR /boca
-RUN git checkout ${REF}
+RUN echo "$ENV_REF" && git checkout ${ENV_REF}
 
 # The efficient way to publish multi-arch containers from GitHub Actions
 # https://actuated.dev/blog/multi-arch-docker-github-actions
