@@ -47,7 +47,7 @@ on:
         # Git URL of the BOCA repository to clone from.
         description: >-
           Git URL of the BOCA repository to clone from (empty for the one 
-          specified docker/build/matrix.json)
+          specified in docker/build/matrix.json)
         required: false
         type: string
       boca_ref:
