@@ -32,6 +32,11 @@ ARG REF=master
 # This stage clones BOCA's repository
 # hadolint ignore=DL3006
 FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE} AS bocarepo
+
+# Using ARG to set ENV
+ENV REPOSITORY=$REPOSITORY
+ENV REF=$REF
+
 # hadolint ignore=DL3008,DL3015
 RUN apt-get -y update \
     && apt-get -y install \
