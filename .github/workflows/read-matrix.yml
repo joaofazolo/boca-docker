@@ -37,6 +37,13 @@ on:
       platform:
         description: Matrix of os/platform-specific target builds (multi-arch)
         value: ${{ jobs.get-matrix.outputs.platform }}
+      repository:
+        description: Git URL of the BOCA repository to clone from
+        value: ${{ jobs.get-matrix.outputs.repository }}
+      ref:
+        description:
+          The branch, tag or SHA to point to in the cloned BOCA repository
+        value: ${{ jobs.get-matrix.outputs.ref }}
 
 jobs:
   get-matrix:
@@ -47,6 +54,8 @@ jobs:
       parent: ${{ steps.parse-matrix.outputs.parent }}
       default_parent: ${{ steps.parse-matrix.outputs.default_parent }}
       platform: ${{ steps.parse-matrix.outputs.platform }}
+      repository: ${{ steps.parse-matrix.outputs.repository }}
+      ref: ${{ steps.parse-matrix.outputs.ref }}
 
     steps:
       # Checkout a repository, so the workflow can access it
@@ -83,6 +92,10 @@ jobs:
           echo "$PARENTS"
           PLATFORMS=$(echo $CONTENT | jq ".platform")
           echo "$PLATFORMS"
+          REPOSITORY=$(echo $CONTENT | jq ".repository")
+          echo "$REPOSITORY"
+          REF=$(echo $CONTENT | jq ".ref")
+          echo "$REF"
 
           # Remove square brackets and double quotes
           DEFAULT_RELEASE=$(echo $RELEASES | tr -d "[]|\"")
@@ -103,6 +116,8 @@ jobs:
           echo "parent="${PARENTS} >> "$GITHUB_OUTPUT"
           echo "default_parent=${DEFAULT_PARENT}" >> "$GITHUB_OUTPUT"
           echo "platform"=${PLATFORMS} >> "$GITHUB_OUTPUT"
+          echo "repository"=${REPOSITORY} >> "$GITHUB_OUTPUT"
+          echo "ref"=${REF} >> "$GITHUB_OUTPUT"
 
   # check-setup:
   #   runs-on: ubuntu-latest

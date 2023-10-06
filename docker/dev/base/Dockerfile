@@ -27,13 +27,23 @@ ARG BASE_IMAGE=ubuntu:jammy
 # This stage clones BOCA's repository
 # hadolint ignore=DL3006
 FROM --platform=${BUILDPLATFORM:-linux/amd64} ${BASE_IMAGE} AS bocarepo
+# Git URL of the BOCA repository to clone from (default: cassiopc/boca)
+ARG REPOSITORY=https://github.com/cassiopc/boca.git
+# The branch, tag or SHA to point to in the cloned BOCA repository
+ARG REF=master
+# Using ARG to set ENV
+ENV ENV_REPOSITORY=$REPOSITORY
+ENV ENV_REF=$REF
+
 # hadolint ignore=DL3008,DL3015
 RUN apt-get -y update \
     && apt-get -y install \
         git \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /
-RUN git clone https://github.com/cassiopc/boca.git
+RUN git clone "${ENV_REPOSITORY}"
+WORKDIR /boca
+RUN git checkout "${ENV_REF}"
 
 # The efficient way to publish multi-arch containers from GitHub Actions
 # https://actuated.dev/blog/multi-arch-docker-github-actions

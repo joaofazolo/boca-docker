@@ -43,6 +43,20 @@ on:
           The branch, tag or SHA to checkout (empty for current branch)
         required: false
         type: string
+      boca_repository:
+        # Git URL of the BOCA repository to clone from.
+        description: >-
+          Git URL of the BOCA repository to clone from (empty for the one 
+          specified in docker/build/matrix.json)
+        required: false
+        type: string
+      boca_ref:
+        # The branch, tag or SHA to point to in the cloned BOCA repository.
+        description: >-
+          The branch, tag or SHA to point to in the cloned BOCA repository 
+          (empty for repository's HEAD)
+        required: false
+        type: string
       attempt_limit:
         description: Set number of retries if workflow fails (default is 3)
         required: false
@@ -79,6 +93,8 @@ jobs:
       tags: ${{ steps.set-inputs.outputs.tags }}
       latest: ${{ steps.set-inputs.outputs.latest }}
       ref: ${{ steps.set-inputs.outputs.ref }}
+      boca_repository: ${{ steps.set-inputs.outputs.boca_repository }}
+      boca_ref: ${{ steps.set-inputs.outputs.boca_ref }}
       retry_countdown: ${{ steps.set-inputs.outputs.retry_countdown }}
       retry_delay: ${{ steps.set-inputs.outputs.retry_delay }}
     needs:
@@ -164,6 +180,24 @@ jobs:
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
           fi
 
+          # Prepare the Git URL of the BOCA repository to clone from and
+          # the branch, tag or SHA to point to in the cloned BOCA repository
+          BOCA_REPOSITORY="${{ inputs.boca_repository }}"
+          if [[ -z "$BOCA_REPOSITORY" ]];
+          then
+            BOCA_REPOSITORY="${{ needs.setup-matrix.outputs.repository }}"
+          fi
+          echo $BOCA_REPOSITORY
+          echo "boca_repository=${BOCA_REPOSITORY}" >> "$GITHUB_OUTPUT"
+
+          BOCA_REF="${{ inputs.boca_ref }}"
+          if [[ -z "$BOCA_REF" ]];
+          then
+          BOCA_REF="${{ needs.setup-matrix.outputs.ref }}"
+          fi
+          echo $BOCA_REF
+          echo "boca_ref=${BOCA_REF}" >> "$GITHUB_OUTPUT"
+
           # Prepare retry limit and retry delay
           ATTEMPTS="${{ inputs.attempt_limit }}"
           if [[ -z "$ATTEMPTS" ]];
@@ -197,6 +231,8 @@ jobs:
       tags: ${{ needs.setup-inputs.outputs.tags }}
       latest: ${{ needs.setup-inputs.outputs.latest == 'true' }}
       ref: ${{ needs.setup-inputs.outputs.ref }}
+      boca_repository: ${{ needs.setup-inputs.outputs.boca_repository }}
+      boca_ref: ${{ needs.setup-inputs.outputs.boca_ref }}
     needs:
       - setup-matrix
       - setup-inputs

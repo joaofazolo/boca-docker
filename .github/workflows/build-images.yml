@@ -51,6 +51,18 @@ on:
           The branch, tag or SHA to checkout (empty for current branch)
         required: false
         type: string
+      boca_repository:
+        # Git URL of the BOCA repository to clone from.
+        description: 
+          Git URL of the BOCA repository to clone from (empty for https://github.com/cassiopc/boca.git)
+        required: false
+        type: string
+      boca_ref:
+        # The branch, tag or SHA to point to in the cloned BOCA repository.
+        description: 
+          The branch, tag or SHA to checkout (empty for BOCA repository's HEAD)
+        required: false
+        type: string
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -221,6 +233,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ steps.setup.outputs.base_image }}
+            REPOSITORY=${{ inputs.boca_repository }}
+            REF=${{ inputs.boca_ref }}
           # If true, it provides build attestations describing the image
           # contents and how they were built.
           provenance: false
