@@ -58,32 +58,32 @@ This optional environment variable, which can be set in the `boca-jail` service,
 
 This demo shows different approaches on how to pass environment variables to keep the application secure, flexible and organized.
 
-* Launch the application
+* Launch the application:
 
 **... via docker compose**
 
-```sh
-docker compose --env-file=tests/env/.env -f tests/env/docker-compose.yml up -d
-```
+  ```sh
+  docker compose --env-file=tests/env/.env -f tests/env/docker-compose.yml up -d
+  ```
 
 **... or docker stack deploy**
 
-```sh
-export $(grep -v '^#' tests/env/.env | xargs) && docker stack deploy --compose-file tests/env/docker-compose.yml boca-stack-env
-```
+  ```sh
+  export $(grep -v '^#' tests/env/.env | xargs) && docker stack deploy --compose-file tests/env/docker-compose.yml boca-stack-env
+  ```
 
 * Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). To login with the _system_ user, use as password the value of the `BOCA_PASSWORD` variable set in the `tests/env/docker-compose.yml` file (sensitive information stored on GitHub for demo purposes only).
 
-* To bring it down
+* To bring it down:
 
 **... via docker compose**
 
-```sh
-docker compose -f tests/env/docker-compose.yml down
-```
+  ```sh
+  docker compose -f tests/env/docker-compose.yml down
+  ```
 
 **... or docker stack rm**
 
-```sh
-docker stack rm boca-stack-env
-```
+  ```sh
+  docker stack rm boca-stack-env
+  ```
