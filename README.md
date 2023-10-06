@@ -39,6 +39,7 @@
 - [How To Run On Different Ubuntu Release Images](#how-to-run-on-different-ubuntu-release-images)
 - [How To Build It (For Development)](#how-to-build-it-for-development)
 - [How To Publish It](#how-to-publish-it)
+- [How To Contribute](#how-to-contribute)
 - [License](#license)
 - [Support](#support)
 
@@ -228,6 +229,20 @@ docker login ghcr.io
 docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
 docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
 ```
+
+## How To Contribute
+
+If you would like to help contribute to this project, please see [CONTRIBUTING](https://github.com/joaofazolo/boca-docker/blob/master/CONTRIBUTING.md).
+
+Before submitting a PR consider building and testing a Docker image locally and checking your code with Super-Linter:
+
+  ```sh
+  docker run --rm \
+              -e RUN_LOCAL=true \
+              -e USE_FIND_ALGORITHM=true \
+              --env-file ".github/super-linter.env" \
+              -v "$PWD":/tmp/lint ghcr.io/github/super-linter:slim-v5
+  ```
 
 ## License
 
