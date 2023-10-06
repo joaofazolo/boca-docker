@@ -45,7 +45,7 @@
 ## What Is BOCA?
 
 BOCA Online Contest Administrator (known simply as BOCA) is an administration system to held programming contests (e.g., ACM-ICPC, Maratona de Programação da SBC).
-According to the developers, its main features are portability, concurrency control, multi-site and distributed contests, and a simple web interface (for details refer to [https://www.ime.usp.br/~cassio/boca/](https://www.ime.usp.br/~cassio/boca/) and [https://github.com/cassiopc/boca](https://github.com/cassiopc/boca)).
+According to the developers, its main features are portability, concurrency control, multi-site and distributed contests, and a simple web interface (for details refer to [https://github.com/cassiopc/boca](https://github.com/cassiopc/boca)).
 
 BOCA is implemented mainly in PHP and makes use of a PostgreSQL database in the backend (see architecture below). It is a good example of a monolithic system, in which the user interface and database access are all interwoven, rather than containing architecturally separate components.
 The problem is compound due to the low readability and complex code structuring, which is hard to adapt and to extend.
@@ -63,75 +63,73 @@ This work started as part of the undergraduate final year project carried out by
 
 ## Requirements
 
-* Install [Docker Desktop](https://www.docker.com/get-started).
+* Install [Docker Desktop](https://www.docker.com/get-started);
 * Install [Git](https://github.com/git-guides/install-git) (only for building and publishing).
 
 ## Quick Start
 
 * Open a Terminal window and make sure the Docker engine is up and running:
 
-```sh
-# List docker images
-docker images -a
-# List containers
-docker container ls -a
-```
+  ```sh
+  # List docker images
+  docker images -a
+  # List containers
+  docker container ls -a
+  ```
 
 * Download the `docker-compose.yml` and `docker-compose.prod.yml` files, and place them in the current work directory. Then,
 
-```sh
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-```
+  ```sh
+  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+  ```
 
-Voilà! The application should be running now.
+* Voilà! The application should be running now. Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc;
 
-* Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc.
-
-> **NOTE:** consider changing these passwords later on. Find out more information on how to setup a contest [here](https://github.com/cassiopc/boca/tree/master/doc). For general questions about BOCA consider looking at this [forum](https://groups.google.com/g/boca-users).
+  > **NOTE:** consider changing these passwords later on. Find out more information on how to setup a contest [here](https://github.com/cassiopc/boca/tree/master/doc). For general questions about BOCA consider looking at this [forum](https://groups.google.com/g/boca-users).
 
 * To stop the application (considering that the shell is in the same directory):
 
-```sh
-docker compose -f docker-compose.yml -f docker-compose.prod.yml down
-```
+  ```sh
+  docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+  ```
 
 ## How To Deploy It To A Swarm
 
 * Create the stack (make sure Docker Engine is already running in [swarm mode](https://docs.docker.com/engine/swarm/swarm-mode/)):
 
-```sh
-docker stack deploy --compose-file docker-compose.yml -c docker-compose.prod.yml boca-stack
-```
+  ```sh
+  docker stack deploy --compose-file docker-compose.yml -c docker-compose.prod.yml boca-stack
+  ```
 
 * Then, check if the stack is running:
 
-```sh
-docker stack services boca-stack
-```
+  ```sh
+  docker stack services boca-stack
+  ```
 
-* Open a web browser and follow the instructions described above.
+* Open a web browser and follow the instructions described above;
 
 * To bring the stack down:
 
-```sh
-docker stack rm boca-stack
-```
+  ```sh
+  docker stack rm boca-stack
+  ```
 
 ## How To Add Custom Configuration
 
 There are many ways to customize the _boca-docker_ application. Without trying to support every possible use case, here are just a few that we have found useful.
 
-* **Environment Variables:** shows the correct syntax for the various ways one can change predefined configuration values to keep the _boca-docker_ application flexible and organized. See documentation [here](tests/env/README.md).
+* **Environment Variables:** shows the correct syntax for the various ways one can change predefined configuration values to keep the _boca-docker_ application flexible and organized. See documentation [here](tests/env/README.md);
 
-* **Docker Secrets:** an alternative way to passing sensitive information via environment variables, causing the initialization scripts to load the values for those variables from files present in the containers. See documentation [here](tests/secrets/README.md).
+* **Docker Secrets:** an alternative way to passing sensitive information via environment variables, causing the initialization scripts to load the values for those variables from files present in the containers. See documentation [here](tests/secrets/README.md);
 
-* **Networking:** shows how to add network isolation between services in the _boca-docker_ application. See documentation [here](tests/networks/README.md).
+* **Networking:** shows how to add network isolation between services in the _boca-docker_ application. See documentation [here](tests/networks/README.md);
 
-* **Volumes:** demonstrates how to store data outside the database container, so that the state of the application persists even after the container stops. See documentation [here](tests/volumes/README.md).
+* **Volumes:** demonstrates how to store data outside the database container, so that the state of the application persists even after the container stops. See documentation [here](tests/volumes/README.md);
 
-* **Migrations:** illustrates how to backup and restore BOCA's database to facilitate migration from one _boca-docker_ instance to another. See documentation [here](tests/migrations/README.md).
+* **Migrations:** illustrates how to backup and restore BOCA's database to facilitate migration from one _boca-docker_ instance to another. See documentation [here](tests/migrations/README.md);
 
-* **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md).
+* **Healthcheck:** allows a check to be configured in order to determine whether or not the PostgreSQL container is "healthy." This is a particularly neat use case given that the other services depend on that to work. See documentation [here](tests/healthcheck/README.md);
 
 * **Multiple Platforms:** shows the syntax for selecting an image that matches a specific OS and architecture (alternatively, Docker does that automatically). See documentation [here](tests/platforms/README.md).
 
@@ -147,8 +145,12 @@ To run the _boca-docker_ application built on top of different versions of Ubunt
 | `nightly-focal`                                      | 1.5          | 20.04 LTS      | Focal Fossa     | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x` |
 
 For example, to use BOCA version 1.5 running on Ubuntu 20.04 LTS (Focal Fossa) on any supported architecture:
-```sh
+
+  ```sh
+  ...
+  services:
     ...
+
     # web app
     boca-web:
         image: ghcr.io/joaofazolo/boca-docker/boca-web:1.2-focal
@@ -159,7 +161,7 @@ For example, to use BOCA version 1.5 running on Ubuntu 20.04 LTS (Focal Fossa) o
     boca-jail:
         image: ghcr.io/joaofazolo/boca-docker/boca-jail:1.2-focal
     ...
-```
+  ```
 
 ### Deprecated Image Tags
 
@@ -171,63 +173,63 @@ The following image tags have been deprecated and are no longer receiving update
 
 * Clone this repository and set it as your working directory:
 
-```sh
-git clone https://github.com/joaofazolo/boca-docker.git
-cd boca-docker
-```
+  ```sh
+  git clone https://github.com/joaofazolo/boca-docker.git
+  cd boca-docker
+  ```
 
 * Then, compose it up with the command below (this might take a while, sit back and relax):
 
-```sh
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-```
+  ```sh
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+  ```
 
-> **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e. `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/).
+  > **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e. `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/);
 
-Follow the instructions [above](#quick-start) to set up the application.
+* Follow the instructions [above](#quick-start) to set up the application;
 
 * To stop it:
 
-```sh
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
-```
+  ```sh
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+  ```
 
 * Alternatively, it is possible to build images without launching the application.
 
-```sh
-docker build -t boca-base . -f docker/dev/base/Dockerfile
-docker build -t boca-web . -f docker/dev/web/Dockerfile
-docker build -t boca-jail . -f docker/dev/jail/Dockerfile
-```
+  ```sh
+  docker build -t boca-base . -f docker/dev/base/Dockerfile
+  docker build -t boca-web . -f docker/dev/web/Dockerfile
+  docker build -t boca-jail . -f docker/dev/jail/Dockerfile
+  ```
 
 ## How To Publish It
 
 > **NOTE:** These instructions take into account the Docker images generated in the previous section (no multi-platform support).
 
-* After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker images -a`.
+* After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker images -a`;
 
-```sh
-docker images -a
-# boca-base only necessary for development
-# docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
-docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
-docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
-```
+  ```sh
+  docker images -a
+  # boca-base only necessary for development
+  # docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
+  docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
+  docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
+  ```
 
-* Log in into GitHub's Container Registry using your username and personal access token (details [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry)).
+* Log in into GitHub's Container Registry using your username and personal access token (details [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry));
 
-```sh
-docker login ghcr.io
-```
+  ```sh
+  docker login ghcr.io
+  ```
 
 * Push the container images to repository.
 
-```sh
-# boca-base only necessary for development
-# docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
-docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
-docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
-```
+  ```sh
+  # boca-base only necessary for development
+  # docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
+  docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
+  docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
+  ```
 
 ## License
 

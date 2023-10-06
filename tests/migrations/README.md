@@ -10,40 +10,40 @@ On the other hand, `pg_restore` provides a more flexible restore mechanism to ex
 
 ## Example
 
-* Launch the application
+* Launch the application:
 
 **... via docker compose**
 
-```sh
-docker compose -f tests/migrations/docker-compose.yml up -d
-```
+  ```sh
+  docker compose -f tests/migrations/docker-compose.yml up -d
+  ```
 
-* Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). To login use the default credentials (Name: _admin_ | Password: _boca_).
+* Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). To login use the default credentials (Name: _admin_ | Password: _boca_);
 
-> **NOTE:** The contest restored from the `tests/migrations/backups/boca-db.sql` contains some example [problems](http://localhost:8000/boca/admin/problem.php).
+  > **NOTE:** The contest restored from the `tests/migrations/backups/boca-db.sql` contains some example [problems](http://localhost:8000/boca/admin/problem.php).
 
-* To backup the database (the dump is saved locally in `/test/migrations/backups/boca-db.tar`)
+* To backup the database (the dump is saved locally in `/test/migrations/backups/boca-db.tar`):
 
-> **NOTE:** Try different archive formats by changing the `BOCA_DB_DUMP_FORMAT` and `BOCA_DB_DUMP_FILENAME` variables in the `tests/migrations/docker-compose.yml` file.
-
-**... via docker compose**
-
-```sh
-docker compose --profile backup -f tests/migrations/docker-compose.yml up -d
-```
-
-* To restore the database to an alternative state (the dump used is in `/test/migrations/backups/boca-db.dump`)
+  > **NOTE:** Try different archive formats by changing the `BOCA_DB_DUMP_FORMAT` and `BOCA_DB_DUMP_FILENAME` variables in the `tests/migrations/docker-compose.yml` file.
 
 **... via docker compose**
 
-```sh
-docker compose --profile restore -f tests/migrations/docker-compose.yml up -d
-```
+  ```sh
+  docker compose --profile backup -f tests/migrations/docker-compose.yml up -d
+  ```
 
-* To bring it down
+* To restore the database to an alternative state (the dump used is in `/test/migrations/backups/boca-db.dump`):
 
 **... via docker compose**
 
-```sh
-docker compose --profile backup --profile restore -f tests/migrations/docker-compose.yml down
-```
+  ```sh
+  docker compose --profile restore -f tests/migrations/docker-compose.yml up -d
+  ```
+
+* To bring it down:
+
+**... via docker compose**
+
+  ```sh
+  docker compose --profile backup --profile restore -f tests/migrations/docker-compose.yml down
+  ```

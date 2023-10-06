@@ -16,20 +16,20 @@ Architectures currently supported:
 
 ## Example
 
-* Launch the application
+* Launch the application:
 
 **... via docker compose**
 
-```sh
-docker compose -f tests/platforms/docker-compose.yml up -d
-```
+  ```sh
+  docker compose -f tests/platforms/docker-compose.yml up -d
+  ```
 
-* Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). To login use the default credentials (Name: _system_ | Password: _boca_).
+* Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). To login use the default credentials (Name: _system_ | Password: _boca_);
 
-* To bring it down
+* To bring it down:
 
 **... via docker-compose**
 
-```sh
-docker compose -f tests/platforms/docker-compose.yml down
-```
+  ```sh
+  docker compose -f tests/platforms/docker-compose.yml down
+  ```
