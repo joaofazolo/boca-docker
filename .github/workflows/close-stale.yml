@@ -41,7 +41,7 @@ jobs:
       # Close Stale Issues and PRs
       # https://github.com/actions/stale
       - 
-        uses: actions/stale@v8
+        uses: actions/stale@v9
         with:
           # Run the stale workflow as dry-run (no actions will be taken)
           # debug-only: true
