@@ -152,7 +152,7 @@ jobs:
       # https://github.com/github/codeql-action
       - 
         name: Upload Dockle image lint results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: '${{ steps.setup.outputs.report_name }}.sarif'
           category: 'image'
