@@ -170,7 +170,7 @@ jobs:
       # https://github.com/actions/delete-package-versions
       - 
         name: Delete untagged Docker images on ghcr.io
-        uses: actions/delete-package-versions@v4
+        uses: actions/delete-package-versions@v5
         with:
           package-name: 
             '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
@@ -325,7 +325,7 @@ jobs:
 
       - 
         name: Delete multiple specific Docker images on ghcr.io
-        uses: actions/delete-package-versions@v4
+        uses: actions/delete-package-versions@v5
         if: ${{ steps.unsupported.outputs.version_ids != '' }}
         with:
           package-version-ids: '${{ steps.unsupported.outputs.version_ids }}'

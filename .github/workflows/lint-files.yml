@@ -82,7 +82,7 @@ jobs:
       - 
         name: Run Super-Linter on code base
         #uses: github/super-linter@v5
-        uses: super-linter/super-linter/slim@v5
+        uses: super-linter/super-linter/slim@v6
         env:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
