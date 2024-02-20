@@ -252,16 +252,15 @@ jobs:
         run: |
 
           mkdir -p ${{ steps.setup.outputs.digests_path }}
-          # digest="${{ steps.build.outputs.digest }}"
-          # touch "${{ steps.setup.outputs.digests_path }}/${digest#sha256:}"
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ steps.setup.outputs.digests_path }}/${digest#sha256:}"
 
-          # Set digests name
+          # Set digests name (used in the next step)
           DIGESTS_NAME="digests-${{ matrix.image }}-"
           DIGESTS_NAME+="${{ steps.setup.outputs.release_name }}-"
           DIGESTS_NAME+="${{ steps.setup.outputs.arch_name }}"
           echo "$DIGESTS_NAME"
           echo "digests_name=$DIGESTS_NAME" >> "$GITHUB_OUTPUT"
-          touch "${{ steps.setup.outputs.digests_path }}/$DIGESTS_NAME"
 
       # Upload artifacts from workflow allowing to share data between jobs
       # https://github.com/actions/upload-artifact
