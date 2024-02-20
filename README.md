@@ -138,12 +138,12 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 To run the _boca-docker_ application built on top of different versions of Ubuntu images, please edit the `docker-compose.prod.yml` file with an alternative tag from the table below.
 
-| Tag name | BOCA version | Ubuntu version | Code name | Architecture |
-|------------------------------------------------------|--------------|----------------|-----------------|---------------------------------------------------|
-| `latest`, `1.2`, `1.2-jammy`, `1.2.0`, `1.2.0-jammy` | 1.5 | 22.04 LTS | Jammy Jellyfish | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x` |
-| `1.2-focal`, `1.2.0-focal` | 1.5 | 20.04 LTS | Focal Fossa | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x` |
-| `nightly`, `nightly-jammy` | 1.5 | 22.04 LTS | Jammy Jellyfish | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x` |
-| `nightly-focal` | 1.5 | 20.04 LTS | Focal Fossa | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x` |
+Tag name | BOCA version | Ubuntu version | Code name | Architecture
+-------- | ------------ | -------------- | --------- | ------------
+`latest`, `1.2`, `1.2-jammy`, `1.2.0`, `1.2.0-jammy` | 1.5 | 22.04 LTS | Jammy Jellyfish | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
+`1.2-focal`, `1.2.0-focal` | 1.5 | 20.04 LTS | Focal Fossa | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
+`nightly`, `nightly-jammy` | 1.5 | 22.04 LTS | Jammy Jellyfish | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
+`nightly-focal` | 1.5 | 20.04 LTS | Focal Fossa | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
 
 For example, to use BOCA version 1.5 running on Ubuntu 20.04 LTS (Focal Fossa) on any supported architecture:
 
@@ -240,10 +240,11 @@ Before submitting a PR consider building and testing a Docker image locally and 
 
   ```sh
   docker run --rm \
-              -e RUN_LOCAL=true \
-              -e USE_FIND_ALGORITHM=true \
-              --env-file ".github/super-linter.env" \
-              -v "$PWD":/tmp/lint ghcr.io/github/super-linter:slim-v5
+             -e ACTIONS_RUNNER_DEBUG=true \
+             -e RUN_LOCAL=true \
+             --env-file ".github/super-linter.env" \
+             -v "$PWD":/tmp/lint \
+             ghcr.io/super-linter/super-linter:latest
   ```
 
 ## License
