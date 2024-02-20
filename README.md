@@ -138,7 +138,7 @@ There are many ways to customize the _boca-docker_ application. Without trying t
 
 To run the _boca-docker_ application built on top of different versions of Ubuntu images, please edit the `docker-compose.prod.yml` file with an alternative tag from the table below.
 
-|Tag name|BOCA version|Ubuntu version|Code name|Architecture |
+|Tag name|BOCA version|Ubuntu version|Code name|Architecture|
 |------------------------------------------------------|--------------|----------------|-----------------|---------------------------------------------------|
 | `latest`, `1.2`, `1.2-jammy`, `1.2.0`, `1.2.0-jammy` | 1.5 | 22.04 LTS | Jammy Jellyfish | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x` |
 | `1.2-focal`, `1.2.0-focal` | 1.5 | 20.04 LTS | Focal Fossa | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x` |
