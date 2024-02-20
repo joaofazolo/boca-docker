@@ -258,8 +258,9 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: 
+          name: >-
             digests-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}
+            -${{ steps.setup.outputs.arch_name }}
           path: ${{ steps.setup.outputs.digests_path }}/*
           if-no-files-found: error
           retention-days: 1
@@ -353,8 +354,10 @@ jobs:
         name: Download digests
         uses: actions/download-artifact@v4
         with:
-          name: 
+          pattern: >-
             digests-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}
+            -*
+          merge-multiple: true
           path: ${{ steps.setup.outputs.digests_path }}
 
       -
