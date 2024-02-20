@@ -53,8 +53,9 @@ on:
         type: string
       boca_repository:
         # Git URL of the BOCA repository to clone from.
-        description: 
-          Git URL of the BOCA repository to clone from (empty for https://github.com/cassiopc/boca.git)
+        description: >-
+          Git URL of the BOCA repository to clone from
+          (empty for https://github.com/cassiopc/boca.git)
         required: false
         type: string
       boca_ref:
@@ -247,19 +248,27 @@ jobs:
             ${{ steps.setup.outputs.cache-to }}
 
       - name: Export digest
+        id: export
         run: |
 
           mkdir -p ${{ steps.setup.outputs.digests_path }}
           digest="${{ steps.build.outputs.digest }}"
           touch "${{ steps.setup.outputs.digests_path }}/${digest#sha256:}"
 
+          # Set digests name (used in the next step)
+          DIGESTS_NAME="digests-${{ matrix.image }}-"
+          DIGESTS_NAME+="${{ steps.setup.outputs.release_name }}-"
+          DIGESTS_NAME+="${{ steps.setup.outputs.arch_name }}"
+          echo "$DIGESTS_NAME"
+          echo "digests_name=$DIGESTS_NAME" >> "$GITHUB_OUTPUT"
+
       # Upload artifacts from workflow allowing to share data between jobs
       # https://github.com/actions/upload-artifact
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: 
-            digests-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}
+          name:
+            ${{ steps.export.outputs.digests_name }}
           path: ${{ steps.setup.outputs.digests_path }}/*
           if-no-files-found: error
           retention-days: 1
@@ -298,6 +307,11 @@ jobs:
           DIGESTS_PATH="${{ env.DIGESTS_PATH }}/${{ matrix.image }}-${RELEASE}"
           echo "$DIGESTS_PATH"
           echo "digests_path=$DIGESTS_PATH" >> "$GITHUB_OUTPUT"
+
+          # Set digests pattern
+          DIGESTS_PATTERN="digests-${{ matrix.image }}-$RELEASE"
+          echo "$DIGESTS_PATTERN"
+          echo "digests_pattern=$DIGESTS_PATTERN" >> "$GITHUB_OUTPUT"
 
           # Set tags
           TAGS="${{ inputs.tags }}"
@@ -353,8 +367,9 @@ jobs:
         name: Download digests
         uses: actions/download-artifact@v4
         with:
-          name: 
-            digests-${{ matrix.image }}-${{ steps.setup.outputs.release_name }}
+          pattern:
+            ${{ steps.setup.outputs.digests_pattern }}-*
+          merge-multiple: true
           path: ${{ steps.setup.outputs.digests_path }}
 
       -
