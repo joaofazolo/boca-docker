@@ -118,6 +118,7 @@ RUN echo "Setting time zone to '${TZ}'" ln -snf /usr/share/zoneinfo/$TZ /etc/loc
     && echo "Etc/UTC" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata
 
 # Copy BOCA repository from base image
+COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/doc /var/www/boca/doc
 COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/src /var/www/boca/src
 COPY --from=bocarepo --chown="$APACHE_RUN_USER:$APACHE_RUN_GROUP" /boca/tools /var/www/boca/tools
 # Copy modified local source code file(s)
