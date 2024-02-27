@@ -1,9 +1,9 @@
 {
     "//comment1": "Matrix of supported image tags/releases (latest: first value)",
     "release": [
-        "1.2.0",
-        "1.2.0-jammy",
-        "1.2.0-focal",
+        "1.2.1",
+        "1.2.1-jammy",
+        "1.2.1-focal",
         "1.2",
         "1.2-jammy",
         "1.2-focal",
@@ -14,6 +14,9 @@
         "master",
         "master-jammy",
         "master-focal",
+        "1.2.0",
+        "1.2.0-jammy",
+        "1.2.0-focal",
         "1.1.0",
         "1.0.0"
     ],
