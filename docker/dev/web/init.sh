@@ -115,4 +115,6 @@ else
   echo "Database and unprivileged user already exist"
 fi
 
-apache2 -DFOREGROUND
+# Improve container’s lifecycle
+# https://www.padok.fr/en/blog/docker-processes-container
+exec apache2 -DFOREGROUND

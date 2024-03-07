@@ -76,4 +76,6 @@ done
 
 >&2 echo "PostgreSQL server is up - executing command"
 
-boca-autojudge
+# Improve container’s lifecycle
+# https://www.padok.fr/en/blog/docker-processes-container
+exec boca-autojudge
