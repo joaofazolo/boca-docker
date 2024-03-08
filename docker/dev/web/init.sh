@@ -115,6 +115,6 @@ else
   echo "Database and unprivileged user already exist"
 fi
 
-# Improve container’s lifecycle
+# Use exec format to run program directly as pid 1
 # https://www.padok.fr/en/blog/docker-processes-container
 exec apache2 -DFOREGROUND

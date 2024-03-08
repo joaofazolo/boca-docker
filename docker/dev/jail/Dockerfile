@@ -88,4 +88,6 @@ COPY --chmod=755 docker/dev/jail/init.sh /
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
     CMD ps ax | grep -v grep | grep php | grep autojudging.php > /dev/null || exit 1
 
+# Use exec format to run program directly as pid 1
+# https://www.padok.fr/en/blog/docker-processes-container
 ENTRYPOINT ["/init.sh"]
