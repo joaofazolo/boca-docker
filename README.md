@@ -40,6 +40,7 @@
 - [How To Build It (For Development)](#how-to-build-it-for-development)
 - [How To Publish It](#how-to-publish-it)
 - [How To Contribute](#how-to-contribute)
+- [Known Issues](#known-issues)
 - [License](#license)
 - [Support](#support)
 
@@ -246,6 +247,13 @@ Before submitting a PR consider building and testing a Docker image locally and 
              -v "$PWD":/tmp/lint \
              ghcr.io/super-linter/super-linter:latest
   ```
+
+## Known Issues
+
+- Rosetta for x86_64/amd64 emulation must be disabled on Apple Silicon
+(ARM-based chips) for the online automated judge (boca-jail) to work (tested
+on Apple M1, Docker Desktop 4.28.0, Engine: 25.0.3, Compose: v2.24.6-desktop.1,
+Mar 2024);
 
 ## License
 
