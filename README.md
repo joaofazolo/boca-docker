@@ -168,6 +168,8 @@ For example, to use BOCA version 1.5 running on Ubuntu 20.04 LTS (Focal Fossa) o
 ### Deprecated Image Tags
 
 The following image tags have been deprecated and are no longer receiving updates:
+- 1.2.1
+- 1.2.0
 - 1.1.0
 - 1.0.0
 
@@ -228,9 +230,9 @@ The following image tags have been deprecated and are no longer receiving update
 
   ```sh
   # boca-base only necessary for development
-  # docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
-  docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
-  docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
+  # docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.2.2
+  docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.2
+  docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.2
   ```
 
 ## How To Contribute
