@@ -77,7 +77,7 @@ RUN \
 
 RUN boca-createjail || true
 
-# Java installation with chroot does not work as expected
+# OpenJDK 17 installation with chroot does not work as expected
 # Workaround: Install OpenJDK 17 manually
 # https://www.linuxcapable.com/how-to-install-openjdk-17-on-ubuntu-linux/
 # hadolint ignore=DL3003
