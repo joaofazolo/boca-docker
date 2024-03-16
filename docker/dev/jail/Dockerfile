@@ -81,7 +81,7 @@ RUN boca-createjail || true
 # Workaround: Install OpenJDK 17 manually
 # https://www.linuxcapable.com/how-to-install-openjdk-17-on-ubuntu-linux/
 # hadolint ignore=DL3003
-RUN wget --progress=dot:giga https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz \
+RUN wget --progress=dot:giga https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz \
     && tar -xvf openjdk-17* \
     && cd jdk-17* \
     && cp -rf bin/* /home/bocajail/usr/bin/ \
