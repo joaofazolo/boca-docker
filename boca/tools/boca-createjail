@@ -124,23 +124,6 @@ apt-get -y install software-properties-common
 # apt-get -y install maratona-linguagens --no-install-recommends --allow-unauthenticated
 # apt-get -y clean
 
-# Workaround: install Java 11 instead of 17 (security issue)
-# https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2019908
-apt-get -y install --no-install-recommends \
-    build-essential \
-    debconf \
-    openjdk-11-jdk \
-    gdb \
-    python3 \
-    python-is-python3 \
-    pyflakes3 \
-    pylint \
-    python3-distutils \
-    unzip \
-    wget \
-    valgrind \
-&& rm -rf /var/lib/apt/lists/*
-
 umount /proc
 EOF
 mkdir -p /bocajail/usr/bin
