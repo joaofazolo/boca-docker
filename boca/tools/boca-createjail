@@ -124,10 +124,12 @@ apt-get -y install software-properties-common
 # apt-get -y install maratona-linguagens --no-install-recommends --allow-unauthenticated
 # apt-get -y clean
 
+# Workaround: install Java 21 instead of 17 (security issue)
+# https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2019908
 apt-get -y install --no-install-recommends \
     build-essential \
     debconf \
-    openjdk-17-jdk \
+    openjdk-21-jdk \
     gdb \
     python3 \
     python-is-python3 \
