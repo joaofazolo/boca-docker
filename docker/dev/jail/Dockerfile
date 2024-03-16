@@ -77,9 +77,9 @@ RUN \
 
 RUN boca-createjail || true
 
-# # Workaround: Java installation with chroot does not work as expected
-# RUN cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/bin/* /home/bocajail/usr/bin/ \
-#     && cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/lib/* /home/bocajail/usr/lib/
+# Workaround: Java installation with chroot does not work as expected
+RUN cp -rf /home/bocajail/usr/lib/jvm/java-17-openjdk-amd64/bin/* /home/bocajail/usr/bin/ \
+    && cp -rf /home/bocajail/usr/lib/jvm/java-17-openjdk-amd64/lib/* /home/bocajail/usr/lib/
 
 COPY --chmod=755 docker/dev/jail/init.sh /
 
