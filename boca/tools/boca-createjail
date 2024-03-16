@@ -124,7 +124,9 @@ apt-get -y upgrade
 apt-get -y install maratona-linguagens --no-install-recommends --allow-unauthenticated
 apt-get -y clean
 
-# Workaround: install Java 11 instead of 17 (security issue)
+# OpenJDK 17 installation with chroot does not work as expected
+# Workaround: install OpenJDK 11 instead of 17 (security issue)
+# ATTENTION: this method no longer works. Keep it here for reference.
 # https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2019908
 # apt-get -y install --no-install-recommends \
 #     build-essential \
@@ -141,6 +143,17 @@ apt-get -y clean
 #     valgrind \
 # && rm -rf /var/lib/apt/lists/*
 
+# Workaround: Install OpenJDK 17 manually
+# https://www.linuxcapable.com/how-to-install-openjdk-17-on-ubuntu-linux/
+wget https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz
+&& tar -xvf openjdk-17* \
+&& cd jdk-17* \
+&& cp -rf bin/* /home/bocajail/usr/bin/ \
+&& cp -rf lib/* /home/bocajail/usr/lib/ \
+&& cd .. \
+&& rm -rf jdk-17* \
+&& rm openjdk-17*
+
 umount /proc
 EOF
 mkdir -p /bocajail/usr/bin
@@ -150,5 +163,3 @@ chmod 755 /home/bocajail/tmp/populate.sh
 
 export LC_ALL=en_US.UTF-8
 cd / ; chroot $homejail /tmp/populate.sh
-
-
