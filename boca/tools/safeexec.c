@@ -459,7 +459,7 @@ Use -U and -G for that, but you might need to have root privilegies.\n");
     } else {
 		fprintf (stderr, "safeexec: PROGRAM TERMINATED ABNORMALLY %s\n",
 				 argv[optind]);
-		exitandkill(9);
+		// exitandkill(9);
     }
 
     if(currun < nruns) goto doagain;
