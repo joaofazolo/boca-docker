@@ -78,9 +78,18 @@ RUN \
 
 RUN boca-createjail || true
 
-# Workaround: Java installation with chroot does not work as expected
-RUN cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/bin/* /home/bocajail/usr/bin/ \
-    && cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/lib/* /home/bocajail/usr/lib/
+# OpenJDK 17 installation with chroot does not work as expected
+# Workaround: Install OpenJDK 17 manually
+# https://www.linuxcapable.com/how-to-install-openjdk-17-on-ubuntu-linux/
+# hadolint ignore=DL3003
+RUN wget --progress=dot:giga https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz \
+    && tar -xvf openjdk-17* \
+    && cd jdk-17* \
+    && cp -rf bin/* /home/bocajail/usr/bin/ \
+    && cp -rf lib/* /home/bocajail/usr/lib/ \
+    && cd .. \
+    && rm -rf jdk-17* \
+    && rm openjdk-17*
 
 COPY --chmod=755 docker/dev/jail/init.sh /
 
