@@ -41,7 +41,7 @@ struct rlimit max_data  = {128*MBYTE, 128*MBYTE};     /* max data segment size *
 struct rlimit max_core  = {0, 0};                 /* max core file size */
 struct rlimit max_rss   = {128*MBYTE, 128*MBYTE};     /* max resident set size */
 
-struct rlimit max_processes = {64,64}; /* max number of processes */
+struct rlimit max_processes = {4096,4096}; /* max number of processes */
 
 
 int real_timeout = 30;                 /* max real time (seconds) */
