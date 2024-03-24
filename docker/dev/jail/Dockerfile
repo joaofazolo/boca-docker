@@ -53,6 +53,7 @@ RUN apt-get -y update \
 
 # https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2019908
 COPY boca/tools/boca-createjail /var/www/boca/tools/
+COPY boca/tools/safeexec.c /var/www/boca/tools/
 
 WORKDIR /var/www/boca
 RUN \
@@ -96,4 +97,6 @@ COPY --chmod=755 docker/dev/jail/init.sh /
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
     CMD ps ax | grep -v grep | grep php | grep autojudging.php > /dev/null || exit 1
 
+# Use exec format to run program directly as pid 1
+# https://www.padok.fr/en/blog/docker-processes-container
 ENTRYPOINT ["/init.sh"]

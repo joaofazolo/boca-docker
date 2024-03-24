@@ -40,6 +40,7 @@
 - [How To Build It (For Development)](#how-to-build-it-for-development)
 - [How To Publish It](#how-to-publish-it)
 - [How To Contribute](#how-to-contribute)
+- [Known Issues](#known-issues)
 - [License](#license)
 - [Support](#support)
 
@@ -140,8 +141,8 @@ To run the _boca-docker_ application built on top of different versions of Ubunt
 
 Tag name | BOCA version | Ubuntu version | Code name | Architecture
 -------- | ------------ | -------------- | --------- | ------------
-`latest`, `1.2`, `1.2-jammy`, `1.2.0`, `1.2.0-jammy` | 1.5 | 22.04 LTS | Jammy Jellyfish | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
-`1.2-focal`, `1.2.0-focal` | 1.5 | 20.04 LTS | Focal Fossa | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
+`latest`, `1.2`, `1.2-jammy`, `1.2.2`, `1.2.2-jammy` | 1.5 | 22.04 LTS | Jammy Jellyfish | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
+`1.2-focal`, `1.2.2-focal` | 1.5 | 20.04 LTS | Focal Fossa | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
 `nightly`, `nightly-jammy` | 1.5 | 22.04 LTS | Jammy Jellyfish | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
 `nightly-focal` | 1.5 | 20.04 LTS | Focal Fossa | `amd64`, `arm/v7`, `arm64/v8`, `ppc64le`, `s390x`
 
@@ -167,6 +168,8 @@ For example, to use BOCA version 1.5 running on Ubuntu 20.04 LTS (Focal Fossa) o
 ### Deprecated Image Tags
 
 The following image tags have been deprecated and are no longer receiving updates:
+- 1.2.1
+- 1.2.0
 - 1.1.0
 - 1.0.0
 
@@ -212,9 +215,9 @@ The following image tags have been deprecated and are no longer receiving update
   ```sh
   docker images -a
   # boca-base only necessary for development
-  # docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
-  docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
-  docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
+  # docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.2.2
+  docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.2.2
+  docker tag IMAGE_ID_BOCA_JAIL ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.2
   ```
 
 * Log in into GitHub's Container Registry using your username and personal access token (details [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry));
@@ -227,9 +230,9 @@ The following image tags have been deprecated and are no longer receiving update
 
   ```sh
   # boca-base only necessary for development
-  # docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.2.0
-  docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.0
-  docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.0
+  # docker push ghcr.io/joaofazolo/boca-docker/boca-base:1.2.2
+  docker push ghcr.io/joaofazolo/boca-docker/boca-web:1.2.2
+  docker push ghcr.io/joaofazolo/boca-docker/boca-jail:1.2.2
   ```
 
 ## How To Contribute
@@ -246,6 +249,13 @@ Before submitting a PR consider building and testing a Docker image locally and 
              -v "$PWD":/tmp/lint \
              ghcr.io/super-linter/super-linter:latest
   ```
+
+## Known Issues
+
+- Rosetta for x86_64/amd64 emulation must be disabled on Apple Silicon
+(ARM-based chips) for the online automated judge (boca-jail) to work (tested
+on Apple M1, Docker Desktop 4.28.0, Engine: 25.0.3, Compose: v2.24.6-desktop.1,
+Mar 2024);
 
 ## License
 
