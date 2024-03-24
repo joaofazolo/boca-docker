@@ -118,28 +118,30 @@ echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 /usr/sbin/update-locale
 apt-get -y update
 apt-get -y install software-properties-common
-# add-apt-repository -y ppa:icpc-latam/unstable
-# apt-get -y update
-# apt-get -y upgrade
-# apt-get -y install maratona-linguagens --no-install-recommends --allow-unauthenticated
-# apt-get -y clean
+add-apt-repository -y ppa:icpc-latam/unstable
+apt-get -y update
+apt-get -y upgrade
+apt-get -y install maratona-linguagens --no-install-recommends --allow-unauthenticated
+apt-get -y clean
 
-# Workaround: install Java 11 instead of 17 (security issue)
+# OpenJDK 17 installation with chroot does not work as expected
+# Workaround: install OpenJDK 11 instead of 17 (security issue)
+# ATTENTION: this method no longer works. Keep it here for reference.
 # https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2019908
-apt-get -y install --no-install-recommends \
-    build-essential \
-    debconf \
-    openjdk-11-jdk \
-    gdb \
-    python3 \
-    python-is-python3 \
-    pyflakes3 \
-    pylint \
-    python3-distutils \
-    unzip \
-    wget \
-    valgrind \
-&& rm -rf /var/lib/apt/lists/*
+# apt-get -y install --no-install-recommends \
+#     build-essential \
+#     debconf \
+#     openjdk-11-jdk \
+#     gdb \
+#     python3 \
+#     python-is-python3 \
+#     pyflakes3 \
+#     pylint \
+#     python3-distutils \
+#     unzip \
+#     wget \
+#     valgrind \
+# && rm -rf /var/lib/apt/lists/*
 
 umount /proc
 EOF
@@ -150,5 +152,3 @@ chmod 755 /home/bocajail/tmp/populate.sh
 
 export LC_ALL=en_US.UTF-8
 cd / ; chroot $homejail /tmp/populate.sh
-
-

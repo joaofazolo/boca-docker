@@ -53,6 +53,7 @@ RUN apt-get -y update \
 
 # https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2019908
 COPY boca/tools/boca-createjail /var/www/boca/tools/
+COPY boca/tools/safeexec.c /var/www/boca/tools/
 
 WORKDIR /var/www/boca
 RUN \
@@ -77,9 +78,18 @@ RUN \
 
 RUN boca-createjail || true
 
-# Workaround: Java installation with chroot does not work as expected
-RUN cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/bin/* /home/bocajail/usr/bin/ \
-    && cp -rf /home/bocajail/usr/lib/jvm/java-11-openjdk-amd64/lib/* /home/bocajail/usr/lib/
+# OpenJDK 17 installation with chroot does not work as expected
+# Workaround: Install OpenJDK 17 manually
+# https://www.linuxcapable.com/how-to-install-openjdk-17-on-ubuntu-linux/
+# hadolint ignore=DL3003
+RUN wget --progress=dot:giga https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz \
+    && tar -xvf openjdk-17* \
+    && cd jdk-17* \
+    && cp -rf bin/* /home/bocajail/usr/bin/ \
+    && cp -rf lib/* /home/bocajail/usr/lib/ \
+    && cd .. \
+    && rm -rf jdk-17* \
+    && rm openjdk-17*
 
 COPY --chmod=755 docker/dev/jail/init.sh /
 
@@ -87,4 +97,6 @@ COPY --chmod=755 docker/dev/jail/init.sh /
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
     CMD ps ax | grep -v grep | grep php | grep autojudging.php > /dev/null || exit 1
 
+# Use exec format to run program directly as pid 1
+# https://www.padok.fr/en/blog/docker-processes-container
 ENTRYPOINT ["/init.sh"]
