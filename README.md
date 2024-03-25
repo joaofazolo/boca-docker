@@ -41,6 +41,7 @@
 - [How To Publish It](#how-to-publish-it)
 - [How To Contribute](#how-to-contribute)
 - [Known Issues](#known-issues)
+- [Who Is Using It?](#who-is-using-it)
 - [License](#license)
 - [Support](#support)
 
@@ -74,7 +75,7 @@ This work started as part of the undergraduate final year project carried out by
 
   ```sh
   # List docker images
-  docker images -a
+  docker image ls
   # List containers
   docker container ls -a
   ```
@@ -210,10 +211,10 @@ The following image tags have been deprecated and are no longer receiving update
 
 > **NOTE:** These instructions take into account the Docker images generated in the previous section (no multi-platform support).
 
-* After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker images -a`;
+* After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker image ls`;
 
   ```sh
-  docker images -a
+  docker image ls
   # boca-base only necessary for development
   # docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.2.2
   docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.2.2
@@ -256,6 +257,13 @@ Before submitting a PR consider building and testing a Docker image locally and 
 (ARM-based chips) for the online automated judge (boca-jail) to work (tested
 on Apple M1, Docker Desktop 4.28.0, Engine: 25.0.3, Compose: v2.24.6-desktop.1,
 Mar 2024);
+
+## Who Is Using It?
+
+<p align="left">
+  [<img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Marca_Ufes_SVG.svg" alt="Ufes" height="80" hspace="10" align="top" />](https://www.ufes.br/)
+  [<img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Unisinos_symbol_and_logo_%28horizontal%29.svg" alt="Unisinos" height="50" hspace="10" align="top" />](https://www.unisinos.br/)
+</p>
 
 ## License
 
