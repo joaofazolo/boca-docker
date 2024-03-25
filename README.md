@@ -261,11 +261,11 @@ Mar 2024);
 ## Who Is Using It?
 
 <p align="left">
-  <a href="https://www.ufes.br/">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Marca_Ufes_SVG.svg" alt="Ufes" height="80" hspace="10" align="top" />
+  <a href="https://www.ufes.br/" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Marca_Ufes_SVG.svg" alt="Ufes" height="100" hspace="10" align="top" />
   </a>
-  <a href="https://www.unisinos.br/">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Unisinos_symbol_and_logo_%28horizontal%29.svg" alt="Unisinos" height="50" hspace="10" align="top" />
+  <a href="https://www.unisinos.br/" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Unisinos_symbol_and_logo_%28horizontal%29.svg" alt="Unisinos" height="70" hspace="10" align="top" />
   </a>
 </p>
 
