@@ -82,7 +82,7 @@ This work started as part of the undergraduate final year project carried out by
 * Download the `docker-compose.yml` and `docker-compose.prod.yml` files, and place them in the current work directory. Then,
 
   ```sh
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+  docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
   ```
 
 * Voilà! The application should be running now. Open a web browser and visit the URL [http://localhost:8000/boca](http://localhost:8000/boca). First, create and activate a BOCA contest (user: _system_ | password: _boca_). Then, login as admin (user: _admin_ | password: _boca_) to manage users, problems, languages etc;
@@ -92,7 +92,7 @@ This work started as part of the undergraduate final year project carried out by
 * To stop the application (considering that the shell is in the same directory):
 
   ```sh
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+  docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
   ```
 
 ## How To Deploy It To A Swarm
@@ -185,7 +185,7 @@ The following image tags have been deprecated and are no longer receiving update
 * Then, compose it up with the command below (this might take a while, sit back and relax):
 
   ```sh
-  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+  docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
   ```
 
   > **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e. `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/);
@@ -195,7 +195,7 @@ The following image tags have been deprecated and are no longer receiving update
 * To stop it:
 
   ```sh
-  docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+  docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
   ```
 
 * Alternatively, it is possible to build images without launching the application.
