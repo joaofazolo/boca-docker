@@ -90,7 +90,7 @@ jobs:
       # Install and setup crane
       # https://github.com/imjasonh/setup-crane
       - 
-        uses: imjasonh/setup-crane@v0.3
+        uses: imjasonh/setup-crane@v0.4
 
       # Necessary if testing locally with 'act'
       # https://github.com/nektos/act
