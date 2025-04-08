@@ -176,20 +176,28 @@ The following image tags have been deprecated and are no longer receiving update
 
 ## How To Build It (For Development)
 
-* Clone this repository and set it as your working directory:
+* Clone this repository and set it as your work directory:
 
   ```sh
   git clone https://github.com/joaofazolo/boca-docker.git
   cd boca-docker
   ```
 
-* Then, compose it up with the command below (this might take a while, sit back and relax):
+* Then, build the images (this might take a while, sit back and relax):
 
   ```sh
-  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+  docker build -t boca-base . -f docker/dev/base/Dockerfile
+  docker build -t boca-web . -f docker/dev/web/Dockerfile
+  docker build -t boca-jail . -f docker/dev/jail/Dockerfile
   ```
 
-  > **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e. `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/);
+  > **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e., `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/);
+
+* To compose it up use the command below:
+
+  ```sh
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+  ```
 
 * Follow the instructions [above](#quick-start) to set up the application;
 
@@ -197,14 +205,6 @@ The following image tags have been deprecated and are no longer receiving update
 
   ```sh
   docker compose -f docker-compose.yml -f docker-compose.dev.yml down
-  ```
-
-* Alternatively, it is possible to build images without launching the application.
-
-  ```sh
-  docker build -t boca-base . -f docker/dev/base/Dockerfile
-  docker build -t boca-web . -f docker/dev/web/Dockerfile
-  docker build -t boca-jail . -f docker/dev/jail/Dockerfile
   ```
 
 ## How To Publish It
