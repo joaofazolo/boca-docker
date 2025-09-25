@@ -41,6 +41,7 @@
 - [How To Publish It](#how-to-publish-it)
 - [How To Contribute](#how-to-contribute)
 - [Known Issues](#known-issues)
+- [Who Is Using It?](#who-is-using-it)
 - [License](#license)
 - [Support](#support)
 
@@ -74,7 +75,7 @@ This work started as part of the undergraduate final year project carried out by
 
   ```sh
   # List docker images
-  docker images -a
+  docker image ls
   # List containers
   docker container ls -a
   ```
@@ -183,13 +184,21 @@ The following image tags have been deprecated and are no longer receiving update
   cd boca-docker
   ```
 
-- Then, compose it up with the command below (this might take a while, sit back and relax):
+- Then, build the images (this might take a while, sit back and relax):
 
   ```sh
-  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+  docker build -t boca-base . -f docker/dev/base/Dockerfile
+  docker build -t boca-web . -f docker/dev/web/Dockerfile
+  docker build -t boca-jail . -f docker/dev/jail/Dockerfile
   ```
 
-  > **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e. `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/);
+  > **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e., `linux/amd64`). This works for the majority of development machines and cloud provider versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/);
+
+- To compose it up use the command below:
+
+  ```sh
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+  ```
 
 - Follow the instructions [above](#quick-start) to set up the application;
 
@@ -199,22 +208,14 @@ The following image tags have been deprecated and are no longer receiving update
   docker compose -f docker-compose.yml -f docker-compose.dev.yml down
   ```
 
-- Alternatively, it is possible to build images without launching the application.
-
-  ```sh
-  docker build -t boca-base . -f docker/dev/base/Dockerfile
-  docker build -t boca-web . -f docker/dev/web/Dockerfile
-  docker build -t boca-jail . -f docker/dev/jail/Dockerfile
-  ```
-
 ## How To Publish It
 
 > **NOTE:** These instructions take into account the Docker images generated in the previous section (no multi-platform support).
 
-- After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker images -a`;
+- After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker image ls`;
 
   ```sh
-  docker images -a
+  docker image ls
   # boca-base only necessary for development
   # docker tag IMAGE_ID_BOCA_BASE ghcr.io/joaofazolo/boca-docker/boca-base:1.2.2
   docker tag IMAGE_ID_BOCA_WEB ghcr.io/joaofazolo/boca-docker/boca-web:1.2.2
@@ -257,6 +258,17 @@ Before submitting a PR consider building and testing a Docker image locally and 
 (ARM-based chips) for the online automated judge (boca-jail) to work (tested
 on Apple M1, Docker Desktop 4.28.0, Engine: 25.0.3, Compose: v2.24.6-desktop.1,
 Mar 2024);
+
+## Who Is Using It?
+
+<p align="left">
+  <a href="https://www.ufes.br/" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Marca_Ufes_SVG.svg" alt="Ufes" height="100" hspace="10" align="top" />
+  </a>
+  <a href="https://www.unisinos.br/" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Unisinos_symbol_and_logo_%28horizontal%29.svg" alt="Unisinos" height="70" hspace="10" align="top" />
+  </a>
+</p>
 
 ## License
 
