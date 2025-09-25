@@ -192,7 +192,7 @@ The following image tags have been deprecated and are no longer receiving update
   docker build -t boca-jail . -f docker/dev/jail/Dockerfile
   ```
 
-  > **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e., `linux/amd64`). This works for the majority of development machines and cloud providers versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/);
+  > **NOTE:** Keep in mind that these Docker images are created for and to run on the default platform (i.e., `linux/amd64`). This works for the majority of development machines and cloud provider versions. To build target-specific or multi-platform Docker images consult the [documentation](https://docs.docker.com/build/building/multi-platform/);
 
 - To compose it up use the command below:
 
