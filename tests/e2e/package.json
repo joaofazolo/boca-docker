@@ -8,6 +8,6 @@
   "author": "Rodrigo Laiola Guimaraes",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@playwright/test": "^1.35.0"
+    "@playwright/test": "^1.51.1"
   }
 }
