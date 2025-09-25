@@ -177,7 +177,7 @@ The following image tags have been deprecated and are no longer receiving update
 
 ## How To Build It (For Development)
 
-- Clone this repository and set it as your work directory:
+- Clone this repository and set it as your working directory:
 
   ```sh
   git clone https://github.com/joaofazolo/boca-docker.git
