@@ -37,7 +37,7 @@ jobs:
       # https://github.com/actions/checkout
       - 
         name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Necessary if testing locally with 'act'
       # https://github.com/nektos/act

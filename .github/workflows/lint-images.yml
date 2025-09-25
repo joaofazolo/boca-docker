@@ -104,7 +104,7 @@ jobs:
       # https://github.com/actions/checkout
       - 
         name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
           
       # Create and boot a builder that can be used in the following steps of
       # the workflow
