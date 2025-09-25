@@ -89,7 +89,7 @@ jobs:
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
       - 
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - 
         name: Launch the application
@@ -129,7 +129,7 @@ jobs:
       # Set up GitHub Actions workflow with a specific version of node.js
       # https://github.com/actions/setup-node
       - 
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 18
 

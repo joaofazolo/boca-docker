@@ -180,7 +180,7 @@ jobs:
       # https://github.com/actions/checkout
       - 
         name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: '${{ inputs.ref }}'
 
@@ -365,7 +365,7 @@ jobs:
       # https://github.com/actions/download-artifact
       -
         name: Download digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern:
             ${{ steps.setup.outputs.digests_pattern }}-*

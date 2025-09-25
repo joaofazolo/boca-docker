@@ -62,7 +62,7 @@ jobs:
       # https://github.com/actions/checkout
       - 
         name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter

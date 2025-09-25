@@ -55,7 +55,7 @@ jobs:
       # https://github.com/actions/checkout
       - 
         name: Checkout repository (no ref input)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         if: ${{ inputs.ref == '' }}
         with:
           # Full git history is needed to get a proper
@@ -64,7 +64,7 @@ jobs:
 
       - 
         name: Checkout repository (with ref input)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         if: ${{ inputs.ref != '' }}
         with:
           ref: '${{ inputs.ref }}'
@@ -82,7 +82,7 @@ jobs:
       - 
         name: Run Super-Linter on code base
         #uses: github/super-linter@v5
-        uses: super-linter/super-linter/slim@v7
+        uses: super-linter/super-linter/slim@v8
         env:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
