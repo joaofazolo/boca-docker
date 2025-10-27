@@ -265,7 +265,7 @@ jobs:
       # Upload artifacts from workflow allowing to share data between jobs
       # https://github.com/actions/upload-artifact
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name:
             ${{ steps.export.outputs.digests_name }}

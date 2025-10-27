@@ -161,7 +161,7 @@ jobs:
         working-directory: ./tests/e2e
 
       - 
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: ${{ steps.setup.outputs.report_name }}
