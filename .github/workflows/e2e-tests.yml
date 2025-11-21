@@ -89,7 +89,7 @@ jobs:
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
       - 
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - 
         name: Launch the application

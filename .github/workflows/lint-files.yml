@@ -55,7 +55,7 @@ jobs:
       # https://github.com/actions/checkout
       - 
         name: Checkout repository (no ref input)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         if: ${{ inputs.ref == '' }}
         with:
           # Full git history is needed to get a proper
@@ -64,7 +64,7 @@ jobs:
 
       - 
         name: Checkout repository (with ref input)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         if: ${{ inputs.ref != '' }}
         with:
           ref: '${{ inputs.ref }}'
