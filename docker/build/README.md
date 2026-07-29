@@ -8,7 +8,7 @@ The JSON file(s) in this folder will be read in the GitHub Actions workflows and
 jobs:
   # Calling a reusable workflow
   setup:
-    uses: ./.github/workflows/read-matrix-file.yml
+    uses: rlaiola/ci-templates/.github/workflows/read-matrix.yml@main
     with:
         matrix-path: docker/build/matrix.json
 
