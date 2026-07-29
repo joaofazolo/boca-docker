@@ -24,6 +24,12 @@ on:
 
 jobs:
   # Calling a reusable workflow
+  # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+  setup-matrix:
+    uses: rlaiola/ci-templates/.github/workflows/read-matrix.yml@main
+    with:
+      matrix-path: docker/build/matrix.json
+
   call-cleanup:
     uses: rlaiola/ci-templates/.github/workflows/clean-packages.yml@main
     with:
@@ -32,6 +38,9 @@ jobs:
         "boca-web",
         "boca-jail"
       ]'
+      releases: ${{ needs.setup-matrix.outputs.release }}
       tags: ${{ github.event.inputs.tags }}
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    needs:
+      - setup-matrix
