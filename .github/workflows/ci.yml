@@ -82,7 +82,7 @@ jobs:
   # Calling a reusable workflow
   # https://docs.github.com/en/actions/using-workflows/reusing-workflows
   setup-matrix:
-    uses: ./.github/workflows/read-matrix.yml
+    uses: rlaiola/ci-templates/.github/workflows/read-matrix.yml@main
     with:
       matrix-path: docker/build/matrix.json
 
@@ -105,7 +105,7 @@ jobs:
       # https://github.com/actions/checkout
       - 
         name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: '${{ inputs.ref }}'
 
@@ -222,7 +222,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-base:
-    uses: ./.github/workflows/build-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/build-images.yml@main
     with:
       images: '[ "boca-base" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -231,17 +231,17 @@ jobs:
       tags: ${{ needs.setup-inputs.outputs.tags }}
       latest: ${{ needs.setup-inputs.outputs.latest == 'true' }}
       ref: ${{ needs.setup-inputs.outputs.ref }}
-      boca_repository: ${{ needs.setup-inputs.outputs.boca_repository }}
-      boca_ref: ${{ needs.setup-inputs.outputs.boca_ref }}
+      code_repository: ${{ needs.setup-inputs.outputs.boca_repository }}
+      code_ref: ${{ needs.setup-inputs.outputs.boca_ref }}
     needs:
       - setup-matrix
       - setup-inputs
 
   build-web:
-    uses: ./.github/workflows/build-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/build-images.yml@main
     with:
       images: '[ "boca-web" ]'
-      parents: ${{ needs.setup-matrix.outputs.parent }}
+      parents: '["ghcr.io/${{ github.repository_owner }}/boca-base:${{ github.ref_name }}"]'
       default_parent: ${{ needs.setup-matrix.outputs.default_parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
       tags: ${{ needs.setup-inputs.outputs.tags }}
@@ -253,10 +253,10 @@ jobs:
       - build-base
 
   build-jail:
-    uses: ./.github/workflows/build-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/build-images.yml@main
     with:
       images: '[ "boca-jail" ]'
-      parents: ${{ needs.setup-matrix.outputs.parent }}
+      parents: '["ghcr.io/${{ github.repository_owner }}/boca-base:${{ github.ref_name }}"]'
       default_parent: ${{ needs.setup-matrix.outputs.default_parent }}
       platforms: ${{ needs.setup-matrix.outputs.platform }}
       tags: ${{ needs.setup-inputs.outputs.tags }}
@@ -268,7 +268,7 @@ jobs:
       - build-base
 
   lint-base:
-    uses: ./.github/workflows/lint-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/lint-images.yml@main
     with:
       images: '[ "boca-base" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -280,7 +280,7 @@ jobs:
       - build-base
 
   scan-base:
-    uses: ./.github/workflows/scan-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/scan-images.yml@main
     with:
       images: '[ "boca-base" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -292,7 +292,7 @@ jobs:
       - build-base
 
   lint-web:
-    uses: ./.github/workflows/lint-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/lint-images.yml@main
     with:
       images: '[ "boca-web" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -304,7 +304,7 @@ jobs:
       - build-web
     
   scan-web:
-    uses: ./.github/workflows/scan-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/scan-images.yml@main
     with:
       images: '[ "boca-web" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -316,7 +316,7 @@ jobs:
       - build-web
 
   lint-jail:
-    uses: ./.github/workflows/lint-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/lint-images.yml@main
     with:
       images: '[ "boca-jail" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
@@ -328,7 +328,7 @@ jobs:
       - build-jail
     
   scan-jail:
-    uses: ./.github/workflows/scan-images.yml
+    uses: rlaiola/ci-templates/.github/workflows/scan-images.yml@main
     with:
       images: '[ "boca-jail" ]'
       parents: ${{ needs.setup-matrix.outputs.parent }}
